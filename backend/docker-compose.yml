@@ -9,6 +9,8 @@ services:
       - .:/app
     env_file:
       - .env
+    networks:
+      - web_network
 
   background:
     build:
@@ -29,3 +31,11 @@ services:
       - /root/.secrets/ssl/:/etc/nginx/ssl/   # SSL certificates
     ports:
       - "443:443"
+    networks:
+      - web_network
+    depends_on:
+      - web
+  
+networks:
+  web_network:
+    driver: bridge
