@@ -35,6 +35,32 @@ CORS(app)
 def hello_world():
     return 'Hello, World!'
 
+@app.route('/api/test-db', methods=['GET'])
+def test_db_connection():
+    try:
+        # Simple query to test database connection
+        query = "SELECT 1"
+        result = execute_query(query)
+        
+        if result:
+            return jsonify({
+                'status': 'success',
+                'message': 'Database connection successful',
+                'result': result
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database query returned no results'
+            }), 500
+    except Exception as e:
+        logger.error(f"Database connection error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f'Database connection failed: {str(e)}'
+        }), 500
+
+
 @app.route('/api/gen', methods=['POST'])
 def generate_image():
     try:
