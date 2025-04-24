@@ -9,3 +9,14 @@ services:
       - .:/app
     env_file:
       - .env
+
+  background:
+    build:
+      context: .
+      dockerfile: Dockerfile.background
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web

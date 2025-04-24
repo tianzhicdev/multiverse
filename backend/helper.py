@@ -5,6 +5,7 @@ from io import BytesIO
 from PIL import Image
 import logging
 import openai
+from db import execute_query
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -128,3 +129,101 @@ def process_image_with_theme(image_file, user_description, theme_description):
     except Exception as e:
         logger.error(f"Error in process_image_with_theme: {str(e)}")
         raise
+
+def use_credits(user_id, credits):
+    """
+    Deduct credits from a user's account.
+    
+    Args:
+        user_id: The user's ID
+        credits: Number of credits to deduct
+        
+    Returns:
+        bool: True if successful, False if insufficient credits
+    """
+    try:
+        # First check if the user has enough credits
+        query = "SELECT credits FROM users WHERE user_id = %s"
+        result = execute_query(query, (user_id,))
+        
+        if not result:
+            logger.error(f"User with ID {user_id} not found")
+            return False
+        
+        logger.info(f"use_credits db result: {result}")
+            
+        current_credits = result[0][0]
+        
+        if current_credits < credits:
+            logger.info(f"User {user_id} has insufficient credits: {current_credits} < {credits}")
+            return False
+            
+        # Deduct credits from the user's account
+        query = "UPDATE users SET credits = credits - %s WHERE user_id = %s RETURNING credits"
+        update_result = execute_query(query, (credits, user_id))
+
+        return update_result == 1
+        
+    except Exception as e:
+        logger.error(f"Error in use_credits: {str(e)}")
+        return False
+
+def init_user(user_id):
+    """
+    Initialize a new user with 10 credits in the database.
+    
+    Args:
+        user_id: The user's ID
+        
+    Returns:
+        bool: True if successful, False if user already exists or on error
+    """
+    try:
+        # Check if the user already exists
+        query = "SELECT user_id FROM users WHERE user_id = %s"
+        result = execute_query(query, (user_id,))
+        
+        if result:
+            logger.info(f"User with ID {user_id} already exists")
+            return False
+            
+        # Insert new user with 10 credits
+        query = "INSERT INTO users (user_id, credits) VALUES (%s, %s) RETURNING user_id, credits"
+        result = execute_query(query, (user_id, 10))
+        
+        if result:
+            new_user_id, credits = result[0]
+            logger.info(f"Created new user {new_user_id} with {credits} credits")
+            return True
+        else:
+            logger.error(f"Failed to create user {user_id}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Error in init_user: {str(e)}")
+        return False
+
+def get_themes(user_id, num):
+    """
+    Get a specified number of theme IDs from the database.
+    
+    Args:
+        user_id: The user's ID (not used currently)
+        num: Number of theme IDs to return
+        
+    Returns:
+        list: List of theme IDs from the database
+    """
+    try:
+        # Query to get theme IDs from the database
+        query = "SELECT id FROM themes ORDER BY created_at DESC LIMIT %s"
+        result = execute_query(query, (num,))
+        
+        # Extract IDs from result
+        theme_ids = [row[0] for row in result] if result else []
+        
+        logger.info(f"Retrieved {len(theme_ids)} theme IDs from database")
+        return theme_ids
+    except Exception as e:
+        logger.error(f"Error in get_themes: {str(e)}")
+        return []
