@@ -29,7 +29,7 @@ class DatabaseConnection:
             port = os.environ.get("DB_PORT")
             user = os.environ.get("DB_USER")
             password = os.environ.get("DB_PASSWORD")
-            database = os.environ.get("DB_NAME")
+            database = os.environ.get("DB_DATABASE")
             logger.info(f"host: {host}, port: {port}, user: {user}, password: {len(password)*'*'}, database: {database}")
             
             # Connection parameters
