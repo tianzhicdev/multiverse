@@ -1,7 +1,11 @@
 import os
 from psycopg2 import pool
 from typing import Optional
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class DatabaseConnection:
     """
@@ -26,7 +30,7 @@ class DatabaseConnection:
             user = os.environ.get("DB_USER")
             password = os.environ.get("DB_PASSWORD")
             database = os.environ.get("DB_NAME")
-            print(f"host: {host}, port: {port}, user: {user}, password: {len(password)*'*'}, database: {database}")
+            logger.info(f"host: {host}, port: {port}, user: {user}, password: {len(password)*'*'}, database: {database}")
             
             # Connection parameters
             self._connection_pool = pool.ThreadedConnectionPool(
