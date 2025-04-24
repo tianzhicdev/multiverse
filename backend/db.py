@@ -20,22 +20,24 @@ class DatabaseConnection:
     def _initialize_connection_pool(self):
         """Initialize the connection pool with environment credentials."""
         try:
-            # Get password from environment variable
+            # Get database credentials from environment variables
+            host = os.environ.get("DB_HOST")
+            port = os.environ.get("DB_PORT")
+            user = os.environ.get("DB_USER")
             password = os.environ.get("DB_PASSWORD")
-            if not password:
-                raise ValueError("DB_PASSWORD environment variable not set")
-                
+            database = os.environ.get("DB_NAME")
+            print(f"host: {host}, port: {port}, user: {user}, password: {len(password)*'*'}, database: {database}")
+            
             # Connection parameters
             self._connection_pool = pool.ThreadedConnectionPool(
                 minconn=1,
                 maxconn=50,
-                host="bit-bid.com",
-                port="3005",
-                user="multiverse",
+                host=host,
+                port=port,
+                user=user,
                 password=password,
-                database="multiverse"
+                database=database
             )
-            
             # Verify connection works
             with self.get_connection() as conn:
                 with conn.cursor() as cursor:

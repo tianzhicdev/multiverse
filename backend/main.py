@@ -16,6 +16,8 @@ import json
 from helper import get_themes
 # Load environment variables from .env file if present
 load_dotenv()
+FLASK_PORT = os.getenv('FLASK_PORT')
+print(f"FLASK_PORT: {FLASK_PORT}")
 
 # Enable CORS for all routes
 from flask_cors import CORS
@@ -386,4 +388,4 @@ def download_image(result_image_id):
         return jsonify({'error': f'Error downloading image: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=FLASK_PORT)
