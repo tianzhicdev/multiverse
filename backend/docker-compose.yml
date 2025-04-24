@@ -11,6 +11,7 @@ services:
       - .env
     networks:
       - web_network
+    network_mode: "host"
 
   background:
     build:
