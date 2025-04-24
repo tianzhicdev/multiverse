@@ -26,6 +26,6 @@ services:
     volumes:
       - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt/:/etc/letsencrypt/   # SSL certificates
+      - /root/.secrets/ssl/:/etc/nginx/ssl/   # SSL certificates
     ports:
       - "443:443"
