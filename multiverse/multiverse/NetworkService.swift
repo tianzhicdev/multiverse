@@ -2,9 +2,9 @@ import Foundation
 import os.log
 
 class NetworkService {
+    private let domain = "http://strange-actor.metalseed.net:443"
     private var userManager = UserManager.shared
     static let shared = NetworkService()
-    private let baseURL = "http://localhost:5000/api/gen/test"
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
     
     func uploadItem(imageData: Data?, text: String) async throws -> Data? {
@@ -14,7 +14,7 @@ class NetworkService {
             logger.info("Image data size: \(imageData.count) bytes")
         }
         
-        var request = URLRequest(url: URL(string: baseURL)!)
+        var request = URLRequest(url: URL(string: "\(domain)/api/gen/test")!)
         request.httpMethod = "POST"
         
         // Create multipart form data
@@ -78,7 +78,7 @@ class NetworkService {
     func uploadToCreateAPI(imageData: Data?, userID: String, userDescription: String) async throws -> [String: Any] {
         logger.info("Starting upload to /api/create with userID: \(userID)")
         
-        let createURL = URL(string: "http://localhost:5000/api/create")!
+        let createURL = URL(string: "\(domain)/api/create")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
         
@@ -146,7 +146,7 @@ class NetworkService {
     func fetchImage(resultImageID: String) async throws -> Data? {
         logger.info("Fetching image with resultImageID: \(resultImageID)")
         
-        let imageURL = URL(string: "http://localhost:5000/api/image/\(resultImageID)")!
+        let imageURL = URL(string: "\(domain)/api/image/\(resultImageID)")!
         var request = URLRequest(url: imageURL)
         request.httpMethod = "GET"
         // Add user_id parameter from UserManager
