@@ -61,13 +61,12 @@ def process_request_test(request_id, result_image_id, user_id, theme_id):
 
         # Get an existing image from the database to use as test data
         logger.debug(f"Fetching existing test image from database for request {request_id}")
-        test_image_id = "c250ab6c-d9ac-4682-8486-d23d2ff7830c"
-        fetch_query = "SELECT data, mime_type FROM images WHERE id = %s"
-        image_result = execute_query(fetch_query, (test_image_id,))
+        fetch_query = "SELECT data, mime_type FROM images LIMIT 1"
+        image_result = execute_query(fetch_query)
         
         if not image_result:
-            logger.error(f"Test image {test_image_id} not found in database")
-            raise Exception(f"Test image {test_image_id} not found")
+            logger.error(f"Test image not found in database")
+            raise Exception(f"Test image not found in database")
             
         real_image_data = image_result[0][0]
         mime_type = image_result[0][1]
