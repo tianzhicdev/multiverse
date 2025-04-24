@@ -325,12 +325,10 @@ def get_image_test(result_image_id):
     """
     try:
         logger.info(f"Received test image request for image with ID: {result_image_id}")
-
-        logger.info(f"use test image with id: c250ab6c-d9ac-4682-8486-d23d2ff7830c")
         
         # Get the image data from the database
-        query = "SELECT data, mime_type FROM images WHERE id = %s"
-        image_result = execute_query(query, ("c250ab6c-d9ac-4682-8486-d23d2ff7830c",))
+        query = "SELECT data, mime_type FROM images LIMIT 1"
+        image_result = execute_query(query)
         
         if not image_result:
             return jsonify({'error': 'Image data not found'}), 404
