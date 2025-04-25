@@ -223,7 +223,8 @@ struct ContentView: View {
                 let result = try await NetworkService.shared.uploadToCreateAPI(
                     imageData: imageData,
                     userID: userManager.getCurrentUserID(),
-                    userDescription: user_description
+                    userDescription: user_description,
+                    numThemes: 2
                 )
                 
                 print("Successfully uploaded to API/create: \(result)")

@@ -75,7 +75,7 @@ class NetworkService {
         }
     }
     
-    func uploadToCreateAPI(imageData: Data?, userID: String, userDescription: String) async throws -> [String: Any] {
+    func uploadToCreateAPI(imageData: Data?, userID: String, userDescription: String, numThemes: Int) async throws -> [String: Any] {
         logger.info("Starting upload to /api/create with userID: \(userID)")
         
         let createURL = URL(string: "\(domain)/api/create")!
@@ -98,6 +98,12 @@ class NetworkService {
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"user_description\"\r\n\r\n".data(using: .utf8)!)
         body.append(userDescription.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add num_themes
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"num_themes\"\r\n\r\n".data(using: .utf8)!)
+        body.append(String(numThemes).data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         
         // Add image if exists

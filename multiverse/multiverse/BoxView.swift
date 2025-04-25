@@ -23,7 +23,7 @@ struct BoxView: View {
                let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                     .blur(radius: 5)
                     .clipped()
@@ -180,19 +180,20 @@ struct FakeLoadingBar: View {
     
     var body: some View {
         VStack {
-            ZStack(alignment: .leading) {
-                Rectangle()
-                    .foregroundColor(Color.gray.opacity(0.3))
-                    .frame(height: 8)
-                    .cornerRadius(4)
+            ZStack {
+                Circle()
+                    .stroke(lineWidth: 8)
+                    .opacity(0.3)
+                    .foregroundColor(Color.gray)
                 
-                Rectangle()
+                Circle()
+                    .trim(from: 0.0, to: CGFloat(min(self.progress, 1.0)))
+                    .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round, lineJoin: .round))
                     .foregroundColor(.blue)
-                    .frame(width: min(UIScreen.main.bounds.width * 0.8 * CGFloat(progress), UIScreen.main.bounds.width * 0.8), height: 8)
-                    .cornerRadius(4)
+                    .rotationEffect(Angle(degrees: 270.0))
                     .animation(.linear, value: progress)
             }
-            .frame(width: UIScreen.main.bounds.width * 0.8)
+            .frame(width: 60, height: 60)
             
             Text("\(Int(progress * 100))%")
                 .font(.caption)

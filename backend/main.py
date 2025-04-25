@@ -183,6 +183,7 @@ def create_image_request():
         user_id = request.form.get('user_id')
         user_description = request.form.get('user_description', '')
         request_id = request.form.get('request_id', str(uuid.uuid4()))
+        num_themes = request.form.get('num_themes')
         
         # Validate required parameters
         if not user_id:
@@ -218,7 +219,7 @@ def create_image_request():
             return jsonify({'error': 'User not found or invalid account'}), 404
             
         # todo: get it from db
-        selected_themes = get_themes(user_id, 12)
+        selected_themes = get_themes(user_id, num_themes)
         
         # Step 4: Create result_image_ids for async processing
         result_image_ids = []
