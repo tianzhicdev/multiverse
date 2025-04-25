@@ -234,7 +234,7 @@ def process_image_with_theme(image_file, user_description, theme_description):
                     "content": [
                         {
                             "type": "text",
-                            "text": f"Analyze this image and provide a detailed description that incorporates the theme: {theme_description}. Take into account the user's description: {user_description}. Focus on the critical features of the chracters or objects in the image. Create clothing, accessories, and visual elements in your description that aligns with the theme. Use less than 200 words."
+                            "text": f"Analyze this image and provide a detailed description that incorporates the theme: {theme_description}. Take into account the user's description: {user_description}. Focus on the main characters/obejcts and critical features of the characters/objects in the image. Create clothing, accessories, and visual elements in your description that aligns with the theme. Use less than 200 words."
                         },
                         {
                             "type": "image_url",
