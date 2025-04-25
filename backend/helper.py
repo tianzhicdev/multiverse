@@ -226,6 +226,17 @@ def process_image_with_theme(image_file, user_description, theme_description):
         
         # Step 1: Get description from OpenAI Vision API
         logger.info("Requesting image description from OpenAI")
+
+        image_description_prompt = f"""
+                            Analyze this image and provide a detailed prompt 
+                            that will be used to generate a new image that incorporates 
+                            the theme: {theme_description}. 
+                            Take into account the user's instruction: {user_description}. 
+                            Capture the layout of the image, including the main characters/objects and their positions.
+                            Focus on the main characters/obejcts and critical features of the characters/objects in the image. 
+                            Create clothing, accessories, and visual elements in your description that aligns with the theme. 
+                            Use less than 200 words."""
+
         vision_response = client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[
@@ -234,7 +245,7 @@ def process_image_with_theme(image_file, user_description, theme_description):
                     "content": [
                         {
                             "type": "text",
-                            "text": f"Analyze this image and provide a detailed description that incorporates the theme: {theme_description}. Take into account the user's description: {user_description}. Focus on the main characters/obejcts and critical features of the characters/objects in the image. Create clothing, accessories, and visual elements in your description that aligns with the theme. Use less than 200 words."
+                            "text": image_description_prompt
                         },
                         {
                             "type": "image_url",
