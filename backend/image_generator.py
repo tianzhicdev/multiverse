@@ -4,7 +4,7 @@ import requests
 import logging
 from io import BytesIO
 import openai
-from pyrate_limiter import Duration, Rate, Limiter, RateLimitException
+from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +44,7 @@ def generate_with_openai(prompt):
             
             # Return image as BytesIO object
             return BytesIO(image_response.content)
-    except RateLimitException:
+    except BucketFullException:
         logger.warning("OpenAI rate limit reached, falling back to ModelsLab")
         return None
     except Exception as e:
@@ -90,7 +90,7 @@ def generate_with_modelslab(prompt):
             else:
                 logger.error(f"ModelLabs image generation failed: {response.text}")
                 return None
-    except RateLimitException:
+    except BucketFullException:
         logger.warning("ModelsLab rate limit reached, falling back to Pollinations")
         return None
     except Exception as e:
@@ -112,7 +112,7 @@ def generate_with_pollinations(prompt):
             
             # Return image as BytesIO object
             return BytesIO(response.content)
-    except RateLimitException:
+    except BucketFullException:
         logger.warning("Pollinations rate limit reached, all services exhausted")
         return None
     except Exception as e:
