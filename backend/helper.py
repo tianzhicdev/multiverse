@@ -133,9 +133,10 @@ def process_image_with_theme(image_file, user_description, theme_description):
                             that will be used to generate a new image that incorporates 
                             the theme: {theme_description}. 
                             MUST follow the user's instruction: {user_description}. 
-                            MUST capture the layout of the image, including the main characters/objects and their positions.
+                            MUST use precisely the layout of the image, including the main characters/objects and their positions.
                             MUST focus on the main characters/obejcts and critical features of the characters/objects in the image. 
                             MUST create clothing, accessories, and visual elements in your description that aligns with the theme. 
+                            MAINTAIN the exact layout of the original image. Characters in the foreground must remain in the foreground, and background elements must stay in the background. Spatial relationships between all elements must be preserved.
                             MUST use less than 200 words."""
         logger.info(f"Image description prompt: {image_description_prompt}")
 

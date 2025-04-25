@@ -6,7 +6,7 @@ struct BoxGridView: View {
     @Query private var items: [UploadItem]
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
-    let totalBoxes = 1
+    let totalBoxes = 12
     
     var body: some View {
         GeometryReader { geometry in

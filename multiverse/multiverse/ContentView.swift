@@ -224,7 +224,7 @@ struct ContentView: View {
                     imageData: imageData,
                     userID: userManager.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 1
+                    numThemes: 12
                 )
                 
                 print("Successfully uploaded to API/create: \(result)")
