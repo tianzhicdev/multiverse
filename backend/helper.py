@@ -234,7 +234,7 @@ def process_image_with_theme(image_file, user_description, theme_description):
                     "content": [
                         {
                             "type": "text",
-                            "text": f"Describe this image in less than 30 words, consider that the user says it is: {user_description}"
+                            "text": f"Analyze this image and provide a detailed description that incorporates the theme: {theme_description}. Take into account the user's description: {user_description}. Create clothing, accessories, and visual elements in your description that aligns with the theme. Use less than 150 words."
                         },
                         {
                             "type": "image_url",
@@ -253,7 +253,7 @@ def process_image_with_theme(image_file, user_description, theme_description):
         
         # Step 2: Generate new image based on description and theme
         # Combine AI description with theme
-        generation_prompt = f"{theme_description} {ai_description}"
+        generation_prompt = f"{ai_description}"
 
         # Get model type from environment variable
         model_type = os.environ.get("MODEL_TYPE", "openai")
@@ -340,25 +340,25 @@ def init_user(user_id):
 
 def get_themes(user_id, num):
     """
-    Get a specified number of theme IDs from the database.
+    Get a specified number of themes from the database.
     
     Args:
         user_id: The user's ID (not used currently)
-        num: Number of theme IDs to return
+        num: Number of themes to return
         
     Returns:
-        list: List of theme IDs from the database
+        list: List of theme IDs and names from the database
     """
     try:
-        # Query to get theme IDs from the database
-        query = "SELECT id FROM themes ORDER BY created_at DESC LIMIT %s"
+        # Query to get theme IDs and names from the database
+        query = "SELECT id, name FROM themes ORDER BY created_at DESC LIMIT %s"
         result = execute_query(query, (num,))
         
-        # Extract IDs from result
-        theme_ids = [row[0] for row in result] if result else []
+        # Extract IDs and names from result
+        themes = [{"id": row[0], "name": row[1]} for row in result] if result else []
         
-        logger.info(f"Retrieved {len(theme_ids)} theme IDs from database")
-        return theme_ids
+        logger.info(f"Retrieved {len(themes)} themes from database")
+        return themes
     except Exception as e:
         logger.error(f"Error in get_themes: {str(e)}")
         return []

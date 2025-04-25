@@ -218,13 +218,14 @@ def create_image_request():
         if not use_credits(user_id, 0):
             return jsonify({'error': 'User not found or invalid account'}), 404
             
-        # todo: get it from db
+
         selected_themes = get_themes(user_id, num_themes)
         
         # Step 4: Create result_image_ids for async processing
         result_image_ids = []
+        image_info = []
         
-        for i, theme_id in enumerate(selected_themes):
+        for theme in selected_themes:
             result_image_id = str(uuid.uuid4())
             
             # Record the processing request in the database
@@ -236,7 +237,7 @@ def create_image_request():
             execute_query(query, (
                 request_id, 
                 source_image_id, 
-                theme_id, 
+                theme["id"], 
                 result_image_id, 
                 user_id,
                 user_description,
@@ -244,17 +245,22 @@ def create_image_request():
             ))
             
             result_image_ids.append(result_image_id)
+            image_info.append({
+                "result_image_id": result_image_id,
+                "theme_id": theme["id"],
+                "theme_name": theme["name"]
+            })
             
         # Step 5: In a production environment, we would trigger async processing here
         # For example, using a message queue or background tasks
         # For now, just log that this would happen
         logger.info(f"Would trigger async processing for {len(result_image_ids)} themes")
         
-        # Return the list of result_image_ids
+        # Return the list of result_image_ids and theme information
         return jsonify({
             'request_id': request_id,
             'source_image_id': source_image_id,
-            'result_image_ids': result_image_ids
+            'images': image_info
         })
             
     except Exception as e:
@@ -275,10 +281,12 @@ def get_image(result_image_id):
         if not user_id:
             return jsonify({'error': 'Missing user_id parameter'}), 400
             
-        # Look up the image request status
+        # Look up the image request status and theme name
         query = """
-            SELECT status, result_image_id FROM image_requests 
-            WHERE result_image_id = %s AND user_id = %s
+            SELECT ir.status, ir.result_image_id, t.name as theme_name 
+            FROM image_requests ir
+            JOIN themes t ON ir.theme_id = t.id
+            WHERE ir.result_image_id = %s AND ir.user_id = %s
         """
         result = execute_query(query, (result_image_id, user_id))
         
@@ -289,14 +297,15 @@ def get_image(result_image_id):
                 'result_image_id': result_image_id
             })
             
-        status, result_image_id = result[0]
+        status, result_image_id, theme_name = result[0]
         
         # If the image is still processing, return the status
         if status != 'ready':
             return jsonify({
                 'ready': False,
                 'status': status,
-                'result_image_id': result_image_id
+                'result_image_id': result_image_id,
+                'theme_name': theme_name
             })
             
         # Get the image data from the database
