@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure rate limiters
-openai_rate = Rate(5, Duration.MINUTE)
-modelslab_rate = Rate(50, Duration.MINUTE)
+openai_rate = Rate(1, Duration.MINUTE)
+modelslab_rate = Rate(2, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
 
 openai_limiter = Limiter(openai_rate)
