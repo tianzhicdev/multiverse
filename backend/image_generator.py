@@ -4,16 +4,16 @@ import requests
 import logging
 from io import BytesIO
 import openai
-from pyrate_limiter import Duration, RequestRate, Limiter, RateLimitException
+from pyrate_limiter import Duration, Rate, Limiter, RateLimitException
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure rate limiters
-openai_limiter = Limiter(RequestRate(5, Duration.MINUTE))  # 5 requests per minute
-modelslab_limiter = Limiter(RequestRate(50, Duration.MINUTE))  # 50 requests per minute
-pollinations_limiter = Limiter(RequestRate(500, Duration.MINUTE))  # 500 requests per minute
+openai_limiter = Limiter(Rate(5, Duration.MINUTE))  # 5 requests per minute
+modelslab_limiter = Limiter(Rate(50, Duration.MINUTE))  # 50 requests per minute
+pollinations_limiter = Limiter(Rate(500, Duration.MINUTE))  # 500 requests per minute
 
 def generate_with_openai(prompt):
     """Generate image using OpenAI's DALL-E"""
