@@ -11,14 +11,19 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure rate limiters
-openai_limiter = Limiter(Rate(5, Duration.MINUTE))  # 5 requests per minute
-modelslab_limiter = Limiter(Rate(50, Duration.MINUTE))  # 50 requests per minute
-pollinations_limiter = Limiter(Rate(500, Duration.MINUTE))  # 500 requests per minute
+openai_rate = Rate(5, Duration.MINUTE)
+modelslab_rate = Rate(50, Duration.MINUTE)
+pollinations_rate = Rate(500, Duration.MINUTE)
+
+openai_limiter = Limiter(openai_rate)
+modelslab_limiter = Limiter(modelslab_rate)
+pollinations_limiter = Limiter(pollinations_rate)
 
 def generate_with_openai(prompt):
     """Generate image using OpenAI's DALL-E"""
     try:
-        with openai_limiter.ratelimit('openai_image_gen', delay=True):
+        try:
+            openai_limiter.try_acquire("openai_image_gen")
             logger.info("Generating image with OpenAI")
             api_key = os.environ.get("OPENAI_API_KEY")
             if not api_key:
@@ -44,9 +49,9 @@ def generate_with_openai(prompt):
             
             # Return image as BytesIO object
             return BytesIO(image_response.content)
-    except BucketFullException:
-        logger.warning("OpenAI rate limit reached, falling back to ModelsLab")
-        return None
+        except BucketFullException:
+            logger.warning("OpenAI rate limit reached, falling back to ModelsLab")
+            return None
     except Exception as e:
         logger.error(f"Error in OpenAI image generation: {str(e)}")
         return None
@@ -54,7 +59,8 @@ def generate_with_openai(prompt):
 def generate_with_modelslab(prompt):
     """Generate image using ModelsLab"""
     try:
-        with modelslab_limiter.ratelimit('modelslab_image_gen', delay=True):
+        try:
+            modelslab_limiter.try_acquire("modelslab_image_gen")
             logger.info("Generating image with ModelsLab")
             url = "https://modelslab.com/api/v6/realtime/text2img"
             
@@ -90,9 +96,9 @@ def generate_with_modelslab(prompt):
             else:
                 logger.error(f"ModelLabs image generation failed: {response.text}")
                 return None
-    except BucketFullException:
-        logger.warning("ModelsLab rate limit reached, falling back to Pollinations")
-        return None
+        except BucketFullException:
+            logger.warning("ModelsLab rate limit reached, falling back to Pollinations")
+            return None
     except Exception as e:
         logger.error(f"Error in ModelsLab image generation: {str(e)}")
         return None
@@ -100,7 +106,8 @@ def generate_with_modelslab(prompt):
 def generate_with_pollinations(prompt):
     """Generate image using Pollinations.ai"""
     try:
-        with pollinations_limiter.ratelimit('pollinations_image_gen', delay=True):
+        try:
+            pollinations_limiter.try_acquire("pollinations_image_gen")
             logger.info("Generating image with Pollinations")
             # URL encode the prompt for use in the URL path
             encoded_prompt = requests.utils.quote(prompt)
@@ -112,9 +119,9 @@ def generate_with_pollinations(prompt):
             
             # Return image as BytesIO object
             return BytesIO(response.content)
-    except BucketFullException:
-        logger.warning("Pollinations rate limit reached, all services exhausted")
-        return None
+        except BucketFullException:
+            logger.warning("Pollinations rate limit reached, all services exhausted")
+            return None
     except Exception as e:
         logger.error(f"Error in Pollinations image generation: {str(e)}")
         return None
@@ -138,13 +145,15 @@ def image_gen(prompt):
         result = generate_with_openai(prompt)
         if result:
             return result
-            
-        # If OpenAI fails due to rate limit, try ModelsLab
+        
+        # If OpenAI fails, fall back to ModelsLab
+        logger.info("OpenAI image generation failed, falling back to ModelsLab")
         result = generate_with_modelslab(prompt)
         if result:
             return result
             
-        # If ModelsLab fails, try Pollinations
+        # If ModelsLab fails, fall back to Pollinations
+        logger.info("ModelsLab image generation failed, falling back to Pollinations")
         result = generate_with_pollinations(prompt)
         if result:
             return result
