@@ -1,0 +1,158 @@
+import os
+import json
+import requests
+import logging
+from io import BytesIO
+import openai
+from pyrate_limiter import Duration, RequestRate, Limiter, RateLimitException
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Configure rate limiters
+openai_limiter = Limiter(RequestRate(5, Duration.MINUTE))  # 5 requests per minute
+modelslab_limiter = Limiter(RequestRate(50, Duration.MINUTE))  # 50 requests per minute
+pollinations_limiter = Limiter(RequestRate(500, Duration.MINUTE))  # 500 requests per minute
+
+def generate_with_openai(prompt):
+    """Generate image using OpenAI's DALL-E"""
+    try:
+        with openai_limiter.ratelimit('openai_image_gen', delay=True):
+            logger.info("Generating image with OpenAI")
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY environment variable not set")
+                
+            # Configure OpenAI client
+            client = openai.OpenAI(api_key=api_key)
+            
+            # Generate image with DALL-E
+            dalle_response = client.images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                n=1,
+                size="1024x1024"
+            )
+            
+            # Get the generated image URL
+            image_url = dalle_response.data[0].url
+            
+            # Download the generated image
+            image_response = requests.get(image_url)
+            image_response.raise_for_status()
+            
+            # Return image as BytesIO object
+            return BytesIO(image_response.content)
+    except RateLimitException:
+        logger.warning("OpenAI rate limit reached, falling back to ModelsLab")
+        return None
+    except Exception as e:
+        logger.error(f"Error in OpenAI image generation: {str(e)}")
+        return None
+
+def generate_with_modelslab(prompt):
+    """Generate image using ModelsLab"""
+    try:
+        with modelslab_limiter.ratelimit('modelslab_image_gen', delay=True):
+            logger.info("Generating image with ModelsLab")
+            url = "https://modelslab.com/api/v6/realtime/text2img"
+            
+            payload = json.dumps({
+                "key": os.environ.get("MODELSLAB_API_KEY", ""),
+                "prompt": prompt,
+                "negative_prompt": "bad quality",
+                "width": "1024",
+                "height": "1024",
+                "safety_checker": False,
+                "seed": None,
+                "samples": 1,
+                "base64": False,
+                "webhook": None,
+                "track_id": None
+            })
+            
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            
+            response = requests.request("POST", url, headers=headers, data=payload)
+            response_data = response.json()
+            
+            if response_data.get("status") == "success":
+                # Download the generated image
+                image_url = response_data.get("output")[0]
+                image_response = requests.get(image_url)
+                image_response.raise_for_status()
+                
+                # Return image as BytesIO object
+                return BytesIO(image_response.content)
+            else:
+                logger.error(f"ModelLabs image generation failed: {response.text}")
+                return None
+    except RateLimitException:
+        logger.warning("ModelsLab rate limit reached, falling back to Pollinations")
+        return None
+    except Exception as e:
+        logger.error(f"Error in ModelsLab image generation: {str(e)}")
+        return None
+
+def generate_with_pollinations(prompt):
+    """Generate image using Pollinations.ai"""
+    try:
+        with pollinations_limiter.ratelimit('pollinations_image_gen', delay=True):
+            logger.info("Generating image with Pollinations")
+            # URL encode the prompt for use in the URL path
+            encoded_prompt = requests.utils.quote(prompt)
+            url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?height=1024&nologo=true&model=turbo"
+            
+            # Make a direct GET request to the API
+            response = requests.get(url)
+            response.raise_for_status()
+            
+            # Return image as BytesIO object
+            return BytesIO(response.content)
+    except RateLimitException:
+        logger.warning("Pollinations rate limit reached, all services exhausted")
+        return None
+    except Exception as e:
+        logger.error(f"Error in Pollinations image generation: {str(e)}")
+        return None
+
+def image_gen(prompt):
+    """
+    Generate an image using either ModelLabs, OpenAI, or Pollinations.ai based on the specified model type.
+    Implements fallback logic if rate limits are reached.
+    
+    Args:
+        prompt: The text prompt to generate the image
+        model_type: The model type to use ('modelslab', 'openai', or 'pollinations')
+        
+    Returns:
+        BytesIO: A file-like object containing the generated image
+    """
+    try:
+        logger.info(f"Using prompt: {prompt}")
+
+            # Try OpenAI first
+        result = generate_with_openai(prompt)
+        if result:
+            return result
+            
+        # If OpenAI fails due to rate limit, try ModelsLab
+        result = generate_with_modelslab(prompt)
+        if result:
+            return result
+            
+        # If ModelsLab fails, try Pollinations
+        result = generate_with_pollinations(prompt)
+        if result:
+            return result
+        
+        # If all providers fail
+        logger.error("All image generation services failed or rate limited")
+        raise Exception("All image generation services failed or rate limited")
+
+    except Exception as e:
+        logger.error(f"Error in image_gen: {str(e)}")
+        raise 

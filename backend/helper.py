@@ -7,6 +7,7 @@ from PIL import Image
 import logging
 import openai
 from db import execute_query
+from image_generator import image_gen
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -95,106 +96,6 @@ theme_descriptions = [
     },
 ]
 
-
-def image_gen(prompt, model_type="openai"):
-    """
-    Generate an image using either ModelLabs, OpenAI, or Pollinations.ai based on the specified model type.
-    
-    Args:
-        prompt: The text prompt to generate the image
-        model_type: The model type to use ('modelslab', 'openai', or 'pollinations')
-        
-    Returns:
-        BytesIO: A file-like object containing the generated image
-    """
-    try:
-        # Log the model type and prompt being used for image generation
-        logger.info(f"Generating image with model: {model_type}")
-        logger.info(f"Using prompt: {prompt}")
-        if model_type.lower() == "modelslab":
-            # ModelLabs implementation
-            url = "https://modelslab.com/api/v6/realtime/text2img"
-            
-            payload = json.dumps({
-                "key": os.environ.get("MODELSLAB_API_KEY", ""),
-                "prompt": prompt,
-                "negative_prompt": "bad quality",
-                "width": "1024",
-                "height": "1024",
-                "safety_checker": False,
-                "seed": None,
-                "samples": 1,
-                "base64": False,
-                "webhook": None,
-                "track_id": None
-            })
-            
-            headers = {
-                'Content-Type': 'application/json'
-            }
-            
-            response = requests.request("POST", url, headers=headers, data=payload)
-            response_data = response.json()
-            
-            if response_data.get("status") == "success":
-                # Download the generated image
-                image_url = response_data.get("output")[0]
-                image_response = requests.get(image_url)
-                image_response.raise_for_status()
-                
-                # Return image as BytesIO object
-                return BytesIO(image_response.content)
-            else:
-                logger.error(f"ModelLabs image generation failed: {response.text}")
-                raise Exception(f"ModelLabs image generation failed: {response.text}")
-                
-        elif model_type.lower() == "openai":
-            # OpenAI implementation
-            api_key = os.environ.get("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError("OPENAI_API_KEY environment variable not set")
-                
-            # Configure OpenAI client
-            client = openai.OpenAI(api_key=api_key)
-            
-            # Generate image with DALL-E
-            dalle_response = client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                n=1,
-                size="1024x1024"
-            )
-            
-            # Get the generated image URL
-            image_url = dalle_response.data[0].url
-            
-            # Download the generated image
-            image_response = requests.get(image_url)
-            image_response.raise_for_status()
-            
-            # Return image as BytesIO object
-            return BytesIO(image_response.content)
-        
-        elif model_type.lower() == "pollinations":
-            # Pollinations.ai implementation
-            # URL encode the prompt for use in the URL path
-            encoded_prompt = requests.utils.quote(prompt)
-            url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?height=1024&nologo=true&model=turbo"
-            
-            # Make a direct GET request to the API
-            response = requests.get(url)
-            response.raise_for_status()
-            
-            # Return image as BytesIO object
-            return BytesIO(response.content)
-            
-        else:
-            raise ValueError(f"Unsupported model type: {model_type}. Must be 'modelslab', 'openai', or 'pollinations'")
-            
-    except Exception as e:
-        logger.error(f"Error in image_gen: {str(e)}")
-        raise
-
 def process_image_with_theme(image_file, user_description, theme_description):
     """
     Process an image with AI vision and generation APIs:
@@ -266,12 +167,9 @@ def process_image_with_theme(image_file, user_description, theme_description):
         # Step 2: Generate new image based on description and theme
         # Combine AI description with theme
         generation_prompt = f"{ai_description}"
-
-        # Get model type from environment variable
-        model_type = os.environ.get("MODEL_TYPE", "openai")
         
         # Use image_gen function to generate the image
-        return image_gen(generation_prompt, model_type)
+        return image_gen(generation_prompt)
         
     except Exception as e:
         logger.error(f"Error in process_image_with_theme: {str(e)}")

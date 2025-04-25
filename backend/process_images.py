@@ -30,14 +30,33 @@ def get_pending_requests(limit=10):
     """Get a batch of pending image requests to process."""
     query = """
         SELECT ir.request_id, ir.source_image_id, ir.theme_id, ir.result_image_id, ir.user_id,
-               ir.user_description, i.data, i.mime_type
+               ir.user_description, i.data, i.mime_type, t.name as theme_name
         FROM image_requests ir
         JOIN images i ON ir.source_image_id = i.id
+        LEFT JOIN themes t ON ir.theme_id = t.id
         WHERE ir.status = 'pending'
         ORDER BY ir.created_at
         LIMIT %s
     """
-    return execute_query(query, (limit,))
+    results = execute_query(query, (limit,))
+    
+    # Convert results to a list of objects
+    pending_requests = []
+    if results:
+        for row in results:
+            pending_requests.append({
+                "request_id": row[0],
+                "source_image_id": row[1],
+                "theme_id": row[2],
+                "result_image_id": row[3],
+                "user_id": row[4],
+                "user_description": row[5],
+                "data": row[6],
+                "mime_type": row[7],
+                "theme_name": row[8]
+            })
+    
+    return pending_requests
 
 def get_theme_description(theme_id):
     """Get the theme description for a given theme ID."""
@@ -69,7 +88,7 @@ def process_request(request):
         image_file = BytesIO(image_data)
         
         # Get the theme description
-        theme_description = get_theme_description(theme_id)
+        # theme_description = get_theme_description(theme_id)
         
         # Process the image with the theme
         result_image = process_image_with_theme(
@@ -105,29 +124,29 @@ def process_request(request):
         
         return False
 
-def main():
-    """Main worker loop."""
-    logger.info("Starting image processing worker")
+# def main():
+#     """Main worker loop."""
+#     logger.info("Starting image processing worker")
     
-    while True:
-        try:
-            # Get pending requests
-            pending_requests = get_pending_requests()
+#     while True:
+#         try:
+#             # Get pending requests
+#             pending_requests = get_pending_requests()
             
-            if not pending_requests:
-                logger.info("No pending requests found, sleeping...")
-                time.sleep(10)  # Sleep for 10 seconds before checking again
-                continue
+#             if not pending_requests:
+#                 logger.info("No pending requests found, sleeping...")
+#                 time.sleep(10)  # Sleep for 10 seconds before checking again
+#                 continue
                 
-            logger.info(f"Found {len(pending_requests)} pending requests")
+#             logger.info(f"Found {len(pending_requests)} pending requests")
             
-            # Process each request
-            for request in pending_requests:
-                process_request(request)
+#             # Process each request
+#             for request in pending_requests:
+#                 process_request(request)
                 
-        except Exception as e:
-            logger.error(f"Error in main worker loop: {str(e)}")
-            time.sleep(30)  # Sleep longer if there was an error
+#         except Exception as e:
+#             logger.error(f"Error in main worker loop: {str(e)}")
+#             time.sleep(30)  # Sleep longer if there was an error
             
 if __name__ == "__main__":
     main() 
