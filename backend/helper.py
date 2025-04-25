@@ -231,11 +231,12 @@ def process_image_with_theme(image_file, user_description, theme_description):
                             Analyze this image and provide a detailed prompt 
                             that will be used to generate a new image that incorporates 
                             the theme: {theme_description}. 
-                            Take into account the user's instruction: {user_description}. 
-                            Capture the layout of the image, including the main characters/objects and their positions.
-                            Focus on the main characters/obejcts and critical features of the characters/objects in the image. 
-                            Create clothing, accessories, and visual elements in your description that aligns with the theme. 
-                            Use less than 200 words."""
+                            MUST follow the user's instruction: {user_description}. 
+                            MUST capture the layout of the image, including the main characters/objects and their positions.
+                            MUST focus on the main characters/obejcts and critical features of the characters/objects in the image. 
+                            MUST create clothing, accessories, and visual elements in your description that aligns with the theme. 
+                            MUST use less than 200 words."""
+        logger.info(f"Image description prompt: {image_description_prompt}")
 
         vision_response = client.chat.completions.create(
             model="gpt-4.1-mini",
