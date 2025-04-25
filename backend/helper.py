@@ -48,11 +48,11 @@ theme_descriptions = [
 
 def image_gen(prompt, model_type="openai"):
     """
-    Generate an image using either ModelLabs or OpenAI based on the specified model type.
+    Generate an image using either ModelLabs, OpenAI, or Pollinations.ai based on the specified model type.
     
     Args:
         prompt: The text prompt to generate the image
-        model_type: The model type to use ('modelslab' or 'openai')
+        model_type: The model type to use ('modelslab', 'openai', or 'pollinations')
         
     Returns:
         BytesIO: A file-like object containing the generated image
@@ -121,8 +121,22 @@ def image_gen(prompt, model_type="openai"):
             
             # Return image as BytesIO object
             return BytesIO(image_response.content)
+        
+        elif model_type.lower() == "pollinations":
+            # Pollinations.ai implementation
+            # URL encode the prompt for use in the URL path
+            encoded_prompt = requests.utils.quote(prompt)
+            url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?height=1024&nologo=true&model=turbo"
+            
+            # Make a direct GET request to the API
+            response = requests.get(url)
+            response.raise_for_status()
+            
+            # Return image as BytesIO object
+            return BytesIO(response.content)
+            
         else:
-            raise ValueError(f"Unsupported model type: {model_type}. Must be 'modelslab' or 'openai'")
+            raise ValueError(f"Unsupported model type: {model_type}. Must be 'modelslab', 'openai', or 'pollinations'")
             
     except Exception as e:
         logger.error(f"Error in image_gen: {str(e)}")
@@ -183,7 +197,7 @@ def process_image_with_theme(image_file, user_description, theme_description):
         
         # Extract the description
         ai_description = vision_response.choices[0].message.content
-        logger.info(f"Received AI description: {ai_description[:100]}...")
+        logger.info(f"Received AI description: {ai_description}")
         
         # Step 2: Generate new image based on description and theme
         # Combine AI description with theme
