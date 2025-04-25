@@ -58,6 +58,9 @@ def image_gen(prompt, model_type="openai"):
         BytesIO: A file-like object containing the generated image
     """
     try:
+        # Log the model type and prompt being used for image generation
+        logger.info(f"Generating image with model: {model_type}")
+        logger.info(f"Using prompt: {prompt}")
         if model_type.lower() == "modelslab":
             # ModelLabs implementation
             url = "https://modelslab.com/api/v6/realtime/text2img"
@@ -197,7 +200,6 @@ def process_image_with_theme(image_file, user_description, theme_description):
         
         # Extract the description
         ai_description = vision_response.choices[0].message.content
-        logger.info(f"Received AI description: {ai_description}")
         
         # Step 2: Generate new image based on description and theme
         # Combine AI description with theme
@@ -205,7 +207,6 @@ def process_image_with_theme(image_file, user_description, theme_description):
         
         # Get model type from environment variable
         model_type = os.environ.get("MODEL_TYPE", "openai")
-        logger.info(f"Using model type: {model_type} for image generation")
         
         # Use image_gen function to generate the image
         return image_gen(generation_prompt, model_type)
