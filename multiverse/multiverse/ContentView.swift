@@ -216,7 +216,7 @@ struct ContentView: View {
     private func processUpload() {
         // Call the backend API to create the image
         // Clear any previous API response data
-        UserDefaults.standard.removeObject(forKey: "lastAPIResponse")
+        APIResponseStore.shared.clearLastResponse()
         print("Cleared previous API response data")
         Task {
             do {
@@ -229,32 +229,30 @@ struct ContentView: View {
                 
                 print("Successfully uploaded to API/create: \(result)")
                 
-                // Store API response data
-                if let responseData = result as? [String: Any] {
-                    // Save the response in UserDefaults for persistence
-                    if let sourceImageID = responseData["source_image_id"] as? String,
-                       let resultImageIDs = responseData["result_image_ids"] as? [String],
-                       let requestID = responseData["request_id"] as? String {
+                // Process the new API response format
+                if let requestID = result["request_id"] as? String,
+                   let sourceImageID = result["source_image_id"] as? String,
+                   let imagesArray = result["images"] as? [[String: Any]] {
+                    
+                    let themeImages = imagesArray.compactMap { imageDict -> ThemeImage? in
+                        guard let resultImageID = imageDict["result_image_id"] as? String,
+                              let themeID = imageDict["theme_id"] as? String,
+                              let themeName = imageDict["theme_name"] as? String else {
+                            return nil
+                        }
                         
-                        // Create a dictionary to store the response
-                        let apiResponse: [String: Any] = [
-                            "source_image_id": sourceImageID,
-                            "result_image_ids": resultImageIDs,
-                            "request_id": requestID,
-                            "timestamp": Date().timeIntervalSince1970
-                        ]
-                        
-                        // Save to UserDefaults
-                        UserDefaults.standard.set(apiResponse, forKey: "lastAPIResponse")
-                        
-                        // Also save to history array
-                        var responseHistory = UserDefaults.standard.array(forKey: "apiResponseHistory") as? [[String: Any]] ?? []
-                        responseHistory.append(apiResponse)
-                        UserDefaults.standard.set(responseHistory, forKey: "apiResponseHistory")
-                        
-                        // Print confirmation
-                        print("Stored API response: \(apiResponse)")
+                        return ThemeImage(resultImageID: resultImageID, themeID: themeID, themeName: themeName)
                     }
+                    
+                    let apiResponse = APIResponse(
+                        requestID: requestID,
+                        sourceImageID: sourceImageID,
+                        images: themeImages
+                    )
+                    
+                    // Save using the new APIResponseStore
+                    APIResponseStore.shared.saveResponse(apiResponse)
+                    print("Stored API response with \(themeImages.count) theme images")
                 }
             } catch {
                 print("Error uploading to API/create: \(error.localizedDescription)")

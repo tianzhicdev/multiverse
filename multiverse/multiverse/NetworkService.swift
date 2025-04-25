@@ -138,6 +138,8 @@ class NetworkService {
             // Parse and return the JSON response
             if let jsonObject = try? JSONSerialization.jsonObject(with: data),
                let jsonDict = jsonObject as? [String: Any] {
+                // Log the successful response
+                logger.info("Received response: \(jsonDict)")
                 return jsonDict
             } else {
                 logger.error("Invalid JSON response")

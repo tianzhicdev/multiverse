@@ -11,6 +11,7 @@ struct BoxView: View {
     @State private var showFullImage = false
     @State private var audioPlayer: AVAudioPlayer?
     @State private var wiggleAmount = 0.0
+    @State private var themeName: String = ""
     
     var body: some View {
         ZStack {
@@ -44,6 +45,18 @@ struct BoxView: View {
                         
                         playSound()
                     }
+                
+                // Theme name overlay
+                VStack {
+                    Spacer()
+                    Text(themeName)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(8)
+                        .padding(8)
+                }
             } else if isLoading {
                 FakeLoadingBar()
             } else {
@@ -66,6 +79,17 @@ struct BoxView: View {
                 VStack {
                     ZStack {
                         FullImageView(uiImage: uiImage)
+                        
+                        VStack {
+                            Spacer()
+                            Text(themeName)
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.black.opacity(0.6))
+                                .cornerRadius(8)
+                                .padding(.bottom, 40)
+                        }
                     }
                     
                     Button("Download") {
@@ -103,18 +127,15 @@ struct BoxView: View {
         print("BoxGridView: Loading image for box #\(number)")
         
         do {
-            // Wait for API response with retry mechanism
-            var apiResponse: [String: Any]?
-            var resultImageIDs: [String]?
+            // Wait for API response
+            var apiResponse: APIResponse?
             var retryCount = 0
             let maxRetries = 20 // Maximum 20 retries
             let retryDelay = 1.0 // 1 second between retries
             
             while retryCount < maxRetries {
-                if let storedResponse = UserDefaults.standard.dictionary(forKey: "lastAPIResponse"),
-                   let storedImageIDs = storedResponse["result_image_ids"] as? [String] {
-                    apiResponse = storedResponse
-                    resultImageIDs = storedImageIDs
+                if let response = APIResponseStore.shared.getLastResponse() {
+                    apiResponse = response
                     break
                 }
                 
@@ -126,16 +147,21 @@ struct BoxView: View {
             }
             
             // Check if we got the API response after retries
-            if let resultImageIDs = resultImageIDs, let apiResponse = apiResponse {
-                // Adjust the index (number-1) to get the right image ID from the array
-                let adjustedIndex = (number - 1) % resultImageIDs.count
-                let resultImageID = resultImageIDs[adjustedIndex]
-                print("API Response: \(apiResponse)")
-                print("BoxGridView: Box #\(number) using resultImageID: \(resultImageID)")
+            if let apiResponse = apiResponse, !apiResponse.images.isEmpty {
+                // Adjust the index (number-1) to get the right image from the array
+                let adjustedIndex = (number - 1) % apiResponse.images.count
+                let themeImage = apiResponse.images[adjustedIndex]
+                
+                print("BoxGridView: Box #\(number) using resultImageID: \(themeImage.resultImageID) with theme: \(themeImage.themeName)")
+                
+                // Set theme name
+                await MainActor.run {
+                    self.themeName = themeImage.themeName
+                }
                 
                 // Use the fetchImageWithRetry method which already has its own retry mechanism
                 let processedImageData = try await NetworkService.shared.fetchImageWithRetry(
-                    resultImageID: resultImageID,
+                    resultImageID: themeImage.resultImageID,
                     maxRetries: 100,  // Maximum 100 retries
                     retryDelay: 2.0   // 2 seconds between retries
                 )

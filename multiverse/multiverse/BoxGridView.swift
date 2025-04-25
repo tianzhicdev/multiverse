@@ -24,6 +24,14 @@ struct BoxGridView: View {
                 }
             }
         }
+        .onAppear {
+            // Check if we have API response data
+            if let apiResponse = APIResponseStore.shared.getLastResponse() {
+                print("BoxGridView: Loaded API response with \(apiResponse.images.count) images")
+            } else {
+                print("BoxGridView: No API response data found")
+            }
+        }
     }
 }
 
