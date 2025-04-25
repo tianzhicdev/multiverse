@@ -219,16 +219,7 @@ def main():
             
             if pending_requests:
                 logger.info(f"Found {len(pending_requests)} pending requests")
-                
-                # Process requests in a separate thread
-                logger.debug("Starting processor thread for batch of requests")
-                processor_thread = threading.Thread(
-                    target=request_processor,
-                    args=(pending_requests,)
-                )
-                processor_thread.start()
-                processor_thread.join()
-                logger.debug("Processor thread completed")
+                request_processor(pending_requests)
             else:
                 logger.info("No pending requests found, sleeping...")
             
