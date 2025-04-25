@@ -203,8 +203,8 @@ def process_image_with_theme(image_file, user_description, theme_description):
         
         # Step 2: Generate new image based on description and theme
         # Combine AI description with theme
-        generation_prompt = f"{ai_description}. Theme: {theme_description}"
-        
+        generation_prompt = f"{theme_description} {ai_description}"
+
         # Get model type from environment variable
         model_type = os.environ.get("MODEL_TYPE", "openai")
         
