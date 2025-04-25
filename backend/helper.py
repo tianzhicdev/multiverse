@@ -184,7 +184,7 @@ def process_image_with_theme(image_file, user_description, theme_description):
                     "content": [
                         {
                             "type": "text",
-                            "text": f"Describe this image in detail. User says it is: {user_description}"
+                            "text": f"Describe this image in less than 30 words, consider that the user says it is: {user_description}"
                         },
                         {
                             "type": "image_url",
