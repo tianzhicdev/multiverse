@@ -1,6 +1,7 @@
 import os
 import base64
 import requests
+import json
 from io import BytesIO
 from PIL import Image
 import logging
@@ -45,9 +46,91 @@ theme_descriptions = [
 ]
 
 
+def image_gen(prompt, model_type="openai"):
+    """
+    Generate an image using either ModelLabs or OpenAI based on the specified model type.
+    
+    Args:
+        prompt: The text prompt to generate the image
+        model_type: The model type to use ('modelslab' or 'openai')
+        
+    Returns:
+        BytesIO: A file-like object containing the generated image
+    """
+    try:
+        if model_type.lower() == "modelslab":
+            # ModelLabs implementation
+            url = "https://modelslab.com/api/v6/realtime/text2img"
+            
+            payload = json.dumps({
+                "key": os.environ.get("MODELSLAB_API_KEY", ""),
+                "prompt": prompt,
+                "negative_prompt": "bad quality",
+                "width": "1024",
+                "height": "1024",
+                "safety_checker": False,
+                "seed": None,
+                "samples": 1,
+                "base64": False,
+                "webhook": None,
+                "track_id": None
+            })
+            
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            
+            response = requests.request("POST", url, headers=headers, data=payload)
+            response_data = response.json()
+            
+            if response_data.get("status") == "success":
+                # Download the generated image
+                image_url = response_data.get("output")[0]
+                image_response = requests.get(image_url)
+                image_response.raise_for_status()
+                
+                # Return image as BytesIO object
+                return BytesIO(image_response.content)
+            else:
+                logger.error(f"ModelLabs image generation failed: {response.text}")
+                raise Exception(f"ModelLabs image generation failed: {response.text}")
+                
+        elif model_type.lower() == "openai":
+            # OpenAI implementation
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY environment variable not set")
+                
+            # Configure OpenAI client
+            client = openai.OpenAI(api_key=api_key)
+            
+            # Generate image with DALL-E
+            dalle_response = client.images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                n=1,
+                size="1024x1024"
+            )
+            
+            # Get the generated image URL
+            image_url = dalle_response.data[0].url
+            
+            # Download the generated image
+            image_response = requests.get(image_url)
+            image_response.raise_for_status()
+            
+            # Return image as BytesIO object
+            return BytesIO(image_response.content)
+        else:
+            raise ValueError(f"Unsupported model type: {model_type}. Must be 'modelslab' or 'openai'")
+            
+    except Exception as e:
+        logger.error(f"Error in image_gen: {str(e)}")
+        raise
+
 def process_image_with_theme(image_file, user_description, theme_description):
     """
-    Process an image with OpenAI APIs:
+    Process an image with AI vision and generation APIs:
     1. First get a description of the image using Vision API
     2. Then generate a new image based on the description and theme
     
@@ -106,25 +189,12 @@ def process_image_with_theme(image_file, user_description, theme_description):
         # Combine AI description with theme
         generation_prompt = f"Create an image based on this description: {ai_description}. Style it with this theme: {theme_description}"
         
-        logger.info("Requesting image generation from OpenAI")
-        dalle_response = client.images.generate(
-            model="dall-e-3",
-            prompt=generation_prompt,
-            n=1,
-            size="1024x1024"
-        )
+        # Get model type from environment variable
+        model_type = os.environ.get("MODEL_TYPE", "openai")
+        logger.info(f"Using model type: {model_type} for image generation")
         
-        # Get the generated image URL
-        image_url = dalle_response.data[0].url
-        
-        # Download the generated image
-        logger.info("Downloading generated image")
-        image_response = requests.get(image_url)
-        image_response.raise_for_status()
-        
-        # Return image as BytesIO object
-        result = BytesIO(image_response.content)
-        return result
+        # Use image_gen function to generate the image
+        return image_gen(generation_prompt, model_type)
         
     except Exception as e:
         logger.error(f"Error in process_image_with_theme: {str(e)}")

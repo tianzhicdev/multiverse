@@ -14,6 +14,7 @@ import uuid
 from db import execute_query
 import json
 from helper import get_themes
+from helper import image_gen
 # Load environment variables from .env file if present
 load_dotenv()
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -34,6 +35,10 @@ CORS(app)
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
+
+@app.route('/api/image_gen_test', methods=['GET'])
+def image_gen_test():
+    image_gen("A beautiful sunset over a calm ocean")
 
 @app.route('/api/test-db', methods=['GET'])
 def test_db_connection():
