@@ -3,7 +3,6 @@ import base64
 import requests
 import json
 from io import BytesIO
-from PIL import Image
 import logging
 import openai
 from db import execute_query
