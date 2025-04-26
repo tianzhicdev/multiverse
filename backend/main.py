@@ -36,6 +36,30 @@ CORS(app)
 def hello_world():
     return 'Hello, World!'
 
+@app.route('/purchase', methods=['POST'])
+def process_purchase():
+    try:
+        # Log the purchase request
+        logger.info("Received purchase request")
+        logger.info(f"Request headers: {dict(request.headers)}")
+        logger.info(f"Request data: {request.get_json()}")
+        
+        # Here you would typically process the purchase
+        # For example, validate receipt, update user credits, etc.
+        
+        # Return success response
+        return jsonify({
+            'status': 'success',
+            'message': 'Purchase processed successfully'
+        }), 200
+    except Exception as e:
+        logger.error(f"Purchase processing error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f'Purchase processing failed: {str(e)}'
+        }), 500
+
+
 @app.route('/api/image_gen_test', methods=['GET'])
 def image_gen_test():
     image_gen("A beautiful sunset over a calm ocean")

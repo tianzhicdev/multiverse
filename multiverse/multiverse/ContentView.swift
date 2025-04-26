@@ -177,7 +177,7 @@ struct ContentView: View {
             }
             // Navigation to StoreView when showStore becomes true
             .navigationDestination(isPresented: $showStore) {
-                StoreView(subscriptionID: subscriptionProductID)
+                StoreView()
             }
             .onAppear {
                 // Ensure the UserManager is initialized when the view appears

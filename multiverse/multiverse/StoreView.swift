@@ -1,54 +1,66 @@
 import SwiftUI
 import StoreKit
 
-// StoreView for handling subscriptions
+// StoreView for handling purchases and subscriptions
 struct StoreView: View {
-    let subscriptionID: String
-    
-    @State private var product: Product?
+    @State private var products: [Product] = []
     @State private var isPurchasing = false
+    @State private var purchasingProductID: String?
     @State private var errorMessage = ""
     @State private var showError = false
     
     var body: some View {
         VStack {
-            Text("Subscription Store")
+            Text("Store")
                 .font(.largeTitle)
                 .padding()
             
-            if let product = product {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(product.displayName)
-                        .font(.title2)
-                    
-                    Text(product.description)
-                        .foregroundColor(.secondary)
-                    
-                    Text(product.displayPrice)
-                        .font(.headline)
-                    
-                    Button(action: {
-                        purchaseSubscription()
-                    }) {
-                        Text(isPurchasing ? "Processing..." : "Subscribe Now")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .disabled(isPurchasing)
-                }
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(12)
-                .padding()
+            if products.isEmpty {
+                ProgressView("Loading products...")
             } else {
-                ProgressView("Loading subscription details...")
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Consumable products section
+                        if !consumableProducts.isEmpty {
+                            Text("One-Time Purchases")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
+                            
+                            ForEach(consumableProducts, id: \.id) { product in
+                                ProductView(
+                                    product: product,
+                                    isPurchasing: isPurchasing && purchasingProductID == product.id,
+                                    buttonText: "Buy Now",
+                                    action: { purchaseProduct(product) }
+                                )
+                            }
+                        }
+                        
+                        // Subscription products section
+                        if !subscriptionProducts.isEmpty {
+                            Text("Subscriptions")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
+                                .padding(.top)
+                            
+                            ForEach(subscriptionProducts, id: \.id) { product in
+                                ProductView(
+                                    product: product,
+                                    isPurchasing: isPurchasing && purchasingProductID == product.id,
+                                    buttonText: "Subscribe",
+                                    action: { purchaseProduct(product) }
+                                )
+                            }
+                        }
+                    }
+                    .padding(.bottom)
+                }
             }
         }
         .onAppear {
-            loadProduct()
+            loadProducts()
         }
         .alert("Error", isPresented: $showError) {
             Button("OK", role: .cancel) { }
@@ -57,21 +69,32 @@ struct StoreView: View {
         }
     }
     
-    private func loadProduct() {
-        // This is where you would load your StoreKit product
-        // To implement this:
-        // 1. Get your product identifiers from App Store Connect
-        // 2. Configure your app with the correct StoreKit configuration
-        // 3. Enable appropriate capabilities in your app target
-        
+    private var consumableProducts: [Product] {
+        products.filter { $0.type == .consumable }
+    }
+    
+    private var subscriptionProducts: [Product] {
+        products.filter { $0.type == .autoRenewable }
+    }
+    
+    private func loadProducts() {
         Task {
             do {
-                // Replace with your actual product IDs
-                let products = try await Product.products(for: [subscriptionID])
-                if let firstProduct = products.first {
-                    await MainActor.run {
-                        self.product = firstProduct
-                    }
+                // Product IDs from the storekit file
+                let productIDs = [
+                    // Consumables
+                    "consumable.photons.100",
+                    "consumable.photons.200",
+                    "consumable.photons.500",
+                    "consumable.photons.1200",
+                    // Subscriptions
+                    "subscription.photons.500",
+                    "subscription.photons.1200"
+                ]
+                
+                let products = try await Product.products(for: productIDs)
+                await MainActor.run {
+                    self.products = products
                 }
             } catch {
                 await MainActor.run {
@@ -82,49 +105,44 @@ struct StoreView: View {
         }
     }
     
-    private func purchaseSubscription() {
-        guard let product = product else { return }
-        
+    private func purchaseProduct(_ product: Product) {
+        purchasingProductID = product.id
         isPurchasing = true
         
         Task {
             do {
-                // Attempt to purchase the product
                 let result = try await product.purchase()
                 
                 switch result {
                 case .success(let verification):
-                    // Log successful verification
-                    print("to verify: \(verification)")
-                    
-                    // You could add more detailed logging here if needed
-                    // For example, logging transaction details or subscription information
                     let transaction = try checkVerified(verification)
-
-                    print("verified: \(transaction)")
                     
                     // Finish the transaction
                     await transaction.finish()
                     
                     await MainActor.run {
                         isPurchasing = false
-                        // Handle successful purchase in your UI
+                        purchasingProductID = nil
+                        // Here you could update the user's balance or subscription status
                     }
                     
                 case .userCancelled:
                     await MainActor.run {
                         isPurchasing = false
+                        purchasingProductID = nil
                     }
                     
                 case .pending:
                     await MainActor.run {
                         isPurchasing = false
+                        purchasingProductID = nil
                         // Inform the user that the purchase is pending
                     }
                     
                 @unknown default:
                     await MainActor.run {
                         isPurchasing = false
+                        purchasingProductID = nil
                         errorMessage = "Unknown purchase result"
                         showError = true
                     }
@@ -132,6 +150,7 @@ struct StoreView: View {
             } catch {
                 await MainActor.run {
                     isPurchasing = false
+                    purchasingProductID = nil
                     errorMessage = "Purchase failed: \(error.localizedDescription)"
                     showError = true
                 }
@@ -141,13 +160,57 @@ struct StoreView: View {
     
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         // Implement actual verification logic
-        // This is just a placeholder - implement proper verification based on Apple's guidelines
         switch result {
         case .unverified:
             throw StoreError.verificationFailed
         case .verified(let safe):
             return safe
         }
+    }
+}
+
+// Reusable view for displaying a product
+struct ProductView: View {
+    let product: Product
+    let isPurchasing: Bool
+    let buttonText: String
+    let action: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(product.displayName)
+                .font(.title2)
+            
+            Text(product.description)
+                .foregroundColor(.secondary)
+            
+            HStack {
+                Text(product.displayPrice)
+                    .font(.headline)
+                
+                if product.type == .autoRenewable {
+                    Text("/ month")
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Button(action: action) {
+                    Text(isPurchasing ? "Processing..." : buttonText)
+                        .frame(minWidth: 120)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .disabled(isPurchasing)
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(12)
+        .padding(.horizontal)
     }
 }
 
@@ -158,5 +221,5 @@ enum StoreError: Error {
 
 // Preview provider for SwiftUI previews
 #Preview {
-    StoreView(subscriptionID: "subscription.standard")
+    StoreView()
 } 

@@ -14,7 +14,66 @@
 
   ],
   "products" : [
-
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "100001",
+      "localizations" : [
+        {
+          "description" : "100 Photons package",
+          "displayName" : "100 Photons",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "consumable.photons.100",
+      "referenceName" : "100 Photons",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "100002",
+      "localizations" : [
+        {
+          "description" : "200 Photons package",
+          "displayName" : "200 Photons",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "consumable.photons.200",
+      "referenceName" : "200 Photons",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "100003",
+      "localizations" : [
+        {
+          "description" : "500 Photons package",
+          "displayName" : "500 Photons",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "consumable.photons.500",
+      "referenceName" : "500 Photons",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "100004",
+      "localizations" : [
+        {
+          "description" : "1200 Photons package",
+          "displayName" : "1200 Photons",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "consumable.photons.1200",
+      "referenceName" : "1200 Photons",
+      "type" : "Consumable"
+    }
   ],
   "settings" : {
     "_failTransactionsEnabled" : false
@@ -34,21 +93,21 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "2.99",
+          "displayPrice" : "9.99",
           "familyShareable" : false,
-          "groupNumber" : 3,
-          "internalID" : "0E3E0DC9",
+          "groupNumber" : 4,
+          "internalID" : "F1234567",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Navigation assistance",
-              "displayName" : "Standard",
+              "description" : "Subscription with 500 Photons monthly",
+              "displayName" : "500 Photons",
               "locale" : "en_US"
             }
           ],
-          "productID" : "subscription.standard",
+          "productID" : "subscription.photons.500",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Standard",
+          "referenceName" : "Photons 500",
           "subscriptionGroupID" : "3F19ED53",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -62,54 +121,21 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "3.99",
-          "familyShareable" : true,
-          "groupNumber" : 2,
-          "internalID" : "5449D98C",
+          "displayPrice" : "19.99",
+          "familyShareable" : false,
+          "groupNumber" : 5,
+          "internalID" : "F7654321",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Navigation assistance and dash cam",
-              "displayName" : "Premium",
+              "description" : "Subscription with 1200 Photons monthly",
+              "displayName" : "1200 Photons",
               "locale" : "en_US"
             }
           ],
-          "productID" : "subscription.premium",
+          "productID" : "subscription.photons.1200",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Premium",
-          "subscriptionGroupID" : "3F19ED53",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
-        },
-        {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "4.99",
-          "familyShareable" : true,
-          "groupNumber" : 1,
-          "internalID" : "E0316BF9",
-          "introductoryOffer" : {
-            "displayPrice" : "1.99",
-            "internalID" : "D928FA2A",
-            "paymentMode" : "payUpFront",
-            "subscriptionPeriod" : "P2M"
-          },
-          "localizations" : [
-            {
-              "description" : "Navigation assistance, dash cam, & autopilot",
-              "displayName" : "Pro",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "subscription.pro",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Pro",
+          "referenceName" : "Photons 1200",
           "subscriptionGroupID" : "3F19ED53",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -123,4 +149,4 @@
     "major" : 4,
     "minor" : 0
   }
-}
+} 

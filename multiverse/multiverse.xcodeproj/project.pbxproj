@@ -57,22 +57,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7832E9C92DB8301B00987354 /* Exceptions for "multiverse" folder in "multiverseTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				local.storekit,
-				storekit.storekit,
-			);
-			target = 78EADD9E2DB45DB300B62FF8 /* multiverseTests */;
-		};
-		7832E9CA2DB8301B00987354 /* Exceptions for "multiverse" folder in "multiverseUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				local.storekit,
-				storekit.storekit,
-			);
-			target = 78EADDA82DB45DB300B62FF8 /* multiverseUITests */;
-		};
 		78EADDB12DB45DB300B62FF8 /* Exceptions for "multiverse" folder in "multiverse" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -87,8 +71,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				78EADDB12DB45DB300B62FF8 /* Exceptions for "multiverse" folder in "multiverse" target */,
-				7832E9C92DB8301B00987354 /* Exceptions for "multiverse" folder in "multiverseTests" target */,
-				7832E9CA2DB8301B00987354 /* Exceptions for "multiverse" folder in "multiverseUITests" target */,
 			);
 			path = multiverse;
 			sourceTree = "<group>";
