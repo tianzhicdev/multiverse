@@ -3,6 +3,7 @@ import base64
 import requests
 import json
 from io import BytesIO
+from PIL import Image
 import logging
 import openai
 from db import execute_query
@@ -108,8 +109,8 @@ def process_image_to_image(image_file, user_description, theme_description):
     MUST create clothing, accessories, and visual elements in your description that aligns with the theme.
     MAINTAIN the exact layout of the original image. Characters in the foreground must remain in the foreground, and background elements must stay in the background. 
     """
-
-    image = generate_with_openai_image_1(image_1_prompt, image_file)
+    
+    image = generate_with_openai_image_1(user_description, image_file)
     if image:
         return image
     else:
