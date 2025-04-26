@@ -13,7 +13,7 @@ from io import BytesIO
 from db import execute_query
 from dotenv import load_dotenv
 import json
-from helper import process_image_with_theme
+from helper import process_image_to_image
 # Load environment variables
 load_dotenv()
 
@@ -75,7 +75,7 @@ def process_request(request_id, result_image_id, user_id, theme_id, theme_name, 
         image_file = BytesIO(source_image_data)
         
         # Process the image with the selected theme
-        result_image = process_image_with_theme(
+        result_image = process_image_to_image(
             image_file,
             user_description,
             theme
@@ -83,7 +83,7 @@ def process_request(request_id, result_image_id, user_id, theme_id, theme_name, 
         
         # Save the processed image data to the database
         result_data = result_image.getvalue()
-        metadata = {"theme_id": theme_id, "process_method": "process_image_with_theme"}
+        metadata = {"theme_id": theme_id, "process_method": "process_image_to_image"}
         metadata_json = json.dumps(metadata)
         
         query = """

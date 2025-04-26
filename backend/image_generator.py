@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 openai_rate = Rate(1, Duration.MINUTE)
 modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
-openai_image1_rate = Rate(5, Duration.MINUTE)  # New rate for GPT Image 1
+openai_image1_rate = Rate(1, Duration.MINUTE)  # New rate for GPT Image 1
 
 openai_limiter = Limiter(openai_rate)
 modelslab_limiter = Limiter(modelslab_rate)
@@ -26,7 +26,7 @@ def generate_with_openai_image_1(prompt, image):
     """Generate image using OpenAI's GPT-image-1 model with image editing"""
     try:
         openai_image1_limiter.try_acquire("openai_image1_gen")
-        logger.info("Generating image with OpenAI image edit")
+        logger.info("Generating image with OpenAI image 1")
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
@@ -184,6 +184,8 @@ def image_gen(prompt):
     """
     try:
         logger.info(f"Using prompt: {prompt}")
+
+
 
             # Try OpenAI first
         result = generate_with_openai(prompt)

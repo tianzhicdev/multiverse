@@ -7,7 +7,7 @@ from PIL import Image
 import logging
 import openai
 from db import execute_query
-from image_generator import image_gen
+from image_generator import image_gen, generate_with_openai_image_1
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -96,7 +96,27 @@ theme_descriptions = [
     },
 ]
 
-def process_image_with_theme(image_file, user_description, theme_description):
+
+
+
+def process_image_to_image(image_file, user_description, theme_description):
+
+    image_1_prompt = f"""
+    Generate an image that incorporates the theme: {theme_description}. 
+    MUST follow the user's instruction: {user_description}. 
+    MUST use precisely the layout of the image, including the main characters/objects and their positions. 
+    MUST focus on the main characters/obejcts and critical features of the characters/objects in the image.
+    MUST create clothing, accessories, and visual elements in your description that aligns with the theme.
+    MAINTAIN the exact layout of the original image. Characters in the foreground must remain in the foreground, and background elements must stay in the background. 
+    """
+
+    image = generate_with_openai_image_1(image_1_prompt, image_file)
+    if image:
+        return image
+    else:
+        return process_description_to_image(image_file, user_description, theme_description)
+
+def process_description_to_image(image_file, user_description, theme_description):
     """
     Process an image with AI vision and generation APIs:
     1. First get a description of the image using Vision API

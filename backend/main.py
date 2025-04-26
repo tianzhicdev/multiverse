@@ -4,7 +4,7 @@ import io
 import logging
 import os
 from dotenv import load_dotenv
-from helper import process_image_with_theme
+from helper import process_image_to_image
 from helper import theme_descriptions
 from helper import use_credits
 from helper import init_user
@@ -98,7 +98,7 @@ def generate_image():
             
             # Process the image using OpenAI APIs
             try:
-                result_image = process_image_with_theme(
+                result_image = process_image_to_image(
                     image_file, 
                     user_description, 
                     theme_description
