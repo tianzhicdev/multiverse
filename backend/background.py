@@ -77,7 +77,7 @@ def process_request(request_id, result_image_id, user_id, theme_id, theme_name, 
         # Process the image with the selected theme
         result_image = process_image_with_theme(
             image_file,
-            user_description or '',
+            user_description,
             theme
         )
         

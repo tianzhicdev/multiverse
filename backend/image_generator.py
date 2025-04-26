@@ -14,10 +14,54 @@ logger = logging.getLogger(__name__)
 openai_rate = Rate(1, Duration.MINUTE)
 modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
+openai_image1_rate = Rate(5, Duration.MINUTE)  # New rate for GPT Image 1
 
 openai_limiter = Limiter(openai_rate)
 modelslab_limiter = Limiter(modelslab_rate)
 pollinations_limiter = Limiter(pollinations_rate)
+openai_image1_limiter = Limiter(openai_image1_rate)  # New limiter for GPT Image 1
+
+
+def generate_with_openai_image_1(prompt, image):
+    """Generate image using OpenAI's GPT-image-1 model with image editing"""
+    try:
+        openai_image1_limiter.try_acquire("openai_image1_gen")
+        logger.info("Generating image with OpenAI image edit")
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+            
+        # Configure OpenAI client
+        client = openai.OpenAI(api_key=api_key)
+        
+        # Generate image with GPT-image-1
+        result = client.images.edit(
+            model="gpt-image-1",
+            image=image,
+            prompt=prompt
+        )
+        
+        # Get the generated image data
+        if hasattr(result.data[0], 'b64_json'):
+            import base64
+            image_base64 = result.data[0].b64_json
+            image_bytes = base64.b64decode(image_base64)
+            return BytesIO(image_bytes)
+        elif hasattr(result.data[0], 'url'):
+            # Download the generated image if URL is provided instead
+            image_url = result.data[0].url
+            image_response = requests.get(image_url)
+            image_response.raise_for_status()
+            return BytesIO(image_response.content)
+        else:
+            raise ValueError("No image data found in OpenAI response")
+    except BucketFullException:
+        logger.warning("OpenAI GPT Image 1 rate limit reached")
+        return None
+    except Exception as e:
+        logger.error(f"Error in OpenAI image edit: {str(e)}")
+        return None
+
 
 def generate_with_openai(prompt):
     """Generate image using OpenAI's DALL-E"""
