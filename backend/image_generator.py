@@ -46,11 +46,11 @@ def generate_with_openai_image_1(prompt, image):
         # Create a temporary file with the correct extension
         temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
         temp_file_path = temp_file.name
-        temp_file.close()
         
-        # Open the BytesIO with PIL and save as PNG
-        pil_image = PILImage.open(image)
-        pil_image.save(temp_file_path, format='PNG')
+        # Write the BytesIO content directly to the file
+        image.seek(0)
+        with open(temp_file_path, 'wb') as f:
+            f.write(image.read())
         
         # Use the temporary file for the API call
         with open(temp_file_path, 'rb') as img_file:
