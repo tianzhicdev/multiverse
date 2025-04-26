@@ -15,6 +15,10 @@ from db import execute_query
 import json
 from helper import get_themes
 from helper import image_gen
+from appstoreserverlibrary.api_client import AppStoreServerAPIClient, APIException
+from appstoreserverlibrary.models.Environment import Environment
+from appstoreserverlibrary.models.JWSTransactionDecodedPayload import JWSTransactionDecodedPayload
+from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
 # Load environment variables from .env file if present
 load_dotenv()
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -44,14 +48,67 @@ def process_purchase():
         logger.info(f"Request headers: {dict(request.headers)}")
         logger.info(f"Request data: {request.get_json()}")
         
-        # Here you would typically process the purchase
-        # For example, validate receipt, update user credits, etc.
+        # Apple Server Notification processing
+        data = request.get_json()
         
-        # Return success response
-        return jsonify({
-            'status': 'success',
-            'message': 'Purchase processed successfully'
-        }), 200
+        # Read private key from file
+        with open("/usr/local/.secrets/apple/.SubscriptionKey_6RCN2GN648.p8", "rb") as key_file:
+            private_key = key_file.read()
+
+        key_id = "6RCN2GN648"
+        issuer_id = "69a6de84-f57d-47e3-e053-5b8c7c11a4d1"
+        bundle_id = "com.tianzhistudio.multiverse"
+        environment = Environment.SANDBOX
+        
+        client = AppStoreServerAPIClient(private_key, key_id, issuer_id, bundle_id, environment)
+        
+        # Process the signed notification payload
+        try:
+            # Extract signedPayload from the request
+            signed_payload = data.get('signedPayload')
+            if not signed_payload:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Missing signedPayload in request'
+                }), 400
+                
+            # Decode and verify the JWS payload
+            decoded_payload = client.decode_signed_notification(signed_payload)
+            
+            # Process the notification based on its type
+            notification_type = decoded_payload.notification_type
+            
+            # Handle specific notification types
+            if notification_type == NotificationTypeV2.SUBSCRIBED:
+                # Process new subscription
+                # Here you would typically update user credits or subscription status
+                logger.info(f"New subscription: {decoded_payload}")
+                # TODO: Update user subscription status
+                
+            elif notification_type == NotificationTypeV2.DID_RENEW:
+                # Process subscription renewal
+                logger.info(f"Subscription renewed: {decoded_payload}")
+                # TODO: Update user subscription expiration date
+                
+            elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
+                # Process failed renewal
+                logger.info(f"Subscription failed to renew: {decoded_payload}")
+                # TODO: Mark subscription as expired
+                
+            # Add more notification types as needed
+            
+            return jsonify({
+                'status': 'success',
+                'message': f'Successfully processed {notification_type} notification'
+            }), 200
+            
+        except APIException as e:
+            logger.error(f"Apple API error: {str(e)}")
+            return jsonify({
+                'status': 'error',
+                'message': f'Failed to decode Apple notification: {str(e)}'
+            }), 400
+            
     except Exception as e:
         logger.error(f"Purchase processing error: {str(e)}")
         return jsonify({

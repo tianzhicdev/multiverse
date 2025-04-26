@@ -7,6 +7,7 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
+      - /usr/local/.secrets/apple/:/usr/local/.secrets/apple/
     env_file:
       - .env
     networks:
@@ -18,6 +19,7 @@ services:
       dockerfile: Dockerfile.background
     volumes:
       - .:/app
+      - /usr/local/.secrets/apple/:/usr/local/.secrets/apple/
     env_file:
       - .env
     depends_on:
