@@ -5,6 +5,8 @@ import logging
 from io import BytesIO
 import openai
 from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
+import tempfile
+from PIL import Image as PILImage
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,11 +38,31 @@ def generate_with_openai_image_1(prompt, image):
         
         # Generate image with GPT-image-1
         logger.info(f"type of image: {type(image)}")
-        result = client.images.edit(
-            model="gpt-image-1",
-            image=image,
-            prompt=prompt
-        )
+        # INFO:image_generator:type of image: <class '_io.BytesIO'>
+        # ERROR:image_generator:Error in OpenAI image edit: Error code: 400 - {'error': {'message': "Invalid file 'image': unsupported mimetype ('application/octet-stream'). Supported file formats are 'image/jpeg', 'image/png', and 'image/webp'.", 'type': 'invalid_request_error', 'param': 'image', 'code': 'unsupported_file_mimetype'}}
+        # Convert BytesIO to a temporary file with proper MIME type
+
+        
+        # Create a temporary file with the correct extension
+        temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+        temp_file_path = temp_file.name
+        temp_file.close()
+        
+        # Open the BytesIO with PIL and save as PNG
+        pil_image = PILImage.open(image)
+        pil_image.save(temp_file_path, format='PNG')
+        
+        # Use the temporary file for the API call
+        with open(temp_file_path, 'rb') as img_file:
+            result = client.images.edit(
+                model="gpt-image-1",
+                image=img_file,
+                prompt=prompt
+            )
+            
+        # Clean up the temporary file
+        import os
+        os.unlink(temp_file_path)
         
         # Get the generated image data
         if hasattr(result.data[0], 'b64_json'):
