@@ -2,7 +2,7 @@ from appstoreserverlibrary.api_client import AppStoreServerAPIClient, APIExcepti
 from appstoreserverlibrary.models.Environment import Environment
 
 # Read private key from file
-with open(".SubscriptionKey_6RCN2GN648.p8", "rb") as key_file:
+with open("/Users/biubiu/.secrets/.SubscriptionKey_6RCN2GN648.p8", "rb") as key_file:
     private_key = key_file.read()
 
 key_id = "6RCN2GN648"

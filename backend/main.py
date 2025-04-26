@@ -19,6 +19,7 @@ from appstoreserverlibrary.api_client import AppStoreServerAPIClient, APIExcepti
 from appstoreserverlibrary.models.Environment import Environment
 from appstoreserverlibrary.models.JWSTransactionDecodedPayload import JWSTransactionDecodedPayload
 from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
+from appstoreserverlibrary.signed_data_verifier import VerificationException, SignedDataVerifier
 # Load environment variables from .env file if present
 load_dotenv()
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -59,8 +60,13 @@ def process_purchase():
         issuer_id = "69a6de84-f57d-47e3-e053-5b8c7c11a4d1"
         bundle_id = "com.tianzhistudio.multiverse"
         environment = Environment.SANDBOX
+        app_apple_id = None  # Only required for Production environment
         
-        client = AppStoreServerAPIClient(private_key, key_id, issuer_id, bundle_id, environment)
+        # Initialize the SignedDataVerifier
+        root_certificates = []  # Load root certificates if needed
+        enable_online_checks = True
+        signed_data_verifier = SignedDataVerifier(root_certificates, enable_online_checks, 
+                                                 environment, bundle_id, app_apple_id)
         
         # Process the signed notification payload
         try:
@@ -73,7 +79,7 @@ def process_purchase():
                 }), 400
                 
             # Decode and verify the JWS payload
-            decoded_payload = client.decode_signed_notification(signed_payload)
+            decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
             
             # Process the notification based on its type
             notification_type = decoded_payload.notification_type
@@ -102,11 +108,11 @@ def process_purchase():
                 'message': f'Successfully processed {notification_type} notification'
             }), 200
             
-        except APIException as e:
-            logger.error(f"Apple API error: {str(e)}")
+        except VerificationException as e:
+            logger.error(f"Apple notification verification error: {str(e)}")
             return jsonify({
                 'status': 'error',
-                'message': f'Failed to decode Apple notification: {str(e)}'
+                'message': f'Failed to verify Apple notification: {str(e)}'
             }), 400
             
     except Exception as e:
