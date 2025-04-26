@@ -6,8 +6,7 @@ from io import BytesIO
 import openai
 from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 import tempfile
-from PIL import Image as PILImage
-
+from PIL import Image 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ pollinations_limiter = Limiter(pollinations_rate)
 openai_image1_limiter = Limiter(openai_image1_rate)  # New limiter for GPT Image 1
 
 
-def generate_with_openai_image_1(prompt, image):
+def generate_with_openai_image_1(prompt, image_file):
     """Generate image using OpenAI's GPT-image-1 model with image editing"""
     try:
         openai_image1_limiter.try_acquire("openai_image1_gen")
@@ -37,33 +36,19 @@ def generate_with_openai_image_1(prompt, image):
         client = openai.OpenAI(api_key=api_key)
         
         # Generate image with GPT-image-1
-        logger.info(f"type of image: {type(image)}")
-        # INFO:image_generator:type of image: <class '_io.BytesIO'>
-        # ERROR:image_generator:Error in OpenAI image edit: Error code: 400 - {'error': {'message': "Invalid file 'image': unsupported mimetype ('application/octet-stream'). Supported file formats are 'image/jpeg', 'image/png', and 'image/webp'.", 'type': 'invalid_request_error', 'param': 'image', 'code': 'unsupported_file_mimetype'}}
-        # Convert BytesIO to a temporary file with proper MIME type
-
-        
-        # Create a temporary file with the correct extension
-        temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
-        temp_file_path = temp_file.name
-        
-        # Write the BytesIO content directly to the file
-        image.seek(0)
-        with open(temp_file_path, 'wb') as f:
-            f.write(image.read())
+        img = Image.open(image_file)
+        buffered = BytesIO()
+        img.save(buffered, format=img.format or "JPEG")
+        encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
         
         # Use the temporary file for the API call
-        with open(temp_file_path, 'rb') as img_file:
-            result = client.images.edit(
-                model="gpt-image-1",
-                image=img_file,
-                prompt=prompt
-            )
-            
-        # Clean up the temporary file
-        import os
-        os.unlink(temp_file_path)
-        
+
+        result = client.images.edit(
+            model="gpt-image-1",
+            image=f"data:image/{img.format.lower() if img.format else 'jpeg'};base64,{encoded_image}",
+            prompt=prompt
+        )
+
         # Get the generated image data
         if hasattr(result.data[0], 'b64_json'):
             import base64
