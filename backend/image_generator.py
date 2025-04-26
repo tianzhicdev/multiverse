@@ -35,6 +35,7 @@ def generate_with_openai_image_1(prompt, image):
         client = openai.OpenAI(api_key=api_key)
         
         # Generate image with GPT-image-1
+        logger.info(f"type of image: {type(image)}")
         result = client.images.edit(
             model="gpt-image-1",
             image=image,
