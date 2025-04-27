@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 CORS(app)
 
 def load_root_certificates():
-    with open("/usr/local/.secrets/apple/AppleRootCA-G3.pem", "r") as f:
+    with open("/usr/local/.secrets/apple/AppleRootCA-G3.cer", "r") as f:
         return [f.read()]
 
 @app.route('/')
