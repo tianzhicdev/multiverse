@@ -3,7 +3,7 @@ from flask import request, send_file, jsonify
 import io
 import logging
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from helper import process_image_to_image
 from helper import theme_descriptions
 from helper import use_credits
@@ -21,7 +21,7 @@ from appstoreserverlibrary.models.JWSTransactionDecodedPayload import JWSTransac
 from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
 from appstoreserverlibrary.signed_data_verifier import VerificationException, SignedDataVerifier
 # Load environment variables from .env file if present
-load_dotenv()
+# load_dotenv()
 FLASK_PORT = os.getenv('FLASK_PORT')
 print(f"FLASK_PORT: {FLASK_PORT}")
 
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 CORS(app)
 
 def load_root_certificates():
-    with open("/usr/local/.secrets/apple/AppleRootCA-G3.cer", "r") as f:
+    with open("/usr/local/.secrets/apple/AppleRootCA-G3.cer", "rb") as f:
         return [f.read()]
 
 @app.route('/')
