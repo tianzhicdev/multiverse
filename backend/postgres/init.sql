@@ -33,7 +33,7 @@ CREATE TABLE image_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     request_id UUID NOT NULL,
     source_image_id UUID NOT NULL REFERENCES images(id),
-    theme_id TEXT NOT NULL,
+    theme_id UUID NOT NULL,
     result_image_id UUID NOT NULL,
     user_id UUID NOT NULL REFERENCES users(user_id),
     user_description TEXT,
