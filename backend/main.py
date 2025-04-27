@@ -37,6 +37,10 @@ logger = logging.getLogger(__name__)
 # Initialize CORS with default settings to allow all origins
 CORS(app)
 
+def load_root_certificates():
+    with open("/usr/local/.secrets/apple/AppleRootCA-G3.pem", "r") as f:
+        return [f.read()]
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -63,7 +67,7 @@ def process_purchase():
         app_apple_id = None  # Only required for Production environment
         
         # Initialize the SignedDataVerifier
-        root_certificates = []  # Load root certificates if needed
+        root_certificates = load_root_certificates()  # Load root certificates if needed
         enable_online_checks = True
         signed_data_verifier = SignedDataVerifier(root_certificates, enable_online_checks, 
                                                  environment, bundle_id, app_apple_id)
