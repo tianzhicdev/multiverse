@@ -84,32 +84,12 @@ def process_purchase():
                 
             # Decode and verify the JWS payload
             decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
+            logger.info(f"Decoded payload: {decoded_payload}")
             
-            # Process the notification based on its type
-            notification_type = decoded_payload.notification_type
-            
-            # Handle specific notification types
-            if notification_type == NotificationTypeV2.SUBSCRIBED:
-                # Process new subscription
-                # Here you would typically update user credits or subscription status
-                logger.info(f"New subscription: {decoded_payload}")
-                # TODO: Update user subscription status
-                
-            elif notification_type == NotificationTypeV2.DID_RENEW:
-                # Process subscription renewal
-                logger.info(f"Subscription renewed: {decoded_payload}")
-                # TODO: Update user subscription expiration date
-                
-            elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
-                # Process failed renewal
-                logger.info(f"Subscription failed to renew: {decoded_payload}")
-                # TODO: Mark subscription as expired
-                
-            # Add more notification types as needed
             
             return jsonify({
                 'status': 'success',
-                'message': f'Successfully processed {notification_type} notification'
+                'message': f'Successfully processed purchase notification'
             }), 200
             
         except VerificationException as e:
