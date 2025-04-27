@@ -11,11 +11,11 @@ import threading
 import time
 from io import BytesIO
 from db import execute_query
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import json
 from helper import process_image_to_image
 # Load environment variables
-load_dotenv()
+# load_dotenv()
 
 # Configure logging
 logging.basicConfig(
