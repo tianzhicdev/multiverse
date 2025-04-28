@@ -53,14 +53,57 @@ def register_routes(app):
                     
                 # Decode and verify the JWS payload
                 decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
-                logger.info(f"Decoded payload: {decoded_payload}")
-                # actrual decoded
-                # INFO:__main__:Decoded payload: ResponseBodyV2DecodedPayload(notificationType=<NotificationTypeV2.TEST: 'TEST'>, rawNotificationType='TEST', subtype=None, rawSubtype=None, notificationUUID='26fd6e37-a93d-4858-8ff7-7a5718d9c8e3', data=Data(environment=<Environment.SANDBOX: 'Sandbox'>, rawEnvironment='Sandbox', appAppleId=None, bundleId='com.tianzhistudio.multiverse', bundleVersion=None, signedTransactionInfo=None, signedRenewalInfo=None, status=None, rawStatus=None, consumptionRequestReason=None, rawConsumptionRequestReason=None), version='2.0', signedDate=1745723653645, summary=None, externalPurchaseToken=None)
+
                 
+                # Process different notification types
+                notification_type = decoded_payload.notificationType
+                response_message = "Successfully processed purchase notification"
+                
+                if notification_type == NotificationTypeV2.SUBSCRIBED:
+                    # Handle new subscription
+                    logger.info("Processing SUBSCRIBED notification")
+                    # Subscription product ID would be in transaction info
+                    product_id = "subscription.photons.500"  # Extract from transaction info if available
+                    response_message = f"Subscription started for {product_id}"
+                    # Add subscription to user account logic here
+                
+                elif notification_type == NotificationTypeV2.DID_RENEW:
+                    # Handle subscription renewal
+                    logger.info("Processing DID_RENEW notification")
+                    product_id = "subscription.photons.500"  # Extract from transaction info if available
+                    response_message = f"Subscription renewed for {product_id}"
+                    # Update subscription renewal date logic here
+                
+                elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
+                    # Handle failed renewal
+                    logger.info("Processing DID_FAIL_TO_RENEW notification")
+                    response_message = "Subscription failed to renew"
+                    # Update subscription status logic here
+                
+                elif notification_type == NotificationTypeV2.CONSUMPTION_REQUEST:
+                    # Handle one-time purchase
+                    logger.info("Processing CONSUMPTION_REQUEST notification")
+                    product_id = "consumable.photons.100"  # Extract from transaction info if available
+                    response_message = f"One-time purchase processed for {product_id}"
+                    # Add consumable items to user account logic here
+                
+                elif notification_type == NotificationTypeV2.REFUND:
+                    # Handle refund
+                    logger.info("Processing REFUND notification")
+                    response_message = "Refund processed"
+                    # Remove purchased items or subscription from user account logic here
+                
+                elif notification_type == NotificationTypeV2.TEST:
+                    # Handle test notification
+                    logger.info("Processing TEST notification")
+                    response_message = "Test notification processed"
+                else:
+                    response_message = f"Unknown notification type: {notification_type}"
+                    logger.info(f"Decoded payload: {decoded_payload}")
                 
                 return jsonify({
                     'status': 'success',
-                    'message': f'Successfully processed purchase notification'
+                    'message': response_message
                 }), 200
                 
             except VerificationException as e:
