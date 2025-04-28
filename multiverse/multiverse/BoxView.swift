@@ -4,6 +4,8 @@ import AVFoundation
 struct BoxView: View {
     let number: Int
     let items: [UploadItem]
+    let reloadTrigger: Int
+    
     @State private var imageData: Data?
     @State private var isLoading = false
     @State private var showError = false
@@ -69,6 +71,17 @@ struct BoxView: View {
         }
         .task {
             await loadImage()
+        }
+        .onChange(of: reloadTrigger) { oldValue, newValue in
+            if oldValue != newValue {
+                // Reset state
+                imageData = nil
+                isLoading = true
+                // Reload image
+                Task {
+                    await loadImage()
+                }
+            }
         }
         .alert("Error", isPresented: $showError) {
             Button("OK", role: .cancel) { }
@@ -289,4 +302,8 @@ struct FakeLoadingBar: View {
             }
         }
     }
+}
+
+#Preview {
+    BoxView(number: 1, items: [], reloadTrigger: 0)
 } 

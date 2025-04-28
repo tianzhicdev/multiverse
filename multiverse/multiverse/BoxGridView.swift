@@ -14,6 +14,7 @@ struct BoxGridView: View {
     
     // Reroll state
     @State private var isRerolling: Bool = false
+    @State private var reloadTrigger: Int = 0
     
     var body: some View {
         GeometryReader { geometry in
@@ -66,7 +67,7 @@ struct BoxGridView: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 4) {
                         ForEach(0..<totalBoxes, id: \.self) { index in
-                            BoxView(number: index + 1, items: items)
+                            BoxView(number: index + 1, items: items, reloadTrigger: reloadTrigger)
                                 .frame(height: boxHeight)
                         }
                     }
@@ -150,6 +151,11 @@ struct BoxGridView: View {
                     
                     // Refresh user credits
                     await fetchUserCredits()
+                    
+                    // Increment the reload trigger to force all boxes to reload
+                    await MainActor.run {
+                        reloadTrigger += 1
+                    }
                 }
                 
                 await MainActor.run {
