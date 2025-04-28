@@ -6,7 +6,14 @@ struct BoxGridView: View {
     @Query private var items: [UploadItem]
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
-    let totalBoxes = 12
+    let totalBoxes = 9
+    
+    // User credits state
+    @State private var userCredits: Int = 0
+    @State private var isLoadingCredits: Bool = false
+    
+    // Reroll state
+    @State private var isRerolling: Bool = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -15,11 +22,53 @@ struct BoxGridView: View {
             let rowCount = ceil(Double(totalBoxes) / 3.0)
             let boxHeight = (screenHeight - (4 * (rowCount - 1))) / rowCount
             
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 4) {
-                    ForEach(0..<totalBoxes, id: \.self) { index in
-                        BoxView(number: index + 1, items: items)
-                            .frame(height: boxHeight)
+            VStack {
+                // Credits display and Reroll button at the top
+                HStack {
+                    Button(action: rerollImages) {
+                        HStack {
+                            if isRerolling {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                            } else {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                            }
+                            Text("Reroll")
+                        }
+                        .padding(8)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .disabled(isRerolling)
+                    }
+                    
+                    Spacer()
+                    
+                    HStack {
+                        if isLoadingCredits {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else {
+                            Image(systemName: "creditcard")
+                                .foregroundColor(.green)
+                        }
+                        Text("Credits: \(userCredits)")
+                            .fontWeight(.semibold)
+                    }
+                    .padding(8)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(8)
+                    .shadow(radius: 1)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 10)
+                
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 4) {
+                        ForEach(0..<totalBoxes, id: \.self) { index in
+                            BoxView(number: index + 1, items: items)
+                                .frame(height: boxHeight)
+                        }
                     }
                 }
             }
@@ -30,6 +79,110 @@ struct BoxGridView: View {
                 print("BoxGridView: Loaded API response with \(apiResponse.images.count) images")
             } else {
                 print("BoxGridView: No API response data found")
+            }
+            
+            // Fetch user credits when view appears
+            fetchUserCredits()
+        }
+    }
+    
+    // Function to reroll images
+    private func rerollImages() {
+        guard !isRerolling else { return }
+        
+        isRerolling = true
+        
+        // Get the stored inputs for rerolling
+        let generationInputs = APIResponseStore.shared.getLastGenerationInputs()
+        let sourceImageData = APIResponseStore.shared.getLastSourceImage()
+        
+        // If we don't have the required inputs, we can't reroll
+        guard let inputs = generationInputs else {
+            print("Can't reroll: No generation inputs available")
+            isRerolling = false
+            return
+        }
+        
+        // Clear existing API response
+        APIResponseStore.shared.clearLastResponse()
+        print("Cleared previous API response data for reroll")
+        
+        Task {
+            do {
+                // Call the API to generate new images with the same inputs
+                let result = try await NetworkService.shared.uploadToCreateAPI(
+                    imageData: sourceImageData,
+                    userID: UserManager.shared.getCurrentUserID(),
+                    userDescription: inputs.userDescription,
+                    numThemes: totalBoxes
+                )
+                
+                print("Successfully rerolled images: \(result)")
+                
+                // Process the new API response
+                if let requestID = result["request_id"] as? String,
+                   let sourceImageID = result["source_image_id"] as? String,
+                   let imagesArray = result["images"] as? [[String: Any]] {
+                    
+                    let themeImages = imagesArray.compactMap { imageDict -> ThemeImage? in
+                        guard let resultImageID = imageDict["result_image_id"] as? String,
+                              let themeID = imageDict["theme_id"] as? String,
+                              let themeName = imageDict["theme_name"] as? String else {
+                            return nil
+                        }
+                        
+                        return ThemeImage(resultImageID: resultImageID, themeID: themeID, themeName: themeName)
+                    }
+                    
+                    let apiResponse = APIResponse(
+                        requestID: requestID,
+                        sourceImageID: sourceImageID,
+                        images: themeImages
+                    )
+                    
+                    // Save the new response with the same inputs
+                    APIResponseStore.shared.saveResponse(
+                        apiResponse,
+                        userDescription: inputs.userDescription, 
+                        sourceImageData: sourceImageData
+                    )
+                    print("Stored rerolled API response with \(themeImages.count) theme images")
+                    
+                    // Refresh user credits
+                    await fetchUserCredits()
+                }
+                
+                await MainActor.run {
+                    isRerolling = false
+                }
+            } catch {
+                print("Error rerolling images: \(error.localizedDescription)")
+                await MainActor.run {
+                    isRerolling = false
+                }
+            }
+        }
+    }
+    
+    // Function to fetch user credits
+    private func fetchUserCredits() {
+        isLoadingCredits = true
+        
+        Task {
+            do {
+                let credits = try await NetworkService.shared.fetchUserCredits(
+                    userID: UserManager.shared.getCurrentUserID()
+                )
+                
+                await MainActor.run {
+                    userCredits = credits
+                    isLoadingCredits = false
+                }
+            } catch {
+                print("Error fetching credits: \(error.localizedDescription)")
+                await MainActor.run {
+                    isLoadingCredits = false
+                }
             }
         }
     }

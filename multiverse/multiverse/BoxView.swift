@@ -12,6 +12,8 @@ struct BoxView: View {
     @State private var audioPlayer: AVAudioPlayer?
     @State private var wiggleAmount = 0.0
     @State private var themeName: String = ""
+    @State private var showSuccessAlert = false
+    @State private var successMessage = ""
     
     var body: some View {
         ZStack {
@@ -73,6 +75,13 @@ struct BoxView: View {
         } message: {
             Text(errorMessage)
         }
+        .alert("Success", isPresented: $showSuccessAlert) {
+            Button("OK", role: .cancel) { 
+                showFullImage = false
+            }
+        } message: {
+            Text(successMessage)
+        }
         .sheet(isPresented: $showFullImage) {
             
             if let imageData = imageData, let uiImage = UIImage(data: imageData) {
@@ -93,11 +102,35 @@ struct BoxView: View {
                     }
                     
                     Button("Download") {
-                        // The three nil parameters represent:
-                        // 1. The completion target (object to notify when saving completes)
-                        // 2. The completion selector (method to call when saving completes)
-                        // 3. The context info (additional data to pass to the completion method)
-                        UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
+                        // Deduct 10 credits for download
+                        Task {
+                            do {
+                                let userID = UserManager.shared.getCurrentUserID()
+                                
+                                // Try to deduct 10 credits
+                                let remainingCredits = try await NetworkService.shared.useCredits(
+                                    userID: userID,
+                                    credits: 10
+                                )
+                                
+                                // Credits deducted successfully, save the image
+                                await MainActor.run {
+                                    UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
+                                    // Show success alert
+                                    successMessage = "Image saved successfully! You have \(remainingCredits) credits remaining."
+                                    showSuccessAlert = true
+                                }
+                            } catch {
+                                // Handle error - likely insufficient credits
+                                print("Failed to download image: \(error.localizedDescription)")
+                                await MainActor.run {
+                                    // Show error alert
+                                    errorMessage = "Download failed: Insufficient credits. Each download costs 10 credits."
+                                    showError = true
+                                    showFullImage = false
+                                }
+                            }
+                        }
                     }
                     
                     Button("Close") {

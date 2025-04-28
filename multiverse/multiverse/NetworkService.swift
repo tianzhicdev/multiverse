@@ -278,4 +278,52 @@ class NetworkService {
             throw error
         }
     }
+    
+    func useCredits(userID: String, credits: Int) async throws -> Int {
+        logger.info("Using \(credits) credits for userID: \(userID)")
+        
+        let creditsURL = URL(string: "\(domain)/api/use_credits")!
+        var request = URLRequest(url: creditsURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": userID,
+            "credits": credits
+        ]
+        
+        do {
+            // Convert the dictionary to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse the response
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any],
+               let remainingCredits = jsonDict["remaining_credits"] as? Int {
+                logger.info("Successfully used \(credits) credits, remaining: \(remainingCredits)")
+                return remainingCredits
+            } else {
+                logger.error("Invalid JSON response or missing remaining_credits field")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response or missing remaining_credits field"])
+            }
+        } catch {
+            logger.error("Failed to use credits: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 

@@ -266,7 +266,7 @@ struct ContentView: View {
     private func processUpload() {
         // Call the backend API to create the image
         // Clear any previous API response data
-        APIResponseStore.shared.clearLastResponse()
+        APIResponseStore.shared.clearAll()
         print("Cleared previous API response data")
         Task {
             do {
@@ -274,7 +274,7 @@ struct ContentView: View {
                     imageData: imageData,
                     userID: userManager.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 12
+                    numThemes: 9
                 )
                 
                 print("Successfully uploaded to API/create: \(result)")
@@ -300,8 +300,12 @@ struct ContentView: View {
                         images: themeImages
                     )
                     
-                    // Save using the new APIResponseStore
-                    APIResponseStore.shared.saveResponse(apiResponse)
+                    // Save using the new APIResponseStore with additional data
+                    APIResponseStore.shared.saveResponse(
+                        apiResponse,
+                        userDescription: user_description,
+                        sourceImageData: imageData
+                    )
                     print("Stored API response with \(themeImages.count) theme images")
                     
                     // Refresh user credits

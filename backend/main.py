@@ -460,5 +460,43 @@ def get_user_credits(user_id):
         logger.error(f"Error retrieving user credits: {str(e)}")
         return jsonify({'error': f'Error retrieving user credits: {str(e)}'}), 500
 
+@app.route('/api/use_credits', methods=['POST'])
+def use_user_credits():
+    """
+    Use (deduct) credits from a user's account.
+    """
+    try:
+        user_id = request.json.get('user_id')
+        credits = request.json.get('credits', 0)
+        
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+            
+        if not isinstance(credits, int) or credits <= 0:
+            return jsonify({'error': 'Credits must be a positive integer'}), 400
+            
+        # Use the helper function to deduct credits
+        if use_credits(user_id, credits):
+            # If successful, get remaining credits
+            query = "SELECT credits FROM users WHERE user_id = %s"
+            result = execute_query(query, (user_id,))
+            remaining_credits = result[0][0]
+            
+            return jsonify({
+                'success': True,
+                'user_id': user_id,
+                'credits_used': credits,
+                'remaining_credits': remaining_credits
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Insufficient credits or user not found'
+            }), 400
+            
+    except Exception as e:
+        logger.error(f"Error using credits: {str(e)}")
+        return jsonify({'error': f'Error using credits: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)
