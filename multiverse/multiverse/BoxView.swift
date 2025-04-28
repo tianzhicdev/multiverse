@@ -26,7 +26,7 @@ struct BoxView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .blur(radius: 5)
+                    // .blur(radius: 5)
                     .clipped()
                     .rotationEffect(.degrees(wiggleAmount))
                     .onTapGesture {
@@ -130,8 +130,8 @@ struct BoxView: View {
             // Wait for API response
             var apiResponse: APIResponse?
             var retryCount = 0
-            let maxRetries = 20 // Maximum 20 retries
-            let retryDelay = 1.0 // 1 second between retries
+            let maxRetries = 100 // Maximum 20 retries
+            let retryDelay = 3.0 // 3 second between retries
             
             while retryCount < maxRetries {
                 if let response = APIResponseStore.shared.getLastResponse() {
