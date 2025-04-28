@@ -15,11 +15,7 @@ from db import execute_query
 import json
 from helper import get_themes
 from helper import image_gen
-from appstoreserverlibrary.api_client import AppStoreServerAPIClient, APIException
-from appstoreserverlibrary.models.Environment import Environment
-from appstoreserverlibrary.models.JWSTransactionDecodedPayload import JWSTransactionDecodedPayload
-from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
-from appstoreserverlibrary.signed_data_verifier import VerificationException, SignedDataVerifier
+from purchase import register_routes
 # Load environment variables from .env file if present
 # load_dotenv()
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -37,75 +33,12 @@ logger = logging.getLogger(__name__)
 # Initialize CORS with default settings to allow all origins
 CORS(app)
 
-def load_root_certificates():
-    with open("/usr/local/.secrets/apple/AppleRootCA-G3.cer", "rb") as f:
-        return [f.read()]
+# Register routes from purchase module
+register_routes(app)
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
-
-@app.route('/purchase', methods=['POST'])
-def process_purchase():
-    try:
-        # Log the purchase request
-        logger.info("Received purchase request")
-        logger.info(f"Request headers: {dict(request.headers)}")
-        logger.info(f"Request data: {request.get_json()}")
-        
-        # Apple Server Notification processing
-        data = request.get_json()
-        
-        # Read private key from file
-        with open("/usr/local/.secrets/apple/.SubscriptionKey_6RCN2GN648.p8", "rb") as key_file:
-            private_key = key_file.read()
-
-        key_id = "6RCN2GN648"
-        issuer_id = "69a6de84-f57d-47e3-e053-5b8c7c11a4d1"
-        bundle_id = "com.tianzhistudio.multiverse"
-        environment = Environment.SANDBOX
-        app_apple_id = None  # Only required for Production environment
-        
-        # Initialize the SignedDataVerifier
-        root_certificates = load_root_certificates()  # Load root certificates if needed
-        enable_online_checks = True
-        signed_data_verifier = SignedDataVerifier(root_certificates, enable_online_checks, 
-                                                 environment, bundle_id, app_apple_id)
-        
-        # Process the signed notification payload
-        try:
-            # Extract signedPayload from the request
-            signed_payload = data.get('signedPayload')
-            if not signed_payload:
-                return jsonify({
-                    'status': 'error',
-                    'message': 'Missing signedPayload in request'
-                }), 400
-                
-            # Decode and verify the JWS payload
-            decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
-            logger.info(f"Decoded payload: {decoded_payload}")
-            
-            
-            return jsonify({
-                'status': 'success',
-                'message': f'Successfully processed purchase notification'
-            }), 200
-            
-        except VerificationException as e:
-            logger.error(f"Apple notification verification error: {str(e)}")
-            return jsonify({
-                'status': 'error',
-                'message': f'Failed to verify Apple notification: {str(e)}'
-            }), 400
-            
-    except Exception as e:
-        logger.error(f"Purchase processing error: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f'Purchase processing failed: {str(e)}'
-        }), 500
-
 
 @app.route('/api/image_gen_test', methods=['GET'])
 def image_gen_test():
