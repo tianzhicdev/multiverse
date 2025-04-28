@@ -430,5 +430,31 @@ def download_image(result_image_id):
         logger.error(f"Error downloading image: {str(e)}")
         return jsonify({'error': f'Error downloading image: {str(e)}'}), 500
 
+@app.route('/api/credits/<user_id>', methods=['GET'])
+def get_user_credits(user_id):
+    """
+    Get the credit balance for a user.
+    """
+    try:
+        logger.info(f"Received request for credits for user: {user_id}")
+        
+        # Check if user exists
+        query = "SELECT credits FROM users WHERE user_id = %s"
+        result = execute_query(query, (user_id,))
+        
+        if not result:
+            return jsonify({'error': 'User not found'}), 404
+            
+        credits = result[0][0]
+        
+        return jsonify({
+            'user_id': user_id,
+            'credits': credits
+        })
+            
+    except Exception as e:
+        logger.error(f"Error retrieving user credits: {str(e)}")
+        return jsonify({'error': f'Error retrieving user credits: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)

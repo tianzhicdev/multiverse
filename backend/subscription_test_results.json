@@ -1,0 +1,14 @@
+{
+  "SUBSCRIBED_subscription.photons.500": {
+    "success": false,
+    "error": "Unexpected error: request_test_notification() got an unexpected keyword argument 'notification_type'"
+  },
+  "DID_RENEW_subscription.photons.500": {
+    "success": false,
+    "error": "Unexpected error: request_test_notification() got an unexpected keyword argument 'notification_type'"
+  },
+  "DID_PURCHASE_consumable.photons.100": {
+    "success": false,
+    "error": "Unexpected error: request_test_notification() got an unexpected keyword argument 'notification_type'"
+  }
+}

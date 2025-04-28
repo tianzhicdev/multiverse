@@ -240,4 +240,42 @@ class NetworkService {
         throw lastError ?? NSError(domain: "NetworkError", code: -3, 
                                   userInfo: [NSLocalizedDescriptionKey: "Failed to fetch image after \(maxRetries) retries"])
     }
+    
+    // Add a new method to fetch user credits
+    func fetchUserCredits(userID: String) async throws -> Int {
+        logger.info("Fetching credits for userID: \(userID)")
+        
+        let creditsURL = URL(string: "\(domain)/api/credits/\(userID)")!
+        var request = URLRequest(url: creditsURL)
+        request.httpMethod = "GET"
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse and return the credits
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any],
+               let credits = jsonDict["credits"] as? Int {
+                logger.info("Received credits: \(credits)")
+                return credits
+            } else {
+                logger.error("Invalid JSON response or missing credits field")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response or missing credits field"])
+            }
+        } catch {
+            logger.error("Failed to fetch credits: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 

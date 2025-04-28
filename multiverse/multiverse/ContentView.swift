@@ -48,6 +48,10 @@ struct ContentView: View {
     // Predefined styles list
     private let styleOptions = ["Default", "Modern", "Vintage", "Minimal", "Bold", "Custom"]
     
+    // User credits
+    @State private var userCredits: Int = 0
+    @State private var isLoadingCredits: Bool = false
+    
     // StoreKit product identifiers
     // REPLACE THESE with your actual product identifiers from App Store Connect
     private let subscriptionProductID = "subscription.standard"
@@ -60,6 +64,27 @@ struct ContentView: View {
         NavigationStack {
             // VStack arranges its children vertically (one above another)
             VStack {
+                // Credits display at the top
+                HStack {
+                    Spacer()
+                    HStack {
+                        if isLoadingCredits {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else {
+                            Image(systemName: "creditcard")
+                                .foregroundColor(.green)
+                        }
+                        Text("Credits: \(userCredits)")
+                            .fontWeight(.semibold)
+                    }
+                    .padding(8)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(8)
+                    .shadow(radius: 1)
+                }
+                .padding(.bottom, 10)
+                
                 // PhotosPicker is a built-in component for selecting photos
                 // It shows the device's photo library
                 PhotosPicker(selection: $selectedImage, matching: .images) {
@@ -182,6 +207,31 @@ struct ContentView: View {
             .onAppear {
                 // Ensure the UserManager is initialized when the view appears
                 print("User ID: \(userManager.getCurrentUserID())")
+                // Fetch user credits
+                fetchUserCredits()
+            }
+        }
+    }
+    
+    // Function to fetch user credits
+    private func fetchUserCredits() {
+        isLoadingCredits = true
+        
+        Task {
+            do {
+                let credits = try await NetworkService.shared.fetchUserCredits(
+                    userID: userManager.getCurrentUserID()
+                )
+                
+                await MainActor.run {
+                    userCredits = credits
+                    isLoadingCredits = false
+                }
+            } catch {
+                print("Error fetching credits: \(error.localizedDescription)")
+                await MainActor.run {
+                    isLoadingCredits = false
+                }
             }
         }
     }
@@ -253,6 +303,9 @@ struct ContentView: View {
                     // Save using the new APIResponseStore
                     APIResponseStore.shared.saveResponse(apiResponse)
                     print("Stored API response with \(themeImages.count) theme images")
+                    
+                    // Refresh user credits
+                    fetchUserCredits()
                 }
             } catch {
                 print("Error uploading to API/create: \(error.localizedDescription)")
