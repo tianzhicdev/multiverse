@@ -104,58 +104,22 @@ struct BoxGridView: View {
             return
         }
         
-        // Clear existing API response
-        APIResponseStore.shared.clearLastResponse()
-        print("Cleared previous API response data for reroll")
-        
         Task {
             do {
-                // Call the API to generate new images with the same inputs
-                let result = try await NetworkService.shared.uploadToCreateAPI(
+                // Use the shared service to generate new images
+                let result = try await ImageGenerationService.shared.generateImages(
                     imageData: sourceImageData,
                     userID: UserManager.shared.getCurrentUserID(),
                     userDescription: inputs.userDescription,
                     numThemes: totalBoxes
                 )
                 
-                print("Successfully rerolled images: \(result)")
+                // Refresh user credits
+                await fetchUserCredits()
                 
-                // Process the new API response
-                if let requestID = result["request_id"] as? String,
-                   let sourceImageID = result["source_image_id"] as? String,
-                   let imagesArray = result["images"] as? [[String: Any]] {
-                    
-                    let themeImages = imagesArray.compactMap { imageDict -> ThemeImage? in
-                        guard let resultImageID = imageDict["result_image_id"] as? String,
-                              let themeID = imageDict["theme_id"] as? String,
-                              let themeName = imageDict["theme_name"] as? String else {
-                            return nil
-                        }
-                        
-                        return ThemeImage(resultImageID: resultImageID, themeID: themeID, themeName: themeName)
-                    }
-                    
-                    let apiResponse = APIResponse(
-                        requestID: requestID,
-                        sourceImageID: sourceImageID,
-                        images: themeImages
-                    )
-                    
-                    // Save the new response with the same inputs
-                    APIResponseStore.shared.saveResponse(
-                        apiResponse,
-                        userDescription: inputs.userDescription, 
-                        sourceImageData: sourceImageData
-                    )
-                    print("Stored rerolled API response with \(themeImages.count) theme images")
-                    
-                    // Refresh user credits
-                    await fetchUserCredits()
-                    
-                    // Increment the reload trigger to force all boxes to reload
-                    await MainActor.run {
-                        reloadTrigger += 1
-                    }
+                // Increment the reload trigger to force all boxes to reload
+                await MainActor.run {
+                    reloadTrigger += 1
                 }
                 
                 await MainActor.run {

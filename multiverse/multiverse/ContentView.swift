@@ -264,52 +264,21 @@ struct ContentView: View {
     
     // Function to process the upload and store API response
     private func processUpload() {
-        // Call the backend API to create the image
-        // Clear any previous API response data
-        APIResponseStore.shared.clearAll()
-        print("Cleared previous API response data")
         Task {
             do {
-                let result = try await NetworkService.shared.uploadToCreateAPI(
+                let result = try await ImageGenerationService.shared.generateImages(
                     imageData: imageData,
                     userID: userManager.getCurrentUserID(),
                     userDescription: user_description,
                     numThemes: 9
                 )
                 
-                print("Successfully uploaded to API/create: \(result)")
+                // Refresh user credits
+                fetchUserCredits()
                 
-                // Process the new API response format
-                if let requestID = result["request_id"] as? String,
-                   let sourceImageID = result["source_image_id"] as? String,
-                   let imagesArray = result["images"] as? [[String: Any]] {
-                    
-                    let themeImages = imagesArray.compactMap { imageDict -> ThemeImage? in
-                        guard let resultImageID = imageDict["result_image_id"] as? String,
-                              let themeID = imageDict["theme_id"] as? String,
-                              let themeName = imageDict["theme_name"] as? String else {
-                            return nil
-                        }
-                        
-                        return ThemeImage(resultImageID: resultImageID, themeID: themeID, themeName: themeName)
-                    }
-                    
-                    let apiResponse = APIResponse(
-                        requestID: requestID,
-                        sourceImageID: sourceImageID,
-                        images: themeImages
-                    )
-                    
-                    // Save using the new APIResponseStore with additional data
-                    APIResponseStore.shared.saveResponse(
-                        apiResponse,
-                        userDescription: user_description,
-                        sourceImageData: imageData
-                    )
-                    print("Stored API response with \(themeImages.count) theme images")
-                    
-                    // Refresh user credits
-                    fetchUserCredits()
+                // Navigate to BoxGridView
+                await MainActor.run {
+                    showBoxGrid = true
                 }
             } catch {
                 print("Error uploading to API/create: \(error.localizedDescription)")
