@@ -288,7 +288,7 @@ def get_themes(user_id, num):
     """
     try:
         # Query to get theme IDs and names from the database
-        query = "SELECT id, name FROM themes ORDER BY created_at DESC LIMIT %s"
+        query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
         result = execute_query(query, (num,))
         
         # Extract IDs and names from result
