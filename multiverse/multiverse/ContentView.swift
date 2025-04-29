@@ -166,13 +166,43 @@ struct ContentView: View {
                 .padding(.bottom)
                 
                 // Button to perform search
-                Button(action: performSearch) {
-                    Text("Search")
+                Button(action: {
+                    if userCredits >= 10 {
+                        Task {
+                            do {
+                                // Try to deduct 10 credits
+                                let remainingCredits = try await NetworkService.shared.useCredits(
+                                    userID: userManager.getCurrentUserID(),
+                                    credits: 10
+                                )
+                                
+                                await MainActor.run {
+                                    userCredits = remainingCredits
+                                    performSearch()
+                                }
+                            } catch {
+                                await MainActor.run {
+                                    errorMessage = "Failed to use credits: \(error.localizedDescription)"
+                                    showError = true
+                                }
+                            }
+                        }
+                    } else {
+                        errorMessage = "Insufficient credits. Each generation costs 10 credits."
+                        showError = true
+                    }
+                }) {
+                    HStack {
+                        Text("Search")
+                        Text("10")
+                            .font(.caption)
+                        Image(systemName: "creditcard")
+                    }
+                    .padding(8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
                 }
-                .padding(8)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
                 
                 // Store Button
                 Button(action: {

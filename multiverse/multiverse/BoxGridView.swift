@@ -16,6 +16,10 @@ struct BoxGridView: View {
     @State private var isRerolling: Bool = false
     @State private var reloadTrigger: Int = 0
     
+    // Error state
+    @State private var errorMessage: String = ""
+    @State private var showError: Bool = false
+    
     var body: some View {
         GeometryReader { geometry in
             let screenWidth = geometry.size.width
@@ -26,7 +30,14 @@ struct BoxGridView: View {
             VStack {
                 // Credits display and Reroll button at the top
                 HStack {
-                    Button(action: rerollImages) {
+                    Button(action: {
+                        if userCredits >= 10 {
+                            rerollImages()
+                        } else {
+                            errorMessage = "Insufficient credits. Each reroll costs 10 credits."
+                            showError = true
+                        }
+                    }) {
                         HStack {
                             if isRerolling {
                                 ProgressView()
@@ -35,6 +46,9 @@ struct BoxGridView: View {
                                 Image(systemName: "arrow.triangle.2.circlepath")
                             }
                             Text("Reroll")
+                            Text("10")
+                                .font(.caption)
+                            Image(systemName: "creditcard")
                         }
                         .padding(8)
                         .background(Color.blue)
@@ -67,7 +81,14 @@ struct BoxGridView: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 4) {
                         ForEach(0..<totalBoxes, id: \.self) { index in
-                            BoxView(number: index + 1, items: items, reloadTrigger: reloadTrigger)
+                            BoxView(
+                                number: index + 1,
+                                items: items,
+                                reloadTrigger: reloadTrigger,
+                                onCreditsUpdated: { newCredits in
+                                    userCredits = newCredits
+                                }
+                            )
                                 .frame(height: boxHeight)
                         }
                     }
@@ -93,6 +114,9 @@ struct BoxGridView: View {
         
         isRerolling = true
         
+        // Increment reload trigger immediately to force all boxes to restart
+        reloadTrigger += 1
+        
         // Get the stored inputs for rerolling
         let generationInputs = APIResponseStore.shared.getLastGenerationInputs()
         let sourceImageData = APIResponseStore.shared.getLastSourceImage()
@@ -106,6 +130,17 @@ struct BoxGridView: View {
         
         Task {
             do {
+                // First use the credits
+                let remainingCredits = try await NetworkService.shared.useCredits(
+                    userID: UserManager.shared.getCurrentUserID(),
+                    credits: 10
+                )
+                
+                // Update credits display
+                await MainActor.run {
+                    userCredits = remainingCredits
+                }
+                
                 // Use the shared service to generate new images
                 let result = try await ImageGenerationService.shared.generateImages(
                     imageData: sourceImageData,
@@ -114,20 +149,15 @@ struct BoxGridView: View {
                     numThemes: totalBoxes
                 )
                 
-                // Refresh user credits
-                await fetchUserCredits()
-                
-                // Increment the reload trigger to force all boxes to reload
-                await MainActor.run {
-                    reloadTrigger += 1
-                }
-                
+                // Set rerolling to false
                 await MainActor.run {
                     isRerolling = false
                 }
             } catch {
                 print("Error rerolling images: \(error.localizedDescription)")
                 await MainActor.run {
+                    errorMessage = "Failed to reroll: \(error.localizedDescription)"
+                    showError = true
                     isRerolling = false
                 }
             }

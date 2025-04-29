@@ -41,12 +41,13 @@ def dump_themes_to_db():
         print(f"Error dumping themes to database: {str(e)}")
         raise
 
-def dump_themes_cs_to_db():
+def dump_themes_csv_to_db():
     """
     Dump predefined theme descriptions to the database.
     Each theme from the theme_descriptions list in helper.py will be added
     to the themes table if it doesn't already exist.
-    
+    """
+    pass
     
 
 if __name__ == "__main__":

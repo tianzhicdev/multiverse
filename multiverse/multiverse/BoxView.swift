@@ -5,6 +5,7 @@ struct BoxView: View {
     let number: Int
     let items: [UploadItem]
     let reloadTrigger: Int
+    let onCreditsUpdated: ((Int) -> Void)?  // Add callback for credit updates
     
     @State private var imageData: Data?
     @State private var isLoading = false
@@ -16,6 +17,7 @@ struct BoxView: View {
     @State private var themeName: String = ""
     @State private var showSuccessAlert = false
     @State private var successMessage = ""
+    @State private var currentLoadTask: Task<Void, Never>?  // Add task tracking
     
     var body: some View {
         ZStack {
@@ -62,7 +64,7 @@ struct BoxView: View {
                         .padding(8)
                 }
             } else if isLoading {
-                FakeLoadingBar()
+                FakeLoadingBar(resetTrigger: reloadTrigger)
             } else {
                 Text("\(number)")
                     .font(.title)
@@ -74,11 +76,13 @@ struct BoxView: View {
         }
         .onChange(of: reloadTrigger) { oldValue, newValue in
             if oldValue != newValue {
+                // Cancel any ongoing load task
+                currentLoadTask?.cancel()
                 // Reset state
                 imageData = nil
                 isLoading = true
-                // Reload image
-                Task {
+                // Start new load task
+                currentLoadTask = Task {
                     await loadImage()
                 }
             }
@@ -115,10 +119,24 @@ struct BoxView: View {
                     }
                     
                     Button("Download") {
-                        // Deduct 10 credits for download
+                        // Check credits before attempting download
                         Task {
                             do {
                                 let userID = UserManager.shared.getCurrentUserID()
+                                
+                                // First check if user has enough credits
+                                let currentCredits = try await NetworkService.shared.fetchUserCredits(
+                                    userID: userID
+                                )
+                                
+                                if currentCredits < 10 {
+                                    await MainActor.run {
+                                        errorMessage = "Insufficient credits. Each download costs 10 credits."
+                                        showError = true
+                                        showFullImage = false
+                                    }
+                                    return
+                                }
                                 
                                 // Try to deduct 10 credits
                                 let remainingCredits = try await NetworkService.shared.useCredits(
@@ -132,6 +150,8 @@ struct BoxView: View {
                                     // Show success alert
                                     successMessage = "Image saved successfully! You have \(remainingCredits) credits remaining."
                                     showSuccessAlert = true
+                                    // Notify parent about credit update
+                                    onCreditsUpdated?(remainingCredits)
                                 }
                             } catch {
                                 // Handle error - likely insufficient credits
@@ -145,6 +165,22 @@ struct BoxView: View {
                             }
                         }
                     }
+                    .padding(8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    .overlay(
+                        HStack {
+                            Text("10")
+                                .font(.caption)
+                            Image(systemName: "creditcard")
+                        }
+                        .padding(4)
+                        .background(Color.white.opacity(0.2))
+                        .cornerRadius(4)
+                        .padding(.trailing, 8),
+                        alignment: .trailing
+                    )
                     
                     Button("Close") {
                         showFullImage = false
@@ -169,86 +205,111 @@ struct BoxView: View {
     }
     
     private func loadImage() async {
-        isLoading = true
-        print("BoxGridView: Loading image for box #\(number)")
-        
-        do {
-            // Wait for API response
-            var apiResponse: APIResponse?
-            var retryCount = 0
-            let maxRetries = 100 // Maximum 20 retries
-            let retryDelay = 3.0 // 3 second between retries
+        // Create a new task and store it
+        let task = Task {
+            isLoading = true
+            print("BoxGridView: Loading image for box #\(number)")
             
-            while retryCount < maxRetries {
-                if let response = APIResponseStore.shared.getLastResponse() {
-                    apiResponse = response
-                    break
-                }
+            do {
+                // Check if task was cancelled
+                try Task.checkCancellation()
                 
-                print("BoxGridView: Waiting for API response for box #\(number), retry \(retryCount + 1)/\(maxRetries)")
-                retryCount += 1
+                // Wait for API response
+                var apiResponse: APIResponse?
+                var retryCount = 0
+                let maxRetries = 100 // Maximum 20 retries
+                let retryDelay = 3.0 // 3 second between retries
                 
-                // Wait before trying again
-                try await Task.sleep(nanoseconds: UInt64(retryDelay * 1_000_000_000))
-            }
-            
-            // Check if we got the API response after retries
-            if let apiResponse = apiResponse, !apiResponse.images.isEmpty {
-                // Adjust the index (number-1) to get the right image from the array
-                let adjustedIndex = (number - 1) % apiResponse.images.count
-                let themeImage = apiResponse.images[adjustedIndex]
-                
-                print("BoxGridView: Box #\(number) using resultImageID: \(themeImage.resultImageID) with theme: \(themeImage.themeName)")
-                
-                // Set theme name
-                await MainActor.run {
-                    self.themeName = themeImage.themeName
-                }
-                
-                // Use the fetchImageWithRetry method which already has its own retry mechanism
-                let processedImageData = try await NetworkService.shared.fetchImageWithRetry(
-                    resultImageID: themeImage.resultImageID,
-                    maxRetries: 100,  // Maximum 100 retries
-                    retryDelay: 2.0   // 2 seconds between retries
-                )
-                
-                if let imageData = processedImageData {
-                    print("BoxGridView: Successfully loaded image for box #\(number), data size: \(imageData.count) bytes")
+                while retryCount < maxRetries {
+                    // Check if task was cancelled
+                    try Task.checkCancellation()
                     
-                    // Convert the image data to UIImage to verify it's valid
-                    if let uiImage = UIImage(data: imageData) {
-                        print("BoxGridView: Successfully converted data to UIImage for box #\(number)")
+                    if let response = APIResponseStore.shared.getLastResponse() {
+                        apiResponse = response
+                        break
+                    }
+                    
+                    print("BoxGridView: Waiting for API response for box #\(number), retry \(retryCount + 1)/\(maxRetries)")
+                    retryCount += 1
+                    
+                    // Wait before trying again
+                    try await Task.sleep(nanoseconds: UInt64(retryDelay * 1_000_000_000))
+                }
+                
+                // Check if task was cancelled
+                try Task.checkCancellation()
+                
+                // Check if we got the API response after retries
+                if let apiResponse = apiResponse, !apiResponse.images.isEmpty {
+                    // Adjust the index (number-1) to get the right image from the array
+                    let adjustedIndex = (number - 1) % apiResponse.images.count
+                    let themeImage = apiResponse.images[adjustedIndex]
+                    
+                    print("BoxGridView: Box #\(number) using resultImageID: \(themeImage.resultImageID) with theme: \(themeImage.themeName)")
+                    
+                    // Set theme name
+                    await MainActor.run {
+                        self.themeName = themeImage.themeName
+                    }
+                    
+                    // Check if task was cancelled
+                    try Task.checkCancellation()
+                    
+                    // Use the fetchImageWithRetry method which already has its own retry mechanism
+                    let processedImageData = try await NetworkService.shared.fetchImageWithRetry(
+                        resultImageID: themeImage.resultImageID,
+                        maxRetries: 100,  // Maximum 100 retries
+                        retryDelay: 2.0   // 2 seconds between retries
+                    )
+                    
+                    // Check if task was cancelled
+                    try Task.checkCancellation()
+                    
+                    if let imageData = processedImageData {
+                        print("BoxGridView: Successfully loaded image for box #\(number), data size: \(imageData.count) bytes")
                         
-                        await MainActor.run {
-                            self.imageData = imageData
-                            isLoading = false
+                        // Convert the image data to UIImage to verify it's valid
+                        if let uiImage = UIImage(data: imageData) {
+                            print("BoxGridView: Successfully converted data to UIImage for box #\(number)")
+                            
+                            await MainActor.run {
+                                self.imageData = imageData
+                                isLoading = false
+                            }
+                        } else {
+                            print("BoxGridView: Failed to convert data to UIImage for box #\(number)")
+                            throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid image data received"])
                         }
                     } else {
-                        print("BoxGridView: Failed to convert data to UIImage for box #\(number)")
-                        throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid image data received"])
+                        print("BoxGridView: No image data received for box #\(number)")
+                        throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No image data received"])
                     }
                 } else {
-                    print("BoxGridView: No image data received for box #\(number)")
-                    throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No image data received"])
+                    print("BoxGridView: No API response found after \(maxRetries) retries for box #\(number)")
+                    throw NSError(domain: "DataError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No result image IDs found after waiting. Please upload an image first."])
                 }
-            } else {
-                print("BoxGridView: No API response found after \(maxRetries) retries for box #\(number)")
-                throw NSError(domain: "DataError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No result image IDs found after waiting. Please upload an image first."])
-            }
-        } catch {
-            print("BoxGridView: Error loading image for box #\(number): \(error.localizedDescription)")
-            await MainActor.run {
-                isLoading = false
-                errorMessage = error.localizedDescription
-                showError = true
+            } catch {
+                // Only show error if task wasn't cancelled
+                if !Task.isCancelled {
+                    print("BoxGridView: Error loading image for box #\(number): \(error.localizedDescription)")
+                    await MainActor.run {
+                        isLoading = false
+                        errorMessage = error.localizedDescription
+                        showError = true
+                    }
+                }
             }
         }
+        
+        // Store the task
+        currentLoadTask = task
     }
 }
 
 struct FakeLoadingBar: View {
     @State private var progress: Double = 0.0
     @State private var timer: Timer?
+    let resetTrigger: Int  // Add reset trigger
     
     var body: some View {
         VStack {
@@ -272,6 +333,12 @@ struct FakeLoadingBar: View {
                 .padding(.top, 4)
         }
         .onAppear {
+            startFakeLoading()
+        }
+        .onChange(of: resetTrigger) { _, _ in
+            // Reset and restart loading when trigger changes
+            timer?.invalidate()
+            progress = 0.0
             startFakeLoading()
         }
         .onDisappear {
@@ -305,5 +372,5 @@ struct FakeLoadingBar: View {
 }
 
 #Preview {
-    BoxView(number: 1, items: [], reloadTrigger: 0)
+    BoxView(number: 1, items: [], reloadTrigger: 0, onCreditsUpdated: nil)
 } 
