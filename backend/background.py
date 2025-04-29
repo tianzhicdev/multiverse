@@ -2,8 +2,8 @@
 """
 Background Processing Script for Image Requests
 
-This script continually polls the image_requests table for entries with 'new' or 'retry' status,
-then processes each request in a separate thread.
+This script maintains a pool of worker threads that continuously process image requests
+from a queue, allowing for better concurrency and reduced processing delays.
 """
         
 import logging
@@ -11,19 +11,22 @@ import threading
 import time
 from io import BytesIO
 from db import execute_query
-# from dotenv import load_dotenv
 import json
 from helper import process_image_to_image, image_gen
-# Load environment variables
-# load_dotenv()
+from queue import Queue
+import queue
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+
+# Global queue for image requests
+request_queue = Queue()
+# Event to signal workers to stop
+stop_event = threading.Event()
 
 def update_request_status(result_image_id, status):
     """Update the status of an image request."""
@@ -63,27 +66,27 @@ def get_pending_requests():
     
     return pending_requests
 
-def process_request(request_id, result_image_id, user_id, theme_id, theme_name, theme, source_image_id, source_image_data, user_description):
-    """Process a single image request in a separate thread."""
+def process_request(request):
+    """Process a single image request."""
     try:
-        logger.info(f"Processing request {request_id}")
+        logger.info(f"Processing request {request['request_id']}")
         
         # Update status to pending
-        update_request_status(result_image_id, 'pending')
+        update_request_status(request['result_image_id'], 'pending')
         
         # Create a BytesIO object from the source image data
-        image_file = BytesIO(source_image_data)
+        image_file = BytesIO(request['source_image_data'])
         
         # Process the image with the selected theme
         result_image = process_image_to_image(
             image_file,
-            user_description,
-            theme
+            request['user_description'],
+            request['theme']
         )
         
         # Save the processed image data to the database
         result_data = result_image.getvalue()
-        metadata = {"theme_id": theme_id, "process_method": "process_image_to_image"}
+        metadata = {"theme_id": request['theme_id'], "process_method": "process_image_to_image"}
         metadata_json = json.dumps(metadata)
         
         query = """
@@ -96,119 +99,74 @@ def process_request(request_id, result_image_id, user_id, theme_id, theme_name, 
         """
         execute_query(
             query, 
-            (result_image_id, user_id, result_data, 'image/jpeg', metadata_json)
+            (request['result_image_id'], request['user_id'], result_data, 'image/jpeg', metadata_json)
         )
         
         # Update the request status to ready
-        update_request_status(result_image_id, 'ready')
+        update_request_status(request['result_image_id'], 'ready')
         
-        logger.info(f"Successfully processed request {request_id}")
+        logger.info(f"Successfully processed request {request['request_id']}")
         
     except Exception as e:
-        logger.error(f"Error processing request {request_id}: {str(e)}")
+        logger.error(f"Error processing request {request['request_id']}: {str(e)}")
         logger.debug(f"Stack trace:", exc_info=True)
         
         # Update the request status to retry
-        update_request_status(result_image_id, 'retry')
+        update_request_status(request['result_image_id'], 'retry')
 
-def process_request_test(request_id, result_image_id, user_id, theme_id):
-    """Process a single image request in a separate thread."""
-    try:
-        logger.info(f"Processing test request {request_id}")
-        
-        # Update status to pending
-        update_request_status(result_image_id, 'pending')
-        
-        # Get an existing image from the database to use as test data
-        fetch_query = "SELECT data, mime_type FROM images LIMIT 1"
-        image_result = execute_query(fetch_query)
-        
-        if not image_result:
-            logger.error("Test image not found in database")
-            raise Exception("Test image not found in database")
-            
-        real_image_data = image_result[0][0]
-        mime_type = image_result[0][1]
-        
-        # Insert the image
-        metadata = {"theme_id": theme_id, "process_method": "test_existing_image"}
-        metadata_json = json.dumps(metadata)
-        
-        query = """
-            INSERT INTO images (id, user_id, data, mime_type, metadata) 
-            VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (id) DO UPDATE 
-            SET data = EXCLUDED.data, 
-                mime_type = EXCLUDED.mime_type,
-                metadata = EXCLUDED.metadata
-        """
-        execute_query(
-            query, 
-            (result_image_id, user_id, real_image_data, mime_type, metadata_json)
-        )
-        
-        # Update the request status to ready
-        update_request_status(result_image_id, 'ready')
-        
-        logger.info(f"Successfully processed test request {request_id}")
-        
-    except Exception as e:
-        logger.error(f"Error processing test request {request_id}: {str(e)}")
-        logger.debug("Stack trace:", exc_info=True)
-        
-        # Update the request status to retry
-        update_request_status(result_image_id, 'retry')
-
-def request_processor(requests):
-    """Process multiple requests, each in its own thread."""
-    threads = []
-    
-    for request in requests:
-        id = request["id"]
-        request_id = request["request_id"]
-        result_image_id = request["result_image_id"]
-        user_id = request["user_id"]
-        theme_id = request["theme_id"]
-        theme_name = request["theme_name"]
-        theme = request["theme"]
-        source_image_id = request["source_image_id"]
-        source_image_data = request["source_image_data"]
-        user_description = request["user_description"]
-        
-        # Create and start a new thread for each request
-        thread = threading.Thread(
-            target=process_request,
-            args=(request_id, result_image_id, user_id, theme_id, theme_name, theme, source_image_id, source_image_data, user_description)
-        )
-        thread.start()
-        threads.append(thread)
-    
-    # Wait for all threads to complete
-    for thread in threads:
-        thread.join()
+def worker():
+    """Worker thread that continuously processes requests from the queue."""
+    while not stop_event.is_set():
+        try:
+            # Get a request from the queue with a timeout
+            request = request_queue.get(timeout=1)
+            if request:
+                process_request(request)
+                request_queue.task_done()
+        except queue.Empty:
+            # Queue is empty, continue waiting
+            continue
+        except Exception as e:
+            logger.error(f"Error in worker thread: {str(e)}")
+            logger.debug("Stack trace:", exc_info=True)
 
 def main():
     """Main background process loop."""
     logger.info("Starting background image request processor")
     
-    while True:
-        try:
-            # Get pending requests
-            pending_requests = get_pending_requests()
-            
-            if pending_requests:
-                logger.info(f"Processing {len(pending_requests)} pending requests")
-                request_processor(pending_requests)
-            else:
-                logger.info("No pending requests found")
-            
-            # Sleep before checking again
-            time.sleep(5)
+    # Create and start worker threads
+    num_workers = 4  # Adjust based on your system's capabilities
+    workers = []
+    for _ in range(num_workers):
+        t = threading.Thread(target=worker)
+        t.daemon = True
+        t.start()
+        workers.append(t)
+    
+    try:
+        while not stop_event.is_set():
+            try:
+                # Get pending requests
+                pending_requests = get_pending_requests()
                 
-        except Exception as e:
-            logger.error(f"Error in main loop: {str(e)}")
-            logger.debug("Stack trace:", exc_info=True)
-            time.sleep(30)  # Sleep longer if there was an error
+                if pending_requests:
+                    logger.info(f"Adding {len(pending_requests)} requests to queue")
+                    for request in pending_requests:
+                        request_queue.put(request)
+                
+                # Sleep before checking again
+                time.sleep(1)
+                    
+            except Exception as e:
+                logger.error(f"Error in main loop: {str(e)}")
+                logger.debug("Stack trace:", exc_info=True)
+                time.sleep(30)  # Sleep longer if there was an error
+    except KeyboardInterrupt:
+        logger.info("Shutting down...")
+        stop_event.set()
+        # Wait for all workers to finish
+        for worker in workers:
+            worker.join()
 
 if __name__ == "__main__":
     main()
