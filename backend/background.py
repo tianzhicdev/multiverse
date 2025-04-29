@@ -34,7 +34,8 @@ def update_request_status(result_image_id, status):
     execute_query(query, (status, result_image_id))
 
 def get_pending_requests():
-    """Get all image requests with 'new' or 'retry' status."""
+    """Get all image requests with 'new' or 'retry' status and update them to 'pending'."""
+    # First get the requests
     query = """
         SELECT ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, 
                t.name as theme_name, t.theme, ir.source_image_id, i.data, ir.user_description
@@ -63,6 +64,15 @@ def get_pending_requests():
                 "source_image_data": row[8],
                 "user_description": row[9]
             })
+        
+        # Update the status of all fetched requests to 'pending'
+        update_query = """
+            UPDATE image_requests 
+            SET status = 'pending' 
+            WHERE id IN %s
+        """
+        request_ids = tuple(request["id"] for request in pending_requests)
+        execute_query(update_query, (request_ids,))
     
     return pending_requests
 
@@ -70,9 +80,6 @@ def process_request(request):
     """Process a single image request."""
     try:
         logger.info(f"Processing request {request['request_id']}")
-        
-        # Update status to pending
-        update_request_status(request['result_image_id'], 'pending')
         
         # Create a BytesIO object from the source image data
         image_file = BytesIO(request['source_image_data'])
