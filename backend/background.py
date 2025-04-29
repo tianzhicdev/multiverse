@@ -165,8 +165,8 @@ def main():
         logger.info("Shutting down...")
         stop_event.set()
         # Wait for all workers to finish
-        for worker in workers:
-            worker.join()
+        for worker_thread in workers:
+            worker_thread.join()
 
 if __name__ == "__main__":
     main()
