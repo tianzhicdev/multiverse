@@ -27,11 +27,17 @@ struct ContentView: View {
     // Stores the actual image data (the bytes that make up the image)
     @State private var imageData: Data?
     
+    // Stores the source image ID
+    @State private var sourceImageID: String?
+    
     // Stores the text entered by the user
     @State private var user_description: String = ""
     
     // Tracks whether an upload is in progress
     @State private var isUploading = false
+    
+    // Tracks whether a search is in progress
+    @State private var isSearching = false
     
     // Controls whether to show an error message
     @State private var showError = false
@@ -123,16 +129,20 @@ struct ContentView: View {
                     // Think of it like creating a separate thread of execution
                     // that runs in the background while the rest of the app continues to work
                     Task {
-                        // Load the selected image data asynchronously
-                        // newValue?: The optional PhotosPickerItem (might be nil)
-                        // loadTransferable: A method that converts the selected item into usable data
-                        // type: Data.self: Specifies we want the raw data of the image
-                        // Data is Swift's type for raw binary data - just a sequence of bytes
-                        // In this case, it's the actual bytes that make up the image file
-                        // (like what you'd see if you opened an image file in a text editor)
-                        // try?: Attempts to load the data, returns nil if it fails
                         if let data = try? await newValue?.loadTransferable(type: Data.self) {
                             imageData = data
+                            // Start upload process
+                            isUploading = true
+                            do {
+                                sourceImageID = try await NetworkService.shared.uploadImage(
+                                    imageData: data,
+                                    userID: userManager.getCurrentUserID()
+                                )
+                            } catch {
+                                errorMessage = "Failed to upload image: \(error.localizedDescription)"
+                                showError = true
+                            }
+                            isUploading = false
                         }
                     }
                 }
@@ -175,6 +185,7 @@ struct ContentView: View {
                 Button(action: {
                     if userCredits >= 10 {
                         Task {
+                            isSearching = true
                             do {
                                 // Try to deduct 10 credits
                                 let remainingCredits = try await NetworkService.shared.useCredits(
@@ -192,6 +203,7 @@ struct ContentView: View {
                                     showError = true
                                 }
                             }
+                            isSearching = false
                         }
                     } else {
                         errorMessage = "Insufficient credits. Each generation costs 10 credits."
@@ -199,7 +211,12 @@ struct ContentView: View {
                     }
                 }) {
                     HStack {
-                        Text("Search")
+                        if isSearching {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else {
+                            Text("Search")
+                        }
                         Text("10")
                             .font(.caption)
                         Image(systemName: "creditcard")
@@ -209,6 +226,7 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
+                .disabled(isUploading || sourceImageID == nil)  // Disable if uploading or no source image ID
                 
                 // Store Button
                 Button(action: {
@@ -293,17 +311,51 @@ struct ContentView: View {
     
     // Function to perform search with selected style
     private func performSearch() {
-        // Here you would implement the search functionality
-        print("Searching with text: \(searchText) and style: \(selectedStyle)")
-        uploadItem()
+        guard let sourceImageID = sourceImageID else {
+            errorMessage = "No image uploaded yet"
+            showError = true
+            return
+        }
+        
+        Task {
+            do {
+                let result = try await ImageGenerationService.shared.generateImages(
+                    sourceImageID: sourceImageID,
+                    userID: userManager.getCurrentUserID(),
+                    userDescription: user_description,
+                    numThemes: 9
+                )
+                
+                // Refresh user credits
+                fetchUserCredits()
+                
+                // Navigate to BoxGridView
+                await MainActor.run {
+                    showBoxGrid = true
+                }
+            } catch {
+                print("Error performing search: \(error.localizedDescription)")
+                await MainActor.run {
+                    errorMessage = "Search failed: \(error.localizedDescription)"
+                    showError = true
+                }
+            }
+        }
     }
     
     // Function to process the upload and store API response
     private func processUpload() {
         Task {
             do {
+                guard let imageData = imageData,
+                      let processedImageData = ImagePreprocessor.preprocessImage(imageData) else {
+                    errorMessage = "Failed to process image"
+                    showError = true
+                    return
+                }
+                
                 let result = try await ImageGenerationService.shared.generateImages(
-                    imageData: imageData,
+                    imageData: processedImageData,
                     userID: userManager.getCurrentUserID(),
                     userDescription: user_description,
                     numThemes: 9

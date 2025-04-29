@@ -6,7 +6,7 @@ class ImageGenerationService {
     private init() {}
     
     func generateImages(
-        imageData: Data?,
+        sourceImageID: String,
         userID: String,
         userDescription: String,
         numThemes: Int
@@ -17,7 +17,7 @@ class ImageGenerationService {
         
         // Call the backend API to create the image
         let result = try await NetworkService.shared.uploadToCreateAPI(
-            imageData: imageData,
+            sourceImageID: sourceImageID,
             userID: userID,
             userDescription: userDescription,
             numThemes: numThemes
@@ -50,7 +50,7 @@ class ImageGenerationService {
             APIResponseStore.shared.saveResponse(
                 apiResponse,
                 userDescription: userDescription,
-                sourceImageData: imageData
+                sourceImageData: nil  // We don't need to store the source image data anymore
             )
             print("Stored API response with \(themeImages.count) theme images")
             

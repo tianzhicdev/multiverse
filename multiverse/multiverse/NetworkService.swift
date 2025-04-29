@@ -76,8 +76,8 @@ class NetworkService {
     }
     
     func uploadToCreateAPI(imageData: Data?, userID: String, userDescription: String, numThemes: Int) async throws -> [String: Any] {
-        logger.info("Starting upload to /api/create with userID: \(userID)")
-        
+        let timestamp = Date()
+        logger.info("Starting upload to /api/create with userID: \(userID) at \(timestamp)")
         let createURL = URL(string: "\(domain)/api/create")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
@@ -114,6 +114,7 @@ class NetworkService {
             body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
             body.append(imageData)
             body.append("\r\n".data(using: .utf8)!)
+            logger.info("Image data added to request")
         } else {
             logger.info("No image data provided")
         }
@@ -139,7 +140,79 @@ class NetworkService {
             if let jsonObject = try? JSONSerialization.jsonObject(with: data),
                let jsonDict = jsonObject as? [String: Any] {
                 // Log the successful response
-                logger.info("Received response: \(jsonDict)")
+                let timestamp = Date()
+                logger.info("Received response at \(timestamp): \(jsonDict)")
+                return jsonDict
+            } else {
+                logger.error("Invalid JSON response")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response"])
+            }
+        } catch {
+            logger.error("Network request failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func uploadToCreateAPI(sourceImageID: String, userID: String, userDescription: String, numThemes: Int) async throws -> [String: Any] {
+        let timestamp = Date()
+        logger.info("Starting upload to /api/roll with userID: \(userID) at \(timestamp)")
+        let createURL = URL(string: "\(domain)/api/roll")!
+        var request = URLRequest(url: createURL)
+        request.httpMethod = "POST"
+        
+        // Create multipart form data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add user_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append(userID.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add source_image_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"source_image_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append(sourceImageID.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add user_description
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_description\"\r\n\r\n".data(using: .utf8)!)
+        body.append(userDescription.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add num_themes
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"num_themes\"\r\n\r\n".data(using: .utf8)!)
+        body.append(String(numThemes).data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse and return the JSON response
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any] {
+                // Log the successful response
+                let timestamp = Date()
+                logger.info("Received response at \(timestamp): \(jsonDict)")
                 return jsonDict
             } else {
                 logger.error("Invalid JSON response")
@@ -323,6 +396,65 @@ class NetworkService {
             }
         } catch {
             logger.error("Failed to use credits: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func uploadImage(imageData: Data, userID: String) async throws -> String {
+        logger.info("Uploading image for userID: \(userID)")
+        
+        let uploadURL = URL(string: "\(domain)/api/upload")!
+        var request = URLRequest(url: uploadURL)
+        request.httpMethod = "POST"
+        
+        // Create multipart form data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add user_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append(userID.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add image
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse and return the source_image_id
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any],
+               let sourceImageID = jsonDict["source_image_id"] as? String {
+                logger.info("Successfully uploaded image, source_image_id: \(sourceImageID)")
+                return sourceImageID
+            } else {
+                logger.error("Invalid JSON response or missing source_image_id field")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response or missing source_image_id field"])
+            }
+        } catch {
+            logger.error("Failed to upload image: \(error.localizedDescription)")
             throw error
         }
     }

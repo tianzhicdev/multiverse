@@ -498,5 +498,125 @@ def use_user_credits():
         logger.error(f"Error using credits: {str(e)}")
         return jsonify({'error': f'Error using credits: {str(e)}'}), 500
 
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    """
+    Upload an image and save it to the database.
+    Returns the source_image_id for future use.
+    """
+    try:
+        logger.info("Received request to /api/upload")
+        
+        # Extract parameters from request
+        user_id = request.form.get('user_id')
+        
+        # Validate required parameters
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+            
+        # Check if an image file was uploaded
+        if 'image' not in request.files:
+            return jsonify({'error': 'Missing image file'}), 400
+            
+        image_file = request.files['image']
+        logger.info(f"Received image file: {image_file.filename}")
+        
+        # Read image data
+        image_data = image_file.read()
+        image_file.seek(0)  # Reset file pointer for any future use
+        
+        # Save image to database
+        source_image_id = str(uuid.uuid4())
+        query = """
+            INSERT INTO images (id, user_id, data, mime_type, metadata) 
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id
+        """
+        metadata = json.dumps({})  # Empty metadata for now
+        execute_query(query, (source_image_id, user_id, image_data, image_file.content_type, metadata))
+        logger.info(f"Saved source image with ID: {source_image_id}")
+        
+        return jsonify({
+            'source_image_id': source_image_id
+        })
+            
+    except Exception as e:
+        logger.error(f"Error uploading image: {str(e)}")
+        return jsonify({'error': f'Error uploading image: {str(e)}'}), 500
+
+@app.route('/api/roll', methods=['POST'])
+def roll_themes():
+    """
+    Create image generation requests for a previously uploaded image:
+    1. Check user credits
+    2. Get themes for user
+    3. Create result_image_ids for async processing
+    """
+    try:
+        logger.info("Received request to /api/roll")
+        
+        # Extract parameters from request
+        source_image_id = request.form.get('source_image_id')
+        user_id = request.form.get('user_id')
+        user_description = request.form.get('user_description', '')
+        num_themes = request.form.get('num_themes')
+        request_id = request.form.get('request_id', str(uuid.uuid4()))
+        
+        # Validate required parameters
+        if not all([source_image_id, user_id]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+            
+        # Step 1: Check user credits - we don't actually deduct credits at this stage,
+        # but we need to verify they have at least 1 credit
+        if not use_credits(user_id, 0):
+            return jsonify({'error': 'User not found or invalid account'}), 404
+            
+        # Step 2: Get themes for user
+        selected_themes = get_themes(user_id, num_themes)
+        
+        # Step 3: Create result_image_ids for async processing
+        result_image_ids = []
+        image_info = []
+        
+        for theme in selected_themes:
+            result_image_id = str(uuid.uuid4())
+            
+            # Record the processing request in the database
+            query = """
+                INSERT INTO image_requests 
+                (request_id, source_image_id, theme_id, result_image_id, user_id, user_description, status, created_at) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+            """
+            execute_query(query, (
+                request_id, 
+                source_image_id, 
+                theme["id"], 
+                result_image_id, 
+                user_id,
+                user_description,
+                'new'
+            ))
+            
+            result_image_ids.append(result_image_id)
+            image_info.append({
+                "result_image_id": result_image_id,
+                "theme_id": theme["id"],
+                "theme_name": theme["name"]
+            })
+            
+        # Step 4: In a production environment, we would trigger async processing here
+        logger.info(f"Would trigger async processing for {len(result_image_ids)} themes")
+        
+        # Return the list of result_image_ids and theme information
+        return jsonify({
+            'request_id': request_id,
+            'source_image_id': source_image_id,
+            'images': image_info
+        })
+            
+    except Exception as e:
+        logger.error(f"Error rolling themes: {str(e)}")
+        return jsonify({'error': f'Error rolling themes: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)

@@ -130,16 +130,14 @@ struct BoxGridView: View {
         
         isRerolling = true
         
-        // Increment reload trigger immediately to force all boxes to restart
-
-        
         // Get the stored inputs for rerolling
         let generationInputs = APIResponseStore.shared.getLastGenerationInputs()
-        let sourceImageData = APIResponseStore.shared.getLastSourceImage()
+        let lastResponse = APIResponseStore.shared.getLastResponse()
         
         // If we don't have the required inputs, we can't reroll
-        guard let inputs = generationInputs else {
-            print("Can't reroll: No generation inputs available")
+        guard let inputs = generationInputs,
+              let response = lastResponse else {
+            print("Can't reroll: No generation inputs or response available")
             isRerolling = false
             return
         }
@@ -152,7 +150,6 @@ struct BoxGridView: View {
                     credits: 10
                 )
                 
-                
                 // Update credits display
                 await MainActor.run {
                     userCredits = remainingCredits
@@ -160,7 +157,7 @@ struct BoxGridView: View {
                 
                 // Use the shared service to generate new images
                 let result = try await ImageGenerationService.shared.generateImages(
-                    imageData: sourceImageData,
+                    sourceImageID: response.sourceImageID,
                     userID: UserManager.shared.getCurrentUserID(),
                     userDescription: inputs.userDescription,
                     numThemes: totalBoxes
