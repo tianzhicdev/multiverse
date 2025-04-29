@@ -9,7 +9,7 @@ struct BoxGridView: View {
     let isDebugMode: Bool
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
-    let totalBoxes = 9
+    let totalBoxes = 1
     
     // User credits state
     @State private var userCredits: Int = 0
@@ -31,6 +31,18 @@ struct BoxGridView: View {
             let boxHeight = (screenHeight - (4 * (rowCount - 1))) / rowCount
             
             VStack {
+                
+                // Debug info display
+                if isDebugMode {
+                    if let apiResponse = APIResponseStore.shared.getLastResponse() {
+                        let requestIDPrefix = String(apiResponse.requestID.prefix(5))
+                        Text("RID: \(requestIDPrefix)")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.top, 8)
+                    }
+                }
+                
                 // Credits display and Reroll button at the top
                 HStack {
                     Button(action: {
@@ -119,7 +131,7 @@ struct BoxGridView: View {
         isRerolling = true
         
         // Increment reload trigger immediately to force all boxes to restart
-        reloadTrigger += 1
+
         
         // Get the stored inputs for rerolling
         let generationInputs = APIResponseStore.shared.getLastGenerationInputs()
@@ -140,6 +152,7 @@ struct BoxGridView: View {
                     credits: 10
                 )
                 
+                
                 // Update credits display
                 await MainActor.run {
                     userCredits = remainingCredits
@@ -155,6 +168,7 @@ struct BoxGridView: View {
                 
                 // Set rerolling to false
                 await MainActor.run {
+                    reloadTrigger += 1
                     isRerolling = false
                 }
             } catch {

@@ -81,7 +81,23 @@ struct BoxView: View {
                         .padding(8)
                 }
             } else if isLoading {
-                FakeLoadingBar(resetTrigger: reloadTrigger)
+                VStack {
+                    FakeLoadingBar(resetTrigger: reloadTrigger)
+                    if isDebugMode {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("RID: \(requestID.prefix(5))")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                            Text("IID: \(resultImageID.prefix(5))")
+                                .font(.caption)
+                                .foregroundColor(.black)
+                        }
+                        .padding(4)
+                        .background(Color.white.opacity(0.6))
+                        .cornerRadius(4)
+                        .padding(4)
+                    }
+                }
             } else {
                 Text("\(number)")
                     .font(.title)

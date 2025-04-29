@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var userManager = UserManager.shared
     
     // Debug mode state
-    @State private var isDebugMode: Bool = false
+    @State private var isDebugMode: Bool = true
     
     // State variables to manage the UI and data
     // @State is a property wrapper that tells SwiftUI to watch for changes
@@ -306,7 +306,7 @@ struct ContentView: View {
                     imageData: imageData,
                     userID: userManager.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 9
+                    numThemes: 1
                 )
                 
                 // Refresh user credits
