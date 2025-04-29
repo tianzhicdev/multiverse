@@ -90,4 +90,4 @@ def dump_themes_csv_to_db():
 
 if __name__ == "__main__":
     # Execute the theme dump when this script is run directly
-    dump_themes_to_db()
+    dump_themes_csv_to_db()
