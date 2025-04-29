@@ -26,6 +26,9 @@ struct multiverseApp: App {
         }
     }
     
+    // Debug mode state
+    @State private var isDebugMode: Bool = true
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             UploadItem.self,

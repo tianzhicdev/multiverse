@@ -14,6 +14,9 @@ struct ContentView: View {
     // Reference to user manager that handles the UUID
     @State private var userManager = UserManager.shared
     
+    // Debug mode state
+    @State private var isDebugMode: Bool = false
+    
     // State variables to manage the UI and data
     // @State is a property wrapper that tells SwiftUI to watch for changes
     // When these values change, SwiftUI automatically updates the UI
@@ -64,9 +67,11 @@ struct ContentView: View {
         NavigationStack {
             // VStack arranges its children vertically (one above another)
             VStack {
-                // Credits display at the top
+                // Credits display and Reroll button at the top
                 HStack {
+                    
                     Spacer()
+                    
                     HStack {
                         if isLoadingCredits {
                             ProgressView()
@@ -83,6 +88,7 @@ struct ContentView: View {
                     .cornerRadius(8)
                     .shadow(radius: 1)
                 }
+                .padding(.horizontal)
                 .padding(.bottom, 10)
                 
                 // PhotosPicker is a built-in component for selecting photos
@@ -228,7 +234,7 @@ struct ContentView: View {
             }
             // Navigation to BoxGridView when showBoxGrid becomes true
             .navigationDestination(isPresented: $showBoxGrid) {
-                BoxGridView()
+                BoxGridView(isDebugMode: isDebugMode)
             }
             // Navigation to StoreView when showStore becomes true
             .navigationDestination(isPresented: $showStore) {

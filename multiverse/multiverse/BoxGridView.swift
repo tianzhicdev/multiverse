@@ -5,6 +5,9 @@ struct BoxGridView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [UploadItem]
     
+    // Debug mode parameter
+    let isDebugMode: Bool
+    
     let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
     let totalBoxes = 9
     
@@ -85,6 +88,7 @@ struct BoxGridView: View {
                                 number: index + 1,
                                 items: items,
                                 reloadTrigger: reloadTrigger,
+                                isDebugMode: isDebugMode,
                                 onCreditsUpdated: { newCredits in
                                     userCredits = newCredits
                                 }
@@ -189,6 +193,6 @@ struct BoxGridView: View {
 }
 
 #Preview {
-    BoxGridView()
+    BoxGridView(isDebugMode: false)
         .modelContainer(for: UploadItem.self, inMemory: true)
 }

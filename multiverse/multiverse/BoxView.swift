@@ -5,6 +5,7 @@ struct BoxView: View {
     let number: Int
     let items: [UploadItem]
     let reloadTrigger: Int
+    let isDebugMode: Bool
     let onCreditsUpdated: ((Int) -> Void)?  // Add callback for credit updates
     
     @State private var imageData: Data?
@@ -18,6 +19,8 @@ struct BoxView: View {
     @State private var showSuccessAlert = false
     @State private var successMessage = ""
     @State private var currentLoadTask: Task<Void, Never>?  // Add task tracking
+    @State private var requestID: String = ""  // Add request ID state
+    @State private var resultImageID: String = ""  // Add result image ID state
     
     var body: some View {
         ZStack {
@@ -55,6 +58,20 @@ struct BoxView: View {
                 // Theme name overlay
                 VStack {
                     Spacer()
+                    if isDebugMode {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("RID: \(requestID.prefix(5))")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                            Text("IID: \(resultImageID.prefix(5))")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                        }
+                        .padding(4)
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(4)
+                        .padding(4)
+                    }
                     Text(themeName)
                         .font(.headline)
                         .foregroundColor(.white)
@@ -247,9 +264,11 @@ struct BoxView: View {
                     
                     print("BoxGridView: Box #\(number) using resultImageID: \(themeImage.resultImageID) with theme: \(themeImage.themeName)")
                     
-                    // Set theme name
+                    // Set theme name and IDs
                     await MainActor.run {
                         self.themeName = themeImage.themeName
+                        self.requestID = apiResponse.requestID
+                        self.resultImageID = themeImage.resultImageID
                     }
                     
                     // Check if task was cancelled
@@ -372,5 +391,5 @@ struct FakeLoadingBar: View {
 }
 
 #Preview {
-    BoxView(number: 1, items: [], reloadTrigger: 0, onCreditsUpdated: nil)
+    BoxView(number: 1, items: [], reloadTrigger: 0, isDebugMode: false, onCreditsUpdated: nil)
 } 
