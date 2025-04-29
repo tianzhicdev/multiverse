@@ -306,7 +306,7 @@ struct ContentView: View {
                     imageData: imageData,
                     userID: userManager.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 1
+                    numThemes: 9
                 )
                 
                 // Refresh user credits

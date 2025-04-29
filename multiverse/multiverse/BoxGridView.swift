@@ -9,7 +9,7 @@ struct BoxGridView: View {
     let isDebugMode: Bool
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
-    let totalBoxes = 1
+    let totalBoxes = 9
     
     // User credits state
     @State private var userCredits: Int = 0
