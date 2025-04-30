@@ -374,66 +374,6 @@ def get_image_test(result_image_id):
         return jsonify({'error': f'Error retrieving test image: {str(e)}'}), 500
 
 
-        
-
-
-@app.route('/api/download/<result_image_id>', methods=['POST'])
-def download_image(result_image_id):
-    """
-    Download a generated image and decrement user credit.
-    """
-    try:
-        logger.info(f"Received download request for image with ID: {result_image_id}")
-        
-        # Check if the user is authorized
-        user_id = request.form.get('user_id')
-        if not user_id:
-            return jsonify({'error': 'Missing user_id parameter'}), 400
-            
-        # Verify the image exists and belongs to the user
-        query = """
-            SELECT ir.status FROM image_requests ir
-            WHERE ir.result_image_id = %s AND ir.user_id = %s
-        """
-        result = execute_query(query, (result_image_id, user_id))
-        
-        if not result:
-            return jsonify({'error': 'Image not found or unauthorized'}), 404
-            
-        status = result[0][0]
-        
-        if status != 'completed':
-            return jsonify({'error': 'Image is not ready for download'}), 400
-            
-        # Use helper function to deduct credits
-        if not use_credits(user_id, 1):
-            return jsonify({'error': 'Insufficient credits'}), 403
-            
-        # Get remaining credits
-        query = "SELECT credits FROM users WHERE user_id = %s"
-        result = execute_query(query, (user_id,))
-        remaining_credits = result[0][0]
-        
-        # Log the download action
-        query = """
-            INSERT INTO actions (user_id, action, metadata, created_at)
-            VALUES (%s, %s, %s, NOW())
-        """
-        execute_query(query, (
-            user_id, 
-            'download_image', 
-            {'result_image_id': result_image_id}
-        ))
-        
-        return jsonify({
-            'success': True,
-            'remaining_credits': remaining_credits
-        })
-            
-    except Exception as e:
-        logger.error(f"Error downloading image: {str(e)}")
-        return jsonify({'error': f'Error downloading image: {str(e)}'}), 500
-
 @app.route('/api/credits/<user_id>', methods=['GET'])
 def get_user_credits(user_id):
     """
@@ -617,6 +557,43 @@ def roll_themes():
     except Exception as e:
         logger.error(f"Error rolling themes: {str(e)}")
         return jsonify({'error': f'Error rolling themes: {str(e)}'}), 500
+
+@app.route('/api/action', methods=['POST'])
+def create_action():
+    """
+    Create an action in the database.
+    """
+    try:
+        logger.info("Received request to /api/action")
+        
+        # Extract parameters from request
+        user_id = request.json.get('user_id')
+        action = request.json.get('action')
+        metadata = request.json.get('metadata', {})
+        
+        # Validate required parameters
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+        
+        if not action:
+            return jsonify({'error': 'Missing action parameter'}), 400
+            
+        # Insert the action into the database
+        query = """
+            INSERT INTO actions (user_id, action, metadata) 
+            VALUES (%s, %s, %s)
+            RETURNING created_at
+        """
+        result = execute_query(query, (user_id, action, json.dumps(metadata)))
+        
+        
+        return jsonify({
+            'success': result == 1
+        })
+            
+    except Exception as e:
+        logger.error(f"Error logging action: {str(e)}")
+        return jsonify({'error': f'Error logging action: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)

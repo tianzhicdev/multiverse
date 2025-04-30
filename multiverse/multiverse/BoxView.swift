@@ -185,6 +185,13 @@ struct BoxView: View {
                                     showSuccessAlert = true
                                     // Notify parent about credit update
                                     onCreditsUpdated?(remainingCredits)
+                                    
+                                    // Track the download action
+                                    NetworkService.shared.trackUserAction(
+                                        userID: userID,
+                                        action: "download",
+                                        imageID: resultImageID
+                                    )
                                 }
                             } catch {
                                 // Handle error - likely insufficient credits

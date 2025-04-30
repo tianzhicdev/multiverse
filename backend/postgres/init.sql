@@ -39,5 +39,15 @@ CREATE TABLE image_requests (
     user_id UUID NOT NULL REFERENCES users(user_id),
     user_description TEXT,
     status TEXT NOT NULL,
+    engine TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    finished_at TIMESTAMP WITH TIME ZONE,
+);
+
+CREATE TABLE actions (
+    user_id UUID NOT NULL REFERENCES users(user_id),
+    action TEXT NOT NULL,
+    metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+

@@ -134,8 +134,15 @@ struct ContentView: View {
                             // Start upload process
                             isUploading = true
                             do {
+                                // Preprocess the image before uploading
+                                guard let processedData = ImagePreprocessor.preprocessImage(data) else {
+                                    throw NSError(domain: "ImageProcessingError", 
+                                                 code: -1, 
+                                                 userInfo: [NSLocalizedDescriptionKey: "Failed to preprocess image"])
+                                }
+                                
                                 sourceImageID = try await NetworkService.shared.uploadImage(
-                                    imageData: data,
+                                    imageData: processedData,
                                     userID: userManager.getCurrentUserID()
                                 )
                             } catch {
@@ -290,25 +297,6 @@ struct ContentView: View {
         }
     }
     
-    // Function to handle the upload process
-    private func uploadItem() {
-        // Check if there's either text or an image to upload
-        guard imageData != nil else { return }
-        
-        isUploading = true
-        Task {
-            // MainActor is Swift's way of ensuring UI updates happen on the main thread
-            // The main thread is the only thread that can safely update the user interface
-            // Think of it like a rule: "All UI changes must happen on the main thread"
-            // MainActor.run ensures our code runs on this special thread
-            await MainActor.run {
-                processUpload()    // Process the upload and store the response
-                isUploading = false // Reset upload status
-                showBoxGrid = true  // Navigate to BoxGridView
-            }
-        }
-    }
-    
     // Function to perform search with selected style
     private func performSearch() {
         guard let sourceImageID = sourceImageID else {
@@ -339,39 +327,6 @@ struct ContentView: View {
                     errorMessage = "Search failed: \(error.localizedDescription)"
                     showError = true
                 }
-            }
-        }
-    }
-    
-    // Function to process the upload and store API response
-    private func processUpload() {
-        Task {
-            do {
-                guard let imageData = imageData,
-                      let processedImageData = ImagePreprocessor.preprocessImage(imageData) else {
-                    errorMessage = "Failed to process image"
-                    showError = true
-                    return
-                }
-                
-                let result = try await ImageGenerationService.shared.generateImages(
-                    imageData: processedImageData,
-                    userID: userManager.getCurrentUserID(),
-                    userDescription: user_description,
-                    numThemes: 9
-                )
-                
-                // Refresh user credits
-                fetchUserCredits()
-                
-                // Navigate to BoxGridView
-                await MainActor.run {
-                    showBoxGrid = true
-                }
-            } catch {
-                print("Error uploading to API/create: \(error.localizedDescription)")
-                errorMessage = "Upload failed: \(error.localizedDescription)"
-                showError = true
             }
         }
     }

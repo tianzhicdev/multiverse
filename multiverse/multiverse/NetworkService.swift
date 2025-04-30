@@ -458,4 +458,46 @@ class NetworkService {
             throw error
         }
     }
+    
+    func trackUserAction(userID: String, action: String, imageID: String? = nil) {
+        logger.info("Tracking user action: \(action) for userID: \(userID)")
+        
+        let actionURL = URL(string: "\(domain)/api/action")!
+        var request = URLRequest(url: actionURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        var requestBody: [String: Any] = [
+            "user_id": userID,
+            "action": action
+        ]
+        
+        // Add imageID to metadata if provided
+        if let imageID = imageID {
+            let metadata: [String: String] = ["image_id": imageID]
+            requestBody["metadata"] = metadata
+        } else {
+            requestBody["metadata"] = [:]
+        }
+        
+        // Try to send the action but don't wait for response
+        Task {
+            do {
+                // Convert the dictionary to JSON data
+                let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+                request.httpBody = jsonData
+                
+                // Fire and forget - we don't care about the response
+                let task = URLSession.shared.dataTask(with: request) { _, _, error in
+                    if let error = error {
+                        self.logger.error("Failed to track action: \(error.localizedDescription)")
+                    }
+                }
+                task.resume()
+            } catch {
+                logger.error("Failed to serialize action data: \(error.localizedDescription)")
+            }
+        }
+    }
 } 
