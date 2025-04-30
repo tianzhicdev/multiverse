@@ -86,6 +86,7 @@ def process_request(request):
         
         # Process the image with the selected theme
         result_image = process_image_to_image(
+            request['result_image_id'],
             image_file,
             request['user_description'],
             request['theme']

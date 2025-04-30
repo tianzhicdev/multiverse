@@ -103,7 +103,7 @@ theme_descriptions = [
 
 
 
-def process_image_to_image(image_file, user_description, theme_description):
+def process_image_to_image(result_image_id, image_file, user_description, theme_description):
 
     image_1_prompt = f"""
     Generate an image that incorporates the theme: {theme_description}. 
@@ -115,11 +115,17 @@ def process_image_to_image(image_file, user_description, theme_description):
     MUST NOT use realistic style.
     """
     
-    image = generate_with_openai_image_1(user_description, image_file)
-    if image:
-        return image
+    result = generate_with_openai_image_1(image_1_prompt, image_file)
+    if result:
+        image, engine = result
     else:
-        return process_description_to_image(image_file, user_description, theme_description)
+        # Fall back to the other image generation method
+        image, engine = process_description_to_image(image_file, user_description, theme_description)
+    
+    # Update the database with engine and finished timestamp
+    query = "UPDATE image_requests SET engine = %s, finished_at = CURRENT_TIMESTAMP WHERE id = %s"
+    execute_query(query, (engine, result_image_id))
+    return image
 
 def process_description_to_image(image_file, user_description, theme_description):
     """
@@ -133,7 +139,7 @@ def process_description_to_image(image_file, user_description, theme_description
         theme_description: Description of the theme to apply
         
     Returns:
-        BytesIO: A file-like object containing the generated image
+        tuple: (BytesIO, str) - A file-like object containing the generated image and the engine name
     """
     try:
         # Check if OpenAI API key is configured

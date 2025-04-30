@@ -4,6 +4,7 @@ import requests
 import logging
 from io import BytesIO
 import openai
+import base64
 from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 import tempfile
 from PIL import Image 
@@ -55,16 +56,15 @@ def generate_with_openai_image_1(prompt, image_file):
 
         # Get the generated image data
         if hasattr(result.data[0], 'b64_json'):
-            import base64
             image_base64 = result.data[0].b64_json
             image_bytes = base64.b64decode(image_base64)
-            return BytesIO(image_bytes)
+            return BytesIO(image_bytes), "openai-image-1"
         elif hasattr(result.data[0], 'url'):
             # Download the generated image if URL is provided instead
             image_url = result.data[0].url
             image_response = requests.get(image_url)
             image_response.raise_for_status()
-            return BytesIO(image_response.content)
+            return BytesIO(image_response.content), "openai-image-1"
         else:
             raise ValueError("No image data found in OpenAI response")
     except BucketFullException:
@@ -189,32 +189,29 @@ def image_gen(prompt):
     
     Args:
         prompt: The text prompt to generate the image
-        model_type: The model type to use ('modelslab', 'openai', or 'pollinations')
         
     Returns:
-        BytesIO: A file-like object containing the generated image
+        tuple: (BytesIO, str) - A file-like object containing the generated image and the engine name
     """
     try:
         logger.info(f"Using prompt: {prompt}")
 
-
-
-            # Try OpenAI first
+        # Try OpenAI first
         result = generate_with_openai(prompt)
         if result:
-            return result
+            return result, "openai"
         
         # If OpenAI fails, fall back to ModelsLab
         logger.info("OpenAI image generation failed, falling back to ModelsLab")
         result = generate_with_modelslab(prompt)
         if result:
-            return result
+            return result, "modelslab"
             
         # If ModelsLab fails, fall back to Pollinations
         logger.info("ModelsLab image generation failed, falling back to Pollinations")
         result = generate_with_pollinations(prompt)
         if result:
-            return result
+            return result, "pollinations"
         
         # If all providers fail
         logger.error("All image generation services failed or rate limited")
