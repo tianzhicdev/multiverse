@@ -42,7 +42,7 @@ struct multiverseApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LandingView()
         }
         .modelContainer(sharedModelContainer)
     }

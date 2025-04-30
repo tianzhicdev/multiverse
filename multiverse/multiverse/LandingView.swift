@@ -10,7 +10,7 @@ import StoreKit       // StoreKit is Apple's framework for in-app purchases and 
 
 // Main view structure for the app
 // In SwiftUI, everything is built using structures (struct) that conform to the View protocol
-struct ContentView: View {
+struct LandingView: View {
     // Reference to user manager that handles the UUID
     @State private var userManager = UserManager.shared
     
@@ -71,31 +71,42 @@ struct ContentView: View {
         // NavigationStack provides navigation functionality
         // It allows moving between different screens in the app
         NavigationStack {
-            // VStack arranges its children vertically (one above another)
             VStack {
-                // Credits display and Reroll button at the top
-                HStack {
-                    
-                    Spacer()
-                    
+                HStack(alignment: .center) {
                     HStack {
                         if isLoadingCredits {
                             ProgressView()
-                                .scaleEffect(0.7)
                         } else {
-                            Image(systemName: "creditcard")
-                                .foregroundColor(.green)
+                            Text("Avaliable").foregroundColor(.white)
+                            Image(systemName: "waveform.circle")
+                                .foregroundColor(.white)
+                            Text("\(userCredits)").foregroundColor(.white)
                         }
-                        Text("Credits: \(userCredits)")
-                            .fontWeight(.semibold)
+                       
                     }
-                    .padding(8)
-                    .background(Color(.systemBackground))
+                    .padding(10)
+                    .background(Color(.green))
                     .cornerRadius(8)
                     .shadow(radius: 1)
+
+                    Spacer()
+                    
+                    Button(action: {
+                        showStore = true
+                    }) {
+                        HStack {
+                            Image(systemName: "storefront.circle.fill")
+                                .foregroundColor(.white)
+                            Text("Store")
+                                .foregroundColor(.white)
+                        }
+                        .padding(10)
+                        .background(Color(.green))
+                        .cornerRadius(8)
+                        .shadow(radius: 1)
+                    }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 10)
+                .padding(.top, 10)
                 
                 // PhotosPicker is a built-in component for selecting photos
                 // It shows the device's photo library
@@ -104,37 +115,37 @@ struct ContentView: View {
                     if let imageData = imageData,
                         let uiImage = UIImage(data: imageData) {
                         // If an image is selected, display it
-                        Image(uiImage: uiImage)
-                            .resizable()        // Allows the image to be resized
-                            .scaledToFit()      // Maintains aspect ratio while fitting
-                            .frame(maxHeight: 300)  // Sets maximum height
+                        ZStack {
+                            Color.clear // Background to ensure clipping works
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .aspectRatio(contentMode: .fill)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(maxHeight: 200)
+                        .background(Color.gray.opacity(0.2))  // Light gray background
+                        .cornerRadius(8)            // Rounded corners
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
                     } else {
                         // If no image is selected, show a placeholder
                         Label("Select Image", systemImage: "photo")
                             .frame(maxWidth: .infinity)  // Takes full width
                             .frame(height: 200)          // Sets height
                             .background(Color.gray.opacity(0.2))  // Light gray background
-                            .cornerRadius(10)            // Rounded corners
+                            .cornerRadius(8)            // Rounded corners
                     }
                 }
-                // This code runs when the selected image changes
                 .onChange(of: selectedImage) { _, newValue in
-                    // The closure has two parameters:
-                    // - _ (underscore): This is a placeholder for the old value that we don't need
-                    // - newValue: This is the new value of selectedImage
-                    // The 'in' keyword marks the beginning of the closure's body
-                    // Task creates a new asynchronous context
-                    // It allows us to run code that might take time (like loading an image)
-                    // without freezing the user interface
-                    // Think of it like creating a separate thread of execution
-                    // that runs in the background while the rest of the app continues to work
                     Task {
                         if let data = try? await newValue?.loadTransferable(type: Data.self) {
                             imageData = data
-                            // Start upload process
                             isUploading = true
                             do {
-                                // Preprocess the image before uploading
                                 guard let processedData = ImagePreprocessor.preprocessImage(data) else {
                                     throw NSError(domain: "ImageProcessingError", 
                                                  code: -1, 
@@ -155,40 +166,31 @@ struct ContentView: View {
                 }
                 
                 // Text input field for user to enter text
-                TextField("Enter description", text: $user_description)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())  // Styled with rounded border
-                    .padding()  // Adds space around the text field
-                
-
-                VStack {
-                    
-                    Menu {
-                        ForEach(styleOptions, id: \.self) { style in
-                            Button(style) {
-                                selectedStyle = style
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(selectedStyle)
-                            Image(systemName: "chevron.down")
-                        }
-                        .padding(8)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $user_description)
+                        .frame(minHeight: 100)
+                        .padding(4)
+                        .background(Color(.systemBackground))
                         .cornerRadius(8)
-                    }
-                    .padding(.trailing)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                        .shadow(radius: 1)
                     
-                    if selectedStyle == "Custom" {
-                        TextField("Search...", text: $searchText)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding(.leading)
+                    if user_description.isEmpty {
+                        Text("Optional: Describe the focus of the image")
+                            .foregroundColor(.gray)
+                            .padding(.leading, 9) // 4 + 5
+                            .padding(.top, 12) // 4 + 8
                     }
                 }
-                .padding(.bottom)
                 
-                // Button to perform search
+
+                // Add spacing between text field and button
+                Spacer()
+                    .frame(height: 20)
+                
                 Button(action: {
                     if userCredits >= 10 {
                         Task {
@@ -218,37 +220,21 @@ struct ContentView: View {
                     }
                 }) {
                     HStack {
-                        if isSearching {
+                        if isUploading {
+                            Text("Uploading")
                             ProgressView()
-                                .scaleEffect(0.7)
                         } else {
-                            Text("Search")
+                            Text("Discover 10")
+                            Image(systemName: "waveform.circle")
                         }
-                        Text("10")
-                            .font(.caption)
-                        Image(systemName: "creditcard")
+
                     }
                     .padding(8)
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-                .disabled(isUploading || sourceImageID == nil)  // Disable if uploading or no source image ID
-                
-                // Store Button
-                Button(action: {
-                    showStore = true
-                }) {
-                    HStack {
-                        Image(systemName: "cart")
-                        Text("Go to Store")
-                    }
-                    .padding(8)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-                .padding(.top, 10)
+                .disabled(isUploading || sourceImageID == nil)  
             }
             .padding()  // Adds space around the entire VStack
             // Error alert that appears when showError is true
@@ -335,5 +321,5 @@ struct ContentView: View {
 // Preview provider for SwiftUI previews
 // This allows developers to see how the view looks in Xcode's preview canvas
 #Preview {
-    ContentView()
+    LandingView()
 }
