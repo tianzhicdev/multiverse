@@ -122,10 +122,8 @@ def process_image_to_image(result_image_id, image_file, user_description, theme_
         # Fall back to the other image generation method
         image, engine = process_description_to_image(image_file, user_description, theme_description)
     
-    # Update the database with engine and finished timestamp
-    query = "UPDATE image_requests SET engine = %s, finished_at = CURRENT_TIMESTAMP WHERE id = %s"
-    execute_query(query, (engine, result_image_id))
-    return image
+
+    return image, engine
 
 def process_description_to_image(image_file, user_description, theme_description):
     """

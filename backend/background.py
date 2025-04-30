@@ -85,7 +85,7 @@ def process_request(request):
         image_file = BytesIO(request['source_image_data'])
         
         # Process the image with the selected theme
-        result_image = process_image_to_image(
+        result_image, engine = process_image_to_image(
             request['result_image_id'],
             image_file,
             request['user_description'],
@@ -94,7 +94,7 @@ def process_request(request):
         
         # Save the processed image data to the database
         result_data = result_image.getvalue()
-        metadata = {"theme_id": request['theme_id'], "process_method": "process_image_to_image"}
+        metadata = {"theme_id": request['theme_id'], "process_method": "process_image_to_image", "engine": engine}
         metadata_json = json.dumps(metadata)
         
         query = """
@@ -109,7 +109,9 @@ def process_request(request):
             query, 
             (request['result_image_id'], request['user_id'], result_data, 'image/jpeg', metadata_json)
         )
-        
+        # Update the database with engine and finished timestamp
+        engine_query = "UPDATE image_requests SET engine = %s, finished_at = CURRENT_TIMESTAMP WHERE result_image_id = %s"
+        execute_query(engine_query, (engine, request['result_image_id']))
         # Update the request status to ready
         update_request_status(request['result_image_id'], 'ready')
         
