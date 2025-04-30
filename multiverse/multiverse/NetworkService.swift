@@ -500,4 +500,43 @@ class NetworkService {
             }
         }
     }
+    
+    func initializeUser(userID: String) async {
+        logger.info("Initializing user with ID: \(userID)")
+        
+        let initURL = URL(string: "\(domain)/api/init_user")!
+        var request = URLRequest(url: initURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": userID
+        ]
+        
+        do {
+            // Convert the dictionary to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+            // Fire and forget - we don't wait for the response
+            let task = URLSession.shared.dataTask(with: request) { _, response, error in
+                if let error = error {
+                    self.logger.error("Failed to initialize user: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let httpResponse = response as? HTTPURLResponse,
+                   !(200...299).contains(httpResponse.statusCode) {
+                    self.logger.error("Server returned error (Status: \(httpResponse.statusCode))")
+                    return
+                }
+                
+                self.logger.info("Successfully initialized user with ID: \(userID)")
+            }
+            task.resume()
+        } catch {
+            logger.error("Failed to serialize user initialization data: \(error.localizedDescription)")
+        }
+    }
 } 

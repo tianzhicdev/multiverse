@@ -267,11 +267,11 @@ def init_user(user_id):
             
         # Insert new user with 10 credits
         query = "INSERT INTO users (user_id, credits) VALUES (%s, %s) RETURNING user_id, credits"
-        result = execute_query(query, (user_id, 10))
+        result = execute_query(query, (user_id, 100))
         logger.info(f"init_user db result: {result}")
         
         if result == 1:
-            logger.info(f"Created new user {user_id} with 10 credits")
+            logger.info(f"Created new user {user_id} with 100 credits")
             return True
         else:
             logger.error(f"Failed to create user {user_id}")

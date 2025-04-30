@@ -595,5 +595,32 @@ def create_action():
         logger.error(f"Error logging action: {str(e)}")
         return jsonify({'error': f'Error logging action: {str(e)}'}), 500
 
+@app.route('/api/init_user', methods=['POST'])
+def initialize_user():
+    """
+    Initialize a user in the system.
+    """
+    try:
+        logger.info("Received request to /api/init_user")
+        
+        # Extract user_id parameter from request
+        user_id = request.json.get('user_id')
+        
+        # Validate required parameter
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+            
+        # Initialize the user
+        init_user(user_id)
+        
+        return jsonify({
+            'success': True,
+            'user_id': user_id
+        })
+            
+    except Exception as e:
+        logger.error(f"Error initializing user: {str(e)}")
+        return jsonify({'error': f'Error initializing user: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)

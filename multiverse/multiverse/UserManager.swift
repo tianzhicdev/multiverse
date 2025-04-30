@@ -35,6 +35,11 @@ class UserManager {
             
             print("Generated new user ID and saved to iCloud: \(newUUID)")
         }
+        
+        // Initialize user on the backend
+        Task {
+            await NetworkService.shared.initializeUser(userID: userIdentifier)
+        }
     }
     
     // Method to retrieve the current user ID
