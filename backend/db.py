@@ -96,10 +96,44 @@ def execute_query(query, params=None):
         conn = get_db_connection()
         with conn.cursor() as cursor:
             cursor.execute(query, params)
+            # If this is a pure SELECT, simply return the fetched rows without committing
             if query.strip().upper().startswith("SELECT"):
                 return cursor.fetchall()
+
+            # For any data-modifying statements commit the transaction and return affected rows
             conn.commit()
             return cursor.rowcount
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            release_db_connection(conn)
+
+# === New helper for CTE or RETURNING queries ===
+
+def execute_query_with_results(query, params=None):
+    """Execute a query that may modify data but also returns rows (e.g. CTE WITH … RETURNING).
+
+    This helper always commits the transaction and fetches any returned rows. It is safe to
+    use for complex statements encountered in background jobs, without changing existing
+    execute_query behaviour.
+    """
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+
+            # Check if the statement produced a result set
+            has_result_set = cursor.description is not None
+            results = cursor.fetchall() if has_result_set else None
+
+            # Persist any data modifications unconditionally
+            conn.commit()
+
+            return results if has_result_set else cursor.rowcount
     except Exception as e:
         if conn:
             conn.rollback()

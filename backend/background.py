@@ -11,6 +11,7 @@ import threading
 import time
 from io import BytesIO
 from db import execute_query
+from db import execute_query_with_results
 import json
 from helper import process_image_to_image, image_gen
 from queue import Queue
@@ -50,7 +51,7 @@ def get_pending_requests():
         LEFT JOIN images i ON pr.source_image_id = i.id
         ORDER BY pr.id
     """
-    results = execute_query(query)
+    results = execute_query_with_results(query)
     logger.info(f"Found and updated {len(results) if results else 0} pending requests")
     
     # Convert results to a list of objects

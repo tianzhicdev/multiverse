@@ -10,6 +10,7 @@ services:
       - ${MULTIVERSE_SECRETS_PATH}:/usr/local/.secrets/apple/
     env_file:
       - .env
+    restart: always
     networks:
       - web_network
 
@@ -24,6 +25,7 @@ services:
       - .env
     depends_on:
       - web
+    restart: always
     networks:
       - web_network
     deploy:
@@ -46,6 +48,7 @@ services:
       - "443:443"
     depends_on:
       - web
+    restart: always
     networks:
       - web_network
 
