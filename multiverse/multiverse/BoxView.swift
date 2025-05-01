@@ -33,10 +33,9 @@ struct BoxView: View {
                let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: .fill)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    // .blur(radius: 5)
-                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .rotationEffect(.degrees(wiggleAmount))
                     .onTapGesture {
                         showFullImage = true

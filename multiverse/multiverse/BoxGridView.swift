@@ -8,7 +8,10 @@ struct BoxGridView: View {
     // Debug mode parameter
     let isDebugMode: Bool
     
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
+    // Grid spacing constant for both column and row
+    private let gridSpacing: CGFloat = 1
+    
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 1), count: 3)
     let totalBoxes = 9
     
     // User credits state
@@ -28,7 +31,10 @@ struct BoxGridView: View {
             let screenWidth = geometry.size.width
             let screenHeight = geometry.size.height
             let rowCount = ceil(Double(totalBoxes) / 3.0)
-            let boxHeight = (screenHeight - (4 * (rowCount - 1))) / rowCount
+            // Calculate each cell width considering the horizontal spacing between columns
+            let cellWidth = (screenWidth - (gridSpacing * 2)) / 3
+            // Maintain the 0.67 width : height aspect ratio from BoxView
+            let boxHeight = cellWidth / 0.67
             
             VStack {
                 
@@ -43,58 +49,11 @@ struct BoxGridView: View {
                     }
                 }
                 
-                // Credits display and Reroll button at the top
-                HStack {
-                    Button(action: {
-                        if userCredits >= 10 {
-                            rerollImages()
-                        } else {
-                            errorMessage = "Insufficient credits. Each reroll costs 10 credits."
-                            showError = true
-                        }
-                    }) {
-                        HStack {
-                            if isRerolling {
-                                ProgressView()
-                                    .scaleEffect(0.7)
-                            } else {
-                                Image(systemName: "arrow.triangle.2.circlepath")
-                            }
-                            Text("Reroll")
-                            Text("10")
-                                .font(.caption)
-                            Image(systemName: "creditcard")
-                        }
-                        .padding(8)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .disabled(isRerolling)
-                    }
-                    
-                    Spacer()
-                    
-                    HStack {
-                        if isLoadingCredits {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                        } else {
-                            Image(systemName: "creditcard")
-                                .foregroundColor(.green)
-                        }
-                        Text("Credits: \(userCredits)")
-                            .fontWeight(.semibold)
-                    }
-                    .padding(8)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(8)
-                    .shadow(radius: 1)
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 10)
+                // Add CreditsBarView at the top
+                CreditsBarView()
                 
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 4) {
+                    LazyVGrid(columns: columns, spacing: gridSpacing) {
                         ForEach(0..<totalBoxes, id: \.self) { index in
                             BoxView(
                                 number: index + 1,
@@ -109,7 +68,36 @@ struct BoxGridView: View {
                         }
                     }
                 }
+
+            HStack {
+                Button(action: {
+                    if userCredits >= 10 {
+                        rerollImages()
+                    } else {
+                        errorMessage = "Insufficient credits. Each reroll costs 10 credits."
+                        showError = true
+                    }
+                }) {
+                    HStack {
+                        if isRerolling {
+                            ProgressView()
+                        } else {
+                            Text("Re-Split 10")
+                            Image(systemName: "waveform.circle")
+                        }
+                    }
+                    .padding(8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    .disabled(isRerolling)
+                }
+                Spacer()
             }
+            .padding(.horizontal)
+            .padding(.top, 10)
+            }
+            
         }
         .onAppear {
             // Check if we have API response data
@@ -121,6 +109,11 @@ struct BoxGridView: View {
             
             // Fetch user credits when view appears
             fetchUserCredits()
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
         }
     }
     

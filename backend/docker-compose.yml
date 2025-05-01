@@ -26,6 +26,8 @@ services:
       - web
     networks:
       - web_network
+    deploy:
+      replicas: 4
 
   nginx:
     image: nginx:latest

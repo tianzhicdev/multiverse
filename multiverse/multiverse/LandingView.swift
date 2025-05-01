@@ -15,7 +15,7 @@ struct LandingView: View {
     @State private var userManager = UserManager.shared
     
     // Debug mode state
-    @State private var isDebugMode: Bool = true
+    @State private var isDebugMode: Bool = false
     
     // State variables to manage the UI and data
     // @State is a property wrapper that tells SwiftUI to watch for changes
@@ -72,41 +72,8 @@ struct LandingView: View {
         // It allows moving between different screens in the app
         NavigationStack {
             VStack {
-                HStack(alignment: .center) {
-                    HStack {
-                        if isLoadingCredits {
-                            ProgressView()
-                        } else {
-                            Text("Avaliable").foregroundColor(.white)
-                            Image(systemName: "waveform.circle")
-                                .foregroundColor(.white)
-                            Text("\(userCredits)").foregroundColor(.white)
-                        }
-                       
-                    }
-                    .padding(10)
-                    .background(Color(.green))
-                    .cornerRadius(8)
-                    .shadow(radius: 1)
-
-                    Spacer()
-                    
-                    Button(action: {
-                        showStore = true
-                    }) {
-                        HStack {
-                            Image(systemName: "storefront.circle.fill")
-                                .foregroundColor(.white)
-                            Text("Store")
-                                .foregroundColor(.white)
-                        }
-                        .padding(10)
-                        .background(Color(.green))
-                        .cornerRadius(8)
-                        .shadow(radius: 1)
-                    }
-                }
-                .padding(.top, 10)
+                // Add the CreditsBarView here
+                CreditsBarView()
                 
                 // PhotosPicker is a built-in component for selecting photos
                 // It shows the device's photo library
@@ -224,7 +191,7 @@ struct LandingView: View {
                             Text("Uploading")
                             ProgressView()
                         } else {
-                            Text("Discover 10")
+                            Text("Split 10")
                             Image(systemName: "waveform.circle")
                         }
 

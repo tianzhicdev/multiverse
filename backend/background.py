@@ -145,7 +145,7 @@ def main():
     logger.info("Starting background image request processor")
     
     # Create and start worker threads
-    num_workers = 4  # Adjust based on your system's capabilities
+    num_workers = 80
     workers = []
     for _ in range(num_workers):
         t = threading.Thread(target=worker)
