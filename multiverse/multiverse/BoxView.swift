@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+// FakeLoadingBar is now in a separate file
 
 struct BoxView: View {
     let number: Int
@@ -277,71 +278,6 @@ struct BoxView: View {
         
         // Store the task
         currentLoadTask = task
-    }
-}
-
-struct FakeLoadingBar: View {
-    @State private var progress: Double = 0.0
-    @State private var timer: Timer?
-    let resetTrigger: Int  // Add reset trigger
-    
-    var body: some View {
-        VStack {
-            ZStack {
-                Circle()
-                    .stroke(lineWidth: 8)
-                    .opacity(0.3)
-                    .foregroundColor(Color.gray)
-                
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(min(self.progress, 1.0)))
-                    .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round, lineJoin: .round))
-                    .foregroundColor(.blue)
-                    .rotationEffect(Angle(degrees: 270.0))
-                    .animation(.linear, value: progress)
-            }
-            .frame(width: 60, height: 60)
-            
-            Text("\(Int(progress * 100))%")
-                .font(.caption)
-                .padding(.top, 4)
-        }
-        .onAppear {
-            startFakeLoading()
-        }
-        .onChange(of: resetTrigger) { _, _ in
-            // Reset and restart loading when trigger changes
-            timer?.invalidate()
-            progress = 0.0
-            startFakeLoading()
-        }
-        .onDisappear {
-            timer?.invalidate()
-            timer = nil
-        }
-    }
-    
-    private func startFakeLoading() {
-        // Total time: 2 minutes (120 seconds)
-        // Update roughly every 200ms
-        let totalUpdates = 600
-        let totalTime = 120.0
-        
-        timer = Timer.scheduledTimer(withTimeInterval: totalTime / Double(totalUpdates), repeats: true) { timer in
-            if progress < 0.99 {
-                // Add some randomness to the progress
-                let randomIncrement = Double.random(in: 0.0...0.005)
-                
-                // Slow down as we approach 99%
-                let factor = 1.0 - progress
-                
-                // Apply update with randomness and slowdown
-                progress = min(progress + randomIncrement * factor, 0.99)
-            } else {
-                // Stop at 99%
-                timer.invalidate()
-            }
-        }
     }
 }
 

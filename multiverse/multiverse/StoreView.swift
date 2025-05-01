@@ -11,45 +11,50 @@ struct StoreView: View {
     
     var body: some View {
         VStack {
-            Text("Store")
+           Image(systemName: "storefront.circle.fill")
                 .font(.largeTitle)
                 .padding()
+                .foregroundColor(.green)
             
             if products.isEmpty {
                 ProgressView("Loading products...")
             } else {
                 ScrollView {
                     VStack(spacing: 16) {
-                        // Consumable products section
-                        if !consumableProducts.isEmpty {
-                            Text("One-Time Purchases")
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal)
-                            
-                            ForEach(consumableProducts, id: \.id) { product in
-                                ProductView(
-                                    product: product,
-                                    isPurchasing: isPurchasing && purchasingProductID == product.id,
-                                    buttonText: "Buy Now",
-                                    action: { purchaseProduct(product) }
-                                )
-                            }
-                        }
-                        
                         // Subscription products section
                         if !subscriptionProducts.isEmpty {
                             Text("Subscriptions")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal)
-                                .padding(.top)
                             
                             ForEach(subscriptionProducts, id: \.id) { product in
                                 ProductView(
                                     product: product,
                                     isPurchasing: isPurchasing && purchasingProductID == product.id,
                                     buttonText: "Subscribe",
+                                    action: { purchaseProduct(product) }
+                                )
+                            }
+                        }
+                        
+                        // Consumable products section
+                        if !consumableProducts.isEmpty {
+                            HStack {
+                                Text("Refuel")
+                                Image(systemName: "microbe.circle.fill")
+                                    .foregroundColor(.green)
+                            }
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                            .padding(.top)
+                            
+                            ForEach(consumableProducts, id: \.id) { product in
+                                ProductView(
+                                    product: product,
+                                    isPurchasing: isPurchasing && purchasingProductID == product.id,
+                                    buttonText: "Buy Now",
                                     action: { purchaseProduct(product) }
                                 )
                             }
@@ -71,10 +76,12 @@ struct StoreView: View {
     
     private var consumableProducts: [Product] {
         products.filter { $0.type == .consumable }
+            .sorted { $0.price < $1.price }
     }
     
     private var subscriptionProducts: [Product] {
         products.filter { $0.type == .autoRenewable }
+            .sorted { $0.price < $1.price }
     }
     
     private func loadProducts() {
@@ -178,15 +185,14 @@ struct ProductView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(product.displayName)
-                .font(.title2)
-            
-            Text(product.description)
-                .foregroundColor(.secondary)
+            HStack {
+                Text(product.displayName)
+                Image(systemName: "microbe.circle.fill")
+                                    .foregroundColor(.green)
+            }
             
             HStack {
                 Text(product.displayPrice)
-                    .font(.headline)
                 
                 if product.type == .autoRenewable {
                     Text("/ month")

@@ -91,7 +91,7 @@ struct FullImageView: View {
                         HStack {
                             Image(systemName: "arrow.down.square.fill")
                             Text("10")
-                            Image(systemName: "waveform.circle")
+                            Image(systemName: "microbe.circle.fill")
                         }
                         .padding(8)
                         .background(Color.blue)

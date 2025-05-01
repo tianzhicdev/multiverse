@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		787F78962DC3E56500D8D9C4 /* telescope.gif in Resources */ = {isa = PBXBuildFile; fileRef = 787F78952DC3E56500D8D9C4 /* telescope.gif */; };
+		787F78972DC3E56500D8D9C4 /* telescope.gif in Resources */ = {isa = PBXBuildFile; fileRef = 787F78952DC3E56500D8D9C4 /* telescope.gif */; };
+		787F78982DC3E56500D8D9C4 /* telescope.gif in Resources */ = {isa = PBXBuildFile; fileRef = 787F78952DC3E56500D8D9C4 /* telescope.gif */; };
+		787F789D2DC409FF00D8D9C4 /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 787F789C2DC409FF00D8D9C4 /* searching2.mp3 */; };
+		787F789E2DC409FF00D8D9C4 /* searching1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 787F789B2DC409FF00D8D9C4 /* searching1.mp3 */; };
+		787F789F2DC409FF00D8D9C4 /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 787F789C2DC409FF00D8D9C4 /* searching2.mp3 */; };
+		787F78A02DC409FF00D8D9C4 /* searching1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 787F789B2DC409FF00D8D9C4 /* searching1.mp3 */; };
+		787F78A12DC409FF00D8D9C4 /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 787F789C2DC409FF00D8D9C4 /* searching2.mp3 */; };
+		787F78A22DC409FF00D8D9C4 /* searching1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 787F789B2DC409FF00D8D9C4 /* searching1.mp3 */; };
 		78A912162DB891B1007DAC2B /* ding3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 78A912142DB891B1007DAC2B /* ding3.mp3 */; };
 		78A912172DB891B1007DAC2B /* ding2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 78A912132DB891B1007DAC2B /* ding2.mp3 */; };
 		78A912182DB891B1007DAC2B /* ding4.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 78A912152DB891B1007DAC2B /* ding4.mp3 */; };
@@ -45,6 +54,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		787F78952DC3E56500D8D9C4 /* telescope.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = telescope.gif; sourceTree = "<group>"; };
+		787F789B2DC409FF00D8D9C4 /* searching1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = searching1.mp3; sourceTree = "<group>"; };
+		787F789C2DC409FF00D8D9C4 /* searching2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = searching2.mp3; sourceTree = "<group>"; };
 		78A912122DB891B1007DAC2B /* ding1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ding1.mp3; sourceTree = "<group>"; };
 		78A912132DB891B1007DAC2B /* ding2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ding2.mp3; sourceTree = "<group>"; };
 		78A912142DB891B1007DAC2B /* ding3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ding3.mp3; sourceTree = "<group>"; };
@@ -115,6 +127,9 @@
 		78EADD822DB45DB100B62FF8 = {
 			isa = PBXGroup;
 			children = (
+				787F789B2DC409FF00D8D9C4 /* searching1.mp3 */,
+				787F789C2DC409FF00D8D9C4 /* searching2.mp3 */,
+				787F78952DC3E56500D8D9C4 /* telescope.gif */,
 				78A912262DB9B7CF007DAC2B /* drum_reveal.mp3 */,
 				78A912222DB89481007DAC2B /* ding5.mp3 */,
 				78A912122DB891B1007DAC2B /* ding1.mp3 */,
@@ -258,12 +273,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				787F78982DC3E56500D8D9C4 /* telescope.gif in Resources */,
 				78A912162DB891B1007DAC2B /* ding3.mp3 in Resources */,
 				78A912172DB891B1007DAC2B /* ding2.mp3 in Resources */,
 				78A912252DB89481007DAC2B /* ding5.mp3 in Resources */,
 				78A912182DB891B1007DAC2B /* ding4.mp3 in Resources */,
 				78A912192DB891B1007DAC2B /* ding1.mp3 in Resources */,
 				78A912282DB9B7CF007DAC2B /* drum_reveal.mp3 in Resources */,
+				787F789D2DC409FF00D8D9C4 /* searching2.mp3 in Resources */,
+				787F789E2DC409FF00D8D9C4 /* searching1.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,8 +289,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				787F78962DC3E56500D8D9C4 /* telescope.gif in Resources */,
 				78A9121E2DB891B1007DAC2B /* ding3.mp3 in Resources */,
 				78A912232DB89481007DAC2B /* ding5.mp3 in Resources */,
+				787F78A12DC409FF00D8D9C4 /* searching2.mp3 in Resources */,
+				787F78A22DC409FF00D8D9C4 /* searching1.mp3 in Resources */,
 				78A9121F2DB891B1007DAC2B /* ding2.mp3 in Resources */,
 				78A912292DB9B7CF007DAC2B /* drum_reveal.mp3 in Resources */,
 				78A912202DB891B1007DAC2B /* ding4.mp3 in Resources */,
@@ -284,8 +305,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				787F78972DC3E56500D8D9C4 /* telescope.gif in Resources */,
 				78A9121A2DB891B1007DAC2B /* ding3.mp3 in Resources */,
 				78A912242DB89481007DAC2B /* ding5.mp3 in Resources */,
+				787F789F2DC409FF00D8D9C4 /* searching2.mp3 in Resources */,
+				787F78A02DC409FF00D8D9C4 /* searching1.mp3 in Resources */,
 				78A9121B2DB891B1007DAC2B /* ding2.mp3 in Resources */,
 				78A912272DB9B7CF007DAC2B /* drum_reveal.mp3 in Resources */,
 				78A9121C2DB891B1007DAC2B /* ding4.mp3 in Resources */,

@@ -192,7 +192,7 @@ struct LandingView: View {
                             ProgressView()
                         } else {
                             Text("Discover 10x")
-                            Image(systemName: "waveform.circle")
+                            Image(systemName: "microbe.circle.fill")
                         }
 
                     }

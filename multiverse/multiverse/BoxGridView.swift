@@ -84,7 +84,7 @@ struct BoxGridView: View {
                             ProgressView()
                         } else {
                             Text("Re-Discover 10x")
-                            Image(systemName: "waveform.circle")
+                            Image(systemName: "microbe.circle.fill")
                         }
                     }
                     .padding(8)

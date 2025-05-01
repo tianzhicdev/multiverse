@@ -20,13 +20,13 @@
       "internalID" : "100001",
       "localizations" : [
         {
-          "description" : "100 Photons package",
-          "displayName" : "100 Photons",
+          "description" : "Refuel 100",
+          "displayName" : "Refuel 100",
           "locale" : "en_US"
         }
       ],
       "productID" : "consumable.photons.100",
-      "referenceName" : "100 Photons",
+      "referenceName" : "Refuel 100",
       "type" : "Consumable"
     },
     {
@@ -35,13 +35,13 @@
       "internalID" : "100002",
       "localizations" : [
         {
-          "description" : "200 Photons package",
-          "displayName" : "200 Photons",
+          "description" : "Refuel 200",
+          "displayName" : "Refuel 200",
           "locale" : "en_US"
         }
       ],
       "productID" : "consumable.photons.200",
-      "referenceName" : "200 Photons",
+      "referenceName" : "Refuel 200",
       "type" : "Consumable"
     },
     {
@@ -50,13 +50,13 @@
       "internalID" : "100003",
       "localizations" : [
         {
-          "description" : "500 Photons package",
-          "displayName" : "500 Photons",
+          "description" : "Refuel 500",
+          "displayName" : "Refuel 500",
           "locale" : "en_US"
         }
       ],
       "productID" : "consumable.photons.500",
-      "referenceName" : "500 Photons",
+      "referenceName" : "Refuel 500",
       "type" : "Consumable"
     },
     {
@@ -65,13 +65,13 @@
       "internalID" : "100004",
       "localizations" : [
         {
-          "description" : "1200 Photons package",
-          "displayName" : "1200 Photons",
+          "description" : "Refuel 1200",
+          "displayName" : "Refuel 1200",
           "locale" : "en_US"
         }
       ],
       "productID" : "consumable.photons.1200",
-      "referenceName" : "1200 Photons",
+      "referenceName" : "Refuel 1200",
       "type" : "Consumable"
     }
   ],
@@ -100,14 +100,14 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Subscription with 500 Photons monthly",
-              "displayName" : "500 Photons",
+              "description" : "Refresh monthly with 500",
+              "displayName" : "Refresh monthly with 500",
               "locale" : "en_US"
             }
           ],
           "productID" : "subscription.photons.500",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Photons 500",
+          "referenceName" : "Refresh monthly with 500",
           "subscriptionGroupID" : "3F19ED53",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -128,14 +128,14 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Subscription with 1200 Photons monthly",
-              "displayName" : "1200 Photons",
+              "description" : "Refresh monthly with 1200",
+              "displayName" : "Refresh monthly with 1200",
               "locale" : "en_US"
             }
           ],
           "productID" : "subscription.photons.1200",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Photons 1200",
+          "referenceName" : "Refresh monthly with 1200",
           "subscriptionGroupID" : "3F19ED53",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
