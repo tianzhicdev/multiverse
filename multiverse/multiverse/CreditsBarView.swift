@@ -11,16 +11,13 @@ struct CreditsBarView: View {
                 if isLoadingCredits {
                     ProgressView()
                 } else {
-                    Text("Available").foregroundColor(.white)
                     Image(systemName: "waveform.circle")
-                        .foregroundColor(.white)
-                    Text("\(userCredits)").foregroundColor(.white)
+                        .foregroundColor(.green)
+                    Text("\(userCredits)").foregroundColor(.green)
                 }
             }
             .padding(10)
-            .background(Color(.green))
-            .cornerRadius(8)
-            .shadow(radius: 1)
+            .padding(.leading, 5)
 
             Spacer()
             
@@ -37,6 +34,7 @@ struct CreditsBarView: View {
                 .background(Color(.green))
                 .cornerRadius(8)
                 .shadow(radius: 1)
+                .padding(.trailing, 5)
             }
             
             NavigationLink(destination: StoreView(), isActive: $showStore) {

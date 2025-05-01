@@ -70,6 +70,7 @@ struct BoxGridView: View {
                 }
 
             HStack {
+                Spacer()
                 Button(action: {
                     if userCredits >= 10 {
                         rerollImages()
@@ -82,7 +83,7 @@ struct BoxGridView: View {
                         if isRerolling {
                             ProgressView()
                         } else {
-                            Text("Re-Split 10")
+                            Text("Re-Discover 10x")
                             Image(systemName: "waveform.circle")
                         }
                     }
@@ -155,6 +156,9 @@ struct BoxGridView: View {
                     userDescription: inputs.userDescription,
                     numThemes: totalBoxes
                 )
+                
+                // Clear cached images because we will fetch new ones
+                ImageCache.shared.clearAll()
                 
                 // Set rerolling to false
                 await MainActor.run {

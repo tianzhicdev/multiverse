@@ -13,7 +13,8 @@ class ImageGenerationService {
     ) async throws -> [String: Any] {
         // Clear any previous API response data
         APIResponseStore.shared.clearAll()
-        print("Cleared previous API response data")
+        ImageCache.shared.clearAll()
+        print("Cleared previous API response data and image cache")
         
         // Call the backend API to create the image
         let result = try await NetworkService.shared.uploadToCreateAPI(

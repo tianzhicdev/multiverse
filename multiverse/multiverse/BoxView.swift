@@ -21,6 +21,7 @@ struct BoxView: View {
     @State private var currentLoadTask: Task<Void, Never>?  // Add task tracking
     @State private var requestID: String = ""  // Add request ID state
     @State private var resultImageID: String = ""  // Add result image ID state
+    @State private var shouldReveal = false  // Determines if we should reveal (wiggle + sound) when the image appears
     
     var body: some View {
         ZStack {
@@ -41,17 +42,21 @@ struct BoxView: View {
                         showFullImage = true
                     }
                     .onAppear {
-                        // Start wiggle animation
-                        withAnimation(.interpolatingSpring(stiffness: 300, damping: 5)) {
-                            wiggleAmount = 5
+                        if shouldReveal {
+                            // Start wiggle animation
+                            withAnimation(.interpolatingSpring(stiffness: 300, damping: 5)) {
+                                wiggleAmount = 5
+                            }
+                            
+                            // Return to normal after wiggle
+                            withAnimation(.interpolatingSpring(stiffness: 300, damping: 5).delay(0.2)) {
+                                wiggleAmount = 0
+                            }
+                            
+                            // Play sound and mark reveal as done
+                            playSound()
+                            shouldReveal = false
                         }
-                        
-                        // Return to normal after wiggle
-                        withAnimation(.interpolatingSpring(stiffness: 300, damping: 5).delay(0.2)) {
-                            wiggleAmount = 0
-                        }
-                        
-                        playSound()
                     }
                 
                 // Theme name overlay
@@ -150,7 +155,7 @@ struct BoxView: View {
                         }
                     }
                     
-                    Button("Download") {
+                    Button {
                         // Check credits before attempting download
                         Task {
                             do {
@@ -203,23 +208,17 @@ struct BoxView: View {
                                 }
                             }
                         }
+                    } label: {
+                        HStack {
+                            Image(systemName: "arrow.down.square.fill")
+                            Text("10")
+                            Image(systemName: "waveform.circle")
+                        }
                     }
                     .padding(8)
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(8)
-                    .overlay(
-                        HStack {
-                            Text("10")
-                                .font(.caption)
-                            Image(systemName: "creditcard")
-                        }
-                        .padding(4)
-                        .background(Color.white.opacity(0.2))
-                        .cornerRadius(4)
-                        .padding(.trailing, 8),
-                        alignment: .trailing
-                    )
                     
                     Button("Close") {
                         showFullImage = false
@@ -293,9 +292,20 @@ struct BoxView: View {
                         self.resultImageID = themeImage.resultImageID
                     }
                     
+                    // Check if the image is already cached
+                    if let cachedData = ImageCache.shared.imageData(for: themeImage.resultImageID) {
+                        print("BoxGridView: Using cached image for box #\(number), size: \(cachedData.count) bytes")
+                        await MainActor.run {
+                            self.imageData = cachedData
+                            isLoading = false
+                        }
+                        return // Skip network fetch
+                    }
+                    
                     // Check if task was cancelled
                     try Task.checkCancellation()
                     
+                    shouldReveal = true
                     // Use the fetchImageWithRetry method which already has its own retry mechanism
                     let processedImageData = try await NetworkService.shared.fetchImageWithRetry(
                         resultImageID: themeImage.resultImageID,
@@ -317,6 +327,9 @@ struct BoxView: View {
                                 self.imageData = imageData
                                 isLoading = false
                             }
+                            
+                            // Store the downloaded image in cache for future reuse
+                            ImageCache.shared.setImageData(imageData, for: themeImage.resultImageID)
                         } else {
                             print("BoxGridView: Failed to convert data to UIImage for box #\(number)")
                             throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid image data received"])

@@ -191,7 +191,7 @@ struct LandingView: View {
                             Text("Uploading")
                             ProgressView()
                         } else {
-                            Text("Split 10")
+                            Text("Discover 10x")
                             Image(systemName: "waveform.circle")
                         }
 
