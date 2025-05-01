@@ -137,93 +137,13 @@ struct BoxView: View {
             Text(successMessage)
         }
         .sheet(isPresented: $showFullImage) {
-            
             if let imageData = imageData, let uiImage = UIImage(data: imageData) {
-                VStack {
-                    ZStack {
-                        FullImageView(uiImage: uiImage)
-                        
-                        VStack {
-                            Spacer()
-                            Text(themeName)
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(8)
-                                .background(Color.black.opacity(0.6))
-                                .cornerRadius(8)
-                                .padding(.bottom, 40)
-                        }
-                    }
-                    
-                    Button {
-                        // Check credits before attempting download
-                        Task {
-                            do {
-                                let userID = UserManager.shared.getCurrentUserID()
-                                
-                                // First check if user has enough credits
-                                let currentCredits = try await NetworkService.shared.fetchUserCredits(
-                                    userID: userID
-                                )
-                                
-                                if currentCredits < 10 {
-                                    await MainActor.run {
-                                        errorMessage = "Insufficient credits. Each download costs 10 credits."
-                                        showError = true
-                                        showFullImage = false
-                                    }
-                                    return
-                                }
-                                
-                                // Try to deduct 10 credits
-                                let remainingCredits = try await NetworkService.shared.useCredits(
-                                    userID: userID,
-                                    credits: 10
-                                )
-                                
-                                // Credits deducted successfully, save the image
-                                await MainActor.run {
-                                    UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
-                                    // Show success alert
-                                    successMessage = "Image saved successfully! You have \(remainingCredits) credits remaining."
-                                    showSuccessAlert = true
-                                    // Notify parent about credit update
-                                    onCreditsUpdated?(remainingCredits)
-                                    
-                                    // Track the download action
-                                    NetworkService.shared.trackUserAction(
-                                        userID: userID,
-                                        action: "download",
-                                        imageID: resultImageID
-                                    )
-                                }
-                            } catch {
-                                // Handle error - likely insufficient credits
-                                print("Failed to download image: \(error.localizedDescription)")
-                                await MainActor.run {
-                                    // Show error alert
-                                    errorMessage = "Download failed: Insufficient credits. Each download costs 10 credits."
-                                    showError = true
-                                    showFullImage = false
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Image(systemName: "arrow.down.square.fill")
-                            Text("10")
-                            Image(systemName: "waveform.circle")
-                        }
-                    }
-                    .padding(8)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                    
-                    Button("Close") {
-                        showFullImage = false
-                    }
-                }
+                FullImageView(
+                    uiImage: uiImage,
+                    themeName: themeName,
+                    resultImageID: resultImageID,
+                    onCreditsUpdated: onCreditsUpdated
+                )
             }
         }
     }

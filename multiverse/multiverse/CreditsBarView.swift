@@ -16,8 +16,8 @@ struct CreditsBarView: View {
                     Text("\(userCredits)").foregroundColor(.green)
                 }
             }
-            .padding(10)
             .padding(.leading, 5)
+            .padding(.top, 5)
 
             Spacer()
             
@@ -30,11 +30,12 @@ struct CreditsBarView: View {
                     Text("Store")
                         .foregroundColor(.white)
                 }
-                .padding(10)
                 .background(Color(.green))
                 .cornerRadius(8)
                 .shadow(radius: 1)
+                .padding(.top, 5)
                 .padding(.trailing, 5)
+
             }
             
             NavigationLink(destination: StoreView(), isActive: $showStore) {
