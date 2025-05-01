@@ -28,6 +28,13 @@ services:
       - web_network
     deploy:
       replicas: 4
+      resources:
+        limits:
+          cpus: '0.50'    # max 0.5 CPU core
+          memory: 512M    # hard memory limit
+        reservations:
+          cpus: '0.25'    # scheduler tries to keep this much free
+          memory: 256M
 
   nginx:
     image: nginx:latest
@@ -48,7 +55,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data

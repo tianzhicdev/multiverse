@@ -35,18 +35,23 @@ def update_request_status(result_image_id, status):
 
 def get_pending_requests():
     """Get all image requests with 'new' or 'retry' status and update them to 'pending'."""
-    # First get the requests
+    # Use a transaction to atomically select and update requests
     query = """
-        SELECT ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, 
-               t.name as theme_name, t.theme, ir.source_image_id, i.data, ir.user_description
-        FROM image_requests ir
-        LEFT JOIN themes t ON ir.theme_id = t.id
-        LEFT JOIN images i ON ir.source_image_id = i.id
-        WHERE ir.status IN ('new', 'retry')
-        ORDER BY ir.created_at
+        WITH pending_requests AS (
+            UPDATE image_requests ir
+            SET status = 'pending'
+            WHERE ir.status IN ('new', 'retry')
+            RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, ir.source_image_id, ir.user_description
+        )
+        SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.theme_id, 
+               t.name as theme_name, t.theme, pr.source_image_id, i.data, pr.user_description
+        FROM pending_requests pr
+        LEFT JOIN themes t ON pr.theme_id = t.id
+        LEFT JOIN images i ON pr.source_image_id = i.id
+        ORDER BY pr.id
     """
     results = execute_query(query)
-    logger.info(f"Found {len(results) if results else 0} pending requests")
+    logger.info(f"Found and updated {len(results) if results else 0} pending requests")
     
     # Convert results to a list of objects
     pending_requests = []
@@ -64,15 +69,6 @@ def get_pending_requests():
                 "source_image_data": row[8],
                 "user_description": row[9]
             })
-        
-        # Update the status of all fetched requests to 'pending'
-        update_query = """
-            UPDATE image_requests 
-            SET status = 'pending' 
-            WHERE id IN %s
-        """
-        request_ids = tuple(request["id"] for request in pending_requests)
-        execute_query(update_query, (request_ids,))
     
     return pending_requests
 
@@ -145,7 +141,7 @@ def main():
     logger.info("Starting background image request processor")
     
     # Create and start worker threads
-    num_workers = 80
+    num_workers = 10
     workers = []
     for _ in range(num_workers):
         t = threading.Thread(target=worker)
