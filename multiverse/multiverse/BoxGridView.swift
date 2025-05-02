@@ -26,6 +26,12 @@ struct BoxGridView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     
+    // Loading tracking state
+    @State private var loadingBoxes = Set<Int>()
+    
+    // Lifecycle tracking
+    @State private var viewAppeared = false
+    
     var body: some View {
         GeometryReader { geometry in
             let screenWidth = geometry.size.width
@@ -62,9 +68,22 @@ struct BoxGridView: View {
                                 isDebugMode: isDebugMode,
                                 onCreditsUpdated: { newCredits in
                                     userCredits = newCredits
+                                },
+                                onLoadingChanged: { number, isLoading in
+                                    handleLoadingStateChanged(number: number, isLoading: isLoading)
                                 }
                             )
                                 .frame(height: boxHeight)
+                                .onAppear {
+                                    // Add to loading boxes when the BoxView appears
+                                    loadingBoxes.insert(index + 1)
+                                    updateLoadingSoundState()
+                                }
+                                .onChange(of: reloadTrigger) { _, _ in
+                                    // When reloading, mark box as loading
+                                    loadingBoxes.insert(index + 1)
+                                    updateLoadingSoundState()
+                                }
                         }
                     }
                 }
@@ -110,11 +129,42 @@ struct BoxGridView: View {
             
             // Fetch user credits when view appears
             fetchUserCredits()
+            
+            // Mark view as appeared to track lifecycle
+            viewAppeared = true
+            updateLoadingSoundState()
+        }
+        .onDisappear {
+            // Mark view as disappeared 
+            viewAppeared = false
+            // Stop sounds when view disappears
+            AudioManager.shared.stopLoadingSound()
         }
         .alert("Error", isPresented: $showError) {
             Button("OK", role: .cancel) { }
         } message: {
             Text(errorMessage)
+        }
+    }
+    
+    // Function to handle loading state changes
+    private func handleLoadingStateChanged(number: Int, isLoading: Bool) {
+        if isLoading {
+            loadingBoxes.insert(number)
+        } else {
+            loadingBoxes.remove(number)
+        }
+        updateLoadingSoundState()
+    }
+    
+    // Update the audio state based on loading state and view lifecycle
+    private func updateLoadingSoundState() {
+        if viewAppeared && !loadingBoxes.isEmpty {
+            // If at least one box is loading, play the sound
+            AudioManager.shared.startLoadingSound()
+        } else {
+            // If no boxes are loading or view is not visible, stop the sound
+            AudioManager.shared.stopLoadingSound()
         }
     }
     

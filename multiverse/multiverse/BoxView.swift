@@ -8,9 +8,17 @@ struct BoxView: View {
     let reloadTrigger: Int
     let isDebugMode: Bool
     let onCreditsUpdated: ((Int) -> Void)?  // Add callback for credit updates
+    let onLoadingChanged: ((Int, Bool) -> Void)? // Add callback for loading state changes
     
     @State private var imageData: Data?
-    @State private var isLoading = false
+    @State private var isLoading = false {
+        didSet {
+            // Notify when loading state changes
+            if oldValue != isLoading {
+                onLoadingChanged?(number, isLoading)
+            }
+        }
+    }
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showFullImage = false
@@ -284,5 +292,5 @@ struct BoxView: View {
 }
 
 #Preview {
-    BoxView(number: 1, items: [], reloadTrigger: 0, isDebugMode: false, onCreditsUpdated: nil)
+    BoxView(number: 1, items: [], reloadTrigger: 0, isDebugMode: false, onCreditsUpdated: nil, onLoadingChanged: nil)
 } 

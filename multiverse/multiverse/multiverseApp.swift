@@ -24,6 +24,9 @@ struct multiverseApp: App {
             // Sync iCloud changes
             NSUbiquitousKeyValueStore.default.synchronize()
         }
+        
+        // Setup app lifecycle observation
+        setupLifecycleObservers()
     }
     
     
@@ -45,5 +48,30 @@ struct multiverseApp: App {
             LandingView()
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(from: oldPhase, to: newPhase)
+        }
+    }
+    
+    @Environment(\.scenePhase) private var scenePhase
+    
+    // Setup observers for app lifecycle events
+    private func setupLifecycleObservers() {
+        // Adding observers for app termination
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            AudioManager.shared.cleanup()
+        }
+    }
+    
+    // Handle scene phase changes
+    private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        if newPhase == .background {
+            // App is entering background
+            AudioManager.shared.stopLoadingSound()
+        }
     }
 }
