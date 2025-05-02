@@ -6,4 +6,6 @@ struct FireworkParticle: Identifiable {
     let targetOffset: CGSize
     let speed: CGFloat
     var opacity: Double
+    var size: CGFloat = 5
+    var color: Color = .white
 } 

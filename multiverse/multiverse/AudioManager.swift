@@ -30,7 +30,14 @@ class AudioManager {
                     let player2 = try AVAudioPlayer(contentsOf: searching2URL)
                     player2.prepareToPlay()
                     
-                    audioPlayers = [player1, player2]
+                    if let searching3URL = Bundle.main.url(forResource: "searching3", withExtension: "mp3") {
+                        let player3 = try AVAudioPlayer(contentsOf: searching3URL)
+                        player3.prepareToPlay()
+                        
+                        audioPlayers = [player1, player2, player3]
+                    } else {
+                        audioPlayers = [player1, player2]
+                    }
                 }
             }
         } catch {
@@ -60,9 +67,9 @@ class AudioManager {
     private func playNextSound() {
         guard isPlaying, !audioPlayers.isEmpty else { return }
         
-        // Get the first player, play it, and move it to the end of the array
-        let currentPlayer = audioPlayers.removeFirst()
-        audioPlayers.append(currentPlayer)
+        // Randomly select a player from the array
+        let randomIndex = Int.random(in: 0..<audioPlayers.count)
+        let currentPlayer = audioPlayers[randomIndex]
         
         // Reset player to start
         currentPlayer.currentTime = 0

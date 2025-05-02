@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import AVFoundation
 
 struct FullImageView: View {
     let uiImage: UIImage
@@ -21,12 +22,25 @@ struct FullImageView: View {
     @State private var rotation = 0.0
     @State private var showFireworks = false
     
+    // Audio player for reveal sound
+    private var audioPlayer: AVAudioPlayer?
+    
     // Custom initializer so callers can optionally provide the credits callback
     init(uiImage: UIImage, themeName: String, resultImageID: String, onCreditsUpdated: ((Int) -> Void)? = nil) {
         self.uiImage = uiImage
         self.themeName = themeName
         self.resultImageID = resultImageID
         self.onCreditsUpdated = onCreditsUpdated
+        
+        // Initialize audio player
+        if let soundURL = Bundle.main.url(forResource: "reveal2", withExtension: "mp3") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                audioPlayer?.prepareToPlay()
+            } catch {
+                print("Failed to initialize audio player: \(error.localizedDescription)")
+            }
+        }
     }
     
     var body: some View {
@@ -45,6 +59,9 @@ struct FullImageView: View {
                         .scaleEffect(scale)
                         .rotationEffect(.degrees(rotation))
                         .onAppear {
+                            // Play reveal sound
+                            audioPlayer?.play()
+                            
                             // Reveal the image with rotation immediately
                             withAnimation(.easeInOut(duration: 0.5)) {
                                 opacity = 1.0
