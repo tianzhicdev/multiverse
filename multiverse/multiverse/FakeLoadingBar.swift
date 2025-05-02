@@ -3,25 +3,28 @@ import CoreGraphics
 import ImageIO
 
 struct FakeLoadingBar: View {
-    @State private var isFlipped: Bool = false
+    @State private var isFlipped: Bool = Bool.random()
+    @State private var speedFactor: Double = Double.random(in: 0.7...1.3)
     let resetTrigger: Int
     
     var body: some View {
-        VStack {
-            ZStack {
-                // Load and display telescope.gif
-                if let url = Bundle.main.url(forResource: "telescope", withExtension: "gif") {
-                    GIFView(url: url, onAnimationComplete: {
-                        // Flip the image after each cycle
-                        isFlipped.toggle()
-                    })
-                    .scaleEffect(x: isFlipped ? -1 : 1) // Flip vertically when isFlipped is true
-                }
+        ZStack {
+            // Load and display telescope.gif
+            if let url = Bundle.main.url(forResource: "telescope", withExtension: "gif") {
+                GIFView(url: url, speedFactor: speedFactor, onAnimationComplete: {
+                    // Flip the image after each cycle
+                    isFlipped.toggle()
+                    // Randomize speed for next cycle
+                    speedFactor = Double.random(in: 0.7...1.3)
+                })
+                .scaleEffect(x: isFlipped ? -1 : 1) // Flip vertically when isFlipped is true
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             }
         }
         .onChange(of: resetTrigger) { _, _ in
-            // Just reset the flip state when trigger changes
+            // Reset the flip state and randomize speed when trigger changes
             isFlipped = false
+            speedFactor = Double.random(in: 0.7...1.3)
         }
     }
 }
@@ -29,10 +32,12 @@ struct FakeLoadingBar: View {
 // Helper GIF view to display and loop the GIF
 struct GIFView: UIViewRepresentable {
     private let url: URL
+    private let speedFactor: Double
     private let onAnimationComplete: () -> Void
     
-    init(url: URL, onAnimationComplete: @escaping () -> Void) {
+    init(url: URL, speedFactor: Double = 1.0, onAnimationComplete: @escaping () -> Void) {
         self.url = url
+        self.speedFactor = speedFactor
         self.onAnimationComplete = onAnimationComplete
     }
     
@@ -42,7 +47,7 @@ struct GIFView: UIViewRepresentable {
         // Create GIF image view
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill // Changed to scaleAspectFill to fill the container
         
         // Load the GIF
         if let gifData = try? Data(contentsOf: url),
@@ -67,14 +72,17 @@ struct GIFView: UIViewRepresentable {
                 }
             }
             
+            // Apply speed factor to duration
+            let adjustedDuration = duration * speedFactor
+            
             // Set up animation
             imageView.animationImages = images
-            imageView.animationDuration = duration
+            imageView.animationDuration = adjustedDuration
             imageView.animationRepeatCount = 0 // Loop forever
             imageView.startAnimating()
             
             // Set up animation completion tracking
-            context.coordinator.setupAnimationObserver(for: imageView, duration: duration)
+            context.coordinator.setupAnimationObserver(for: imageView, duration: adjustedDuration)
         }
         
         view.addSubview(imageView)
@@ -85,6 +93,9 @@ struct GIFView: UIViewRepresentable {
             imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        // Add clipsToBounds to ensure content doesn't exceed view boundaries
+        view.clipsToBounds = true
         
         return view
     }
@@ -127,4 +138,4 @@ struct GIFView: UIViewRepresentable {
 
 #Preview {
     FakeLoadingBar(resetTrigger: 0)
-} 
+}

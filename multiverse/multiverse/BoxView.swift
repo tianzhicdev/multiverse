@@ -27,7 +27,7 @@ struct BoxView: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Color.gray.opacity(0.2))
+                .fill(Color.white)
                 .aspectRatio(0.67, contentMode: .fit)
                 .cornerRadius(8)
             
@@ -88,6 +88,7 @@ struct BoxView: View {
             } else if isLoading {
                 VStack {
                     FakeLoadingBar(resetTrigger: reloadTrigger)
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                     if isDebugMode {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("RID: \(requestID.prefix(5))")
@@ -103,6 +104,7 @@ struct BoxView: View {
                         .padding(4)
                     }
                 }
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             } else {
                 Text("\(number)")
                     .font(.title)
