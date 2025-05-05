@@ -289,9 +289,9 @@ def get_image(result_image_id):
         if not user_id:
             return jsonify({'error': 'Missing user_id parameter'}), 400
             
-        # Look up the image request status and theme name
+        # Look up the image request status, theme name, and engine
         query = """
-            SELECT ir.status, ir.result_image_id, t.name as theme_name 
+            SELECT ir.status, ir.result_image_id, t.name as theme_name, ir.engine
             FROM image_requests ir
             JOIN themes t ON ir.theme_id = t.id
             WHERE ir.result_image_id = %s AND ir.user_id = %s
@@ -305,7 +305,7 @@ def get_image(result_image_id):
                 'result_image_id': result_image_id
             })
             
-        status, result_image_id, theme_name = result[0]
+        status, result_image_id, theme_name, engine = result[0]
         
         # If the image is still processing, return the status
         if status != 'ready':
@@ -313,7 +313,8 @@ def get_image(result_image_id):
                 'ready': False,
                 'status': status,
                 'result_image_id': result_image_id,
-                'theme_name': theme_name
+                'theme_name': theme_name,
+                'engine': engine
             })
             
         # Get the image data from the database
@@ -328,12 +329,17 @@ def get_image(result_image_id):
         # Create a BytesIO object from the image data
         image_io = BytesIO(image_data)
         
-        # Return the image
-        return send_file(
+        # Return the image with engine information in headers
+        response = send_file(
             image_io,
             mimetype=mime_type,
             as_attachment=False
         )
+        
+        # Add engine information to the response headers
+        response.headers['X-Engine'] = engine
+        
+        return response
             
     except Exception as e:
         logger.error(f"Error retrieving image: {str(e)}")

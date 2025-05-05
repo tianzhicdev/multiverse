@@ -17,10 +17,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configure rate limiters
-openai_rate = Rate(1, Duration.MINUTE)
+openai_rate = Rate(5, Duration.MINUTE)
 modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
-openai_image1_rate = Rate(1, Duration.MINUTE)  # New rate for GPT Image 1
+openai_image1_rate = Rate(5, Duration.MINUTE)  # New rate for GPT Image 1
 
 openai_limiter = Limiter(openai_rate)
 modelslab_limiter = Limiter(modelslab_rate)
@@ -31,7 +31,9 @@ openai_image1_limiter = Limiter(openai_image1_rate)  # New limiter for GPT Image
 def generate_with_openai_image_1(prompt, image_file):
     """Generate image using OpenAI's GPT-image-1 model with image editing"""
     try:
-        openai_image1_limiter.try_acquire("openai_image1_gen")
+        # openai_image1_limiter.try_acquire("openai_image1_gen")
+        # Wait until the rate limiter allows the request
+        openai_image1_limiter.acquire("openai_image1_gen")
         logger.info("Generating image with OpenAI image 1")
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -67,9 +69,6 @@ def generate_with_openai_image_1(prompt, image_file):
             return BytesIO(image_response.content), "openai-image-1"
         else:
             raise ValueError("No image data found in OpenAI response")
-    except BucketFullException:
-        logger.warning("OpenAI GPT Image 1 rate limit reached")
-        return None
     except Exception as e:
         logger.error(f"Error in OpenAI image edit: {str(e)}")
         return None

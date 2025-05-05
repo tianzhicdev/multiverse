@@ -224,7 +224,7 @@ class NetworkService {
         }
     }
     
-    func fetchImage(resultImageID: String) async throws -> Data? {
+    func fetchImage(resultImageID: String) async throws -> (Data?, String?) {
         logger.info("Fetching image with resultImageID: \(resultImageID)")
         
         let imageURL = URL(string: "\(domain)/api/image/\(resultImageID)")!
@@ -243,6 +243,9 @@ class NetworkService {
                 throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
             }
             
+            // Extract engine name from header if available
+            let engineName = httpResponse.value(forHTTPHeaderField: "X-Engine")
+            
             if !(200...299).contains(httpResponse.statusCode) {
                 let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
                 logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
@@ -253,7 +256,7 @@ class NetworkService {
             if let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type") {
                 if contentType.contains("image/") {
                     logger.info("Received image data successfully, size: \(data.count) bytes")
-                    return data
+                    return (data, engineName)
                 } else if contentType.contains("application/json") {
                     // Parse the JSON to check if image is not ready yet
                     if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
@@ -281,7 +284,7 @@ class NetworkService {
     }
     
     // Add a new method with retry capability
-    func fetchImageWithRetry(resultImageID: String, maxRetries: Int = 5, retryDelay: TimeInterval = 2.0) async throws -> Data? {
+    func fetchImageWithRetry(resultImageID: String, maxRetries: Int = 5, retryDelay: TimeInterval = 2.0) async throws -> (Data?, String?) {
         var retryCount = 0
         var lastError: Error? = nil
         

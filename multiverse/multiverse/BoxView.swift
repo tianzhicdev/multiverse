@@ -31,6 +31,7 @@ struct BoxView: View {
     @State private var requestID: String = ""  // Add request ID state
     @State private var resultImageID: String = ""  // Add result image ID state
     @State private var shouldReveal = false  // Determines if we should reveal (wiggle + sound) when the image appears
+    @State private var engineName: String = ""  // Add engine name state
     
     var body: some View {
         ZStack {
@@ -79,6 +80,11 @@ struct BoxView: View {
                             Text("IID: \(resultImageID.prefix(5))")
                                 .font(.caption)
                                 .foregroundColor(.white)
+                            if !engineName.isEmpty {
+                                Text("Engine: \(engineName)")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                            }
                         }
                         .padding(4)
                         .background(Color.black.opacity(0.6))
@@ -105,6 +111,11 @@ struct BoxView: View {
                             Text("IID: \(resultImageID.prefix(5))")
                                 .font(.caption)
                                 .foregroundColor(.black)
+                            if !engineName.isEmpty {
+                                Text("Engine: \(engineName)")
+                                    .font(.caption)
+                                    .foregroundColor(.black)
+                            }
                         }
                         .padding(4)
                         .background(Color.white.opacity(0.6))
@@ -238,7 +249,7 @@ struct BoxView: View {
                     
                     shouldReveal = true
                     // Use the fetchImageWithRetry method which already has its own retry mechanism
-                    let processedImageData = try await NetworkService.shared.fetchImageWithRetry(
+                    let (processedImageData, engine) = try await NetworkService.shared.fetchImageWithRetry(
                         resultImageID: themeImage.resultImageID,
                         maxRetries: 100,  // Maximum 100 retries
                         retryDelay: 2.0   // 2 seconds between retries
@@ -256,6 +267,9 @@ struct BoxView: View {
                             
                             await MainActor.run {
                                 self.imageData = imageData
+                                if let engine = engine {
+                                    self.engineName = engine
+                                }
                                 isLoading = false
                             }
                             
