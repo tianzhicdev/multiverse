@@ -48,9 +48,12 @@ def generate_with_openai_image_1(prompt, image_file):
         
         # Use the temporary file for the API call
 
+        # Convert BytesIO to a file-like object that OpenAI API expects
+        image_file.seek(0)  # Reset file pointer to beginning
+        
         result = client.images.edit(
             model="gpt-image-1",
-            image=f"data:image/{img.format.lower() if img.format else 'jpeg'};base64,{encoded_image}",
+            image=image_file,  # Pass the file-like object directly
             prompt=prompt
         )
 
