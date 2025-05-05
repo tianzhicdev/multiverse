@@ -123,17 +123,17 @@ def generate_with_modelslab(prompt):
             payload = json.dumps({
                 "key": os.environ.get("MODELSLAB_API_KEY", ""),
                 "prompt": prompt,
-                "negative_prompt": "bad quality",
                 "width": "1024",
                 "height": "1024",
-                "safety_checker": False,
+                "safety_checker": True,
                 "seed": None,
                 "samples": 1,
                 "base64": False,
                 "webhook": None,
                 "track_id": None,
-                "enhance_style": "anime",
+                "enhance_style": "pixel-art",
             })
+            logger.info(f"ModelsLab payload: {payload}")
             
             headers = {
                 'Content-Type': 'application/json'
