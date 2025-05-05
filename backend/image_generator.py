@@ -131,7 +131,8 @@ def generate_with_modelslab(prompt):
                 "samples": 1,
                 "base64": False,
                 "webhook": None,
-                "track_id": None
+                "track_id": None,
+                "enhance_style": "anime",
             })
             
             headers = {
