@@ -122,6 +122,7 @@ def generate_with_modelslab(prompt):
             
             payload = json.dumps({
                 "key": os.environ.get("MODELSLAB_API_KEY", ""),
+                "model_id": "ghibli",
                 "prompt": prompt,
                 "width": "1024",
                 "height": "1024",
@@ -131,7 +132,7 @@ def generate_with_modelslab(prompt):
                 "base64": False,
                 "webhook": None,
                 "track_id": None,
-                "enhance_style": "pixel-art",
+                # "enhance_style": "pixel-art",
             })
             logger.info(f"ModelsLab payload: {payload}")
             
