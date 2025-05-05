@@ -66,7 +66,7 @@ def generate_with_openai_image_1(prompt, image_file):
             image_url = result.data[0].url
             image_response = requests.get(image_url)
             image_response.raise_for_status()
-            return BytesIO(image_response.content), "openai-image-1"
+            return BytesIO(image_response.content), "image1"
         else:
             raise ValueError("No image data found in OpenAI response")
     except Exception as e:
