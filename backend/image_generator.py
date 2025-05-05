@@ -42,20 +42,28 @@ def generate_with_openai_image_1(prompt, image_file):
         
         # Generate image with GPT-image-1
         img = Image.open(image_file)
-        buffered = BytesIO()
-        img.save(buffered, format=img.format or "JPEG")
-        encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
         
-        # Use the temporary file for the API call
-
-        # Convert BytesIO to a file-like object that OpenAI API expects
-        image_file.seek(0)  # Reset file pointer to beginning
+        # Create a temporary file with JPEG extension to ensure correct mimetype
+        with tempfile.NamedTemporaryFile(suffix='.jpeg', delete=False) as temp_file:
+            # Save the image as JPEG format
+            if img.mode == 'RGBA':
+                # Convert RGBA to RGB for JPEG compatibility
+                img = img.convert('RGB')
+            img.save(temp_file, format="JPEG", quality=95)
+            temp_file_path = temp_file.name
         
-        result = client.images.edit(
-            model="gpt-image-1",
-            image=image_file,  # Pass the file-like object directly
-            prompt=prompt
-        )
+        try:
+            # Open the temporary file with proper mimetype for the API call
+            with open(temp_file_path, 'rb') as image:
+                result = client.images.edit(
+                    model="gpt-image-1",
+                    image=image,
+                    prompt=prompt
+                )
+        finally:
+            # Clean up the temporary file
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
 
         # Get the generated image data
         if hasattr(result.data[0], 'b64_json'):
