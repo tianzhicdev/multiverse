@@ -60,7 +60,7 @@ def generate_with_openai_image_1(prompt, image_file):
         if hasattr(result.data[0], 'b64_json'):
             image_base64 = result.data[0].b64_json
             image_bytes = base64.b64decode(image_base64)
-            return BytesIO(image_bytes), "openai-image-1"
+            return BytesIO(image_bytes), "image1"
         elif hasattr(result.data[0], 'url'):
             # Download the generated image if URL is provided instead
             image_url = result.data[0].url
