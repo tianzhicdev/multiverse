@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 openai_rate = Rate(5, Duration.MINUTE)
 modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
-openai_image1_rate = Rate(1, Duration.MINUTE)  # New rate for GPT Image 1
+openai_image1_rate = Rate(9, Duration.MINUTE)  # New rate for GPT Image 1
 stability_rate = Rate(150, Duration.SECOND * 10)  # 150 requests per 10 seconds
 
 openai_limiter = Limiter(openai_rate)
