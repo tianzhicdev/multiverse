@@ -7,7 +7,7 @@ from PIL import Image
 import logging
 import openai
 from db import execute_query
-from image_generator import image_gen, generate_with_openai_image_1
+from image_generator import image_gen, generate_with_openai_image_1, generate_with_stability
 
 # Configure logging
 logging.basicConfig(
@@ -118,6 +118,12 @@ def process_image_to_image(result_image_id, image_file, user_description, theme_
     result = generate_with_openai_image_1(image_1_prompt, image_file)
     if result:
         image, engine = result
+        return image, engine
+    
+    result = generate_with_stability(image_1_prompt, image_file)
+    if result:
+        image, engine = result
+        return image, engine
     else:
         # Fall back to the other image generation method
         image, engine = process_description_to_image(image_file, user_description, theme_description)

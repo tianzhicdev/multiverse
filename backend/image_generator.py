@@ -21,11 +21,69 @@ openai_rate = Rate(5, Duration.MINUTE)
 modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
 openai_image1_rate = Rate(5, Duration.MINUTE)  # New rate for GPT Image 1
+stability_rate = Rate(150, Duration.SECOND * 10)  # 150 requests per 10 seconds
 
 openai_limiter = Limiter(openai_rate)
 modelslab_limiter = Limiter(modelslab_rate)
 pollinations_limiter = Limiter(pollinations_rate)
 openai_image1_limiter = Limiter(openai_image1_rate)  # New limiter for GPT Image 1
+stability_limiter = Limiter(stability_rate)  # Limiter for Stability AI
+
+def generate_with_stability(prompt, image_file):
+    """
+    Generate an image using Stability AI's control structure API.
+    
+    Args:
+        prompt: The text prompt for image generation
+        image_file: The input image file object
+        
+    Returns:
+        tuple: (BytesIO, str) - A file-like object containing the generated image and the engine name
+    """
+    try:
+        # Try to acquire a rate limit token
+        stability_limiter.try_acquire("stability_image_gen")
+        logger.info("Generating image with Stability AI")
+        
+        # Check if Stability AI API key is configured
+        api_key = os.environ.get("STABILITY_API_KEY")
+        if not api_key:
+            raise ValueError("STABILITY_API_KEY environment variable not set")
+        
+        # Make API request to Stability AI
+        response = requests.post(
+            "https://api.stability.ai/v2beta/stable-image/control/structure",
+            headers={
+                "authorization": f"Bearer {api_key}",
+                "accept": "image/*"
+            },
+            files={
+                "image": image_file
+            },
+            data={
+                "prompt": prompt,
+                "control_strength": 0.7,
+                "output_format": "webp"
+            },
+        )
+        
+        # Handle response
+        if response.status_code == 200:
+            # Create a BytesIO object from the response content
+            image_data = BytesIO(response.content)
+            engine = "stability-structure"
+            return image_data, engine
+        else:
+            logger.error(f"Stability AI API error: {response.status_code}, {response.text}")
+            raise Exception(f"Stability AI API error: {response.text}")
+            
+    except BucketFullException:
+        logger.warning("Stability AI rate limit reached")
+        return None
+    except Exception as e:
+        logger.error(f"Error in generate_with_stability: {str(e)}")
+        raise
+
 
 
 def generate_with_openai_image_1(prompt, image_file):
