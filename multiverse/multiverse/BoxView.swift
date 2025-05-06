@@ -164,7 +164,13 @@ struct BoxView: View {
                     uiImage: uiImage,
                     themeName: themeName,
                     resultImageID: resultImageID,
-                    onCreditsUpdated: onCreditsUpdated
+                    onCreditsUpdated: { newCredits in
+                        // Pass the update to parent if callback exists
+                        onCreditsUpdated?(newCredits)
+                        
+                        // Refresh the global credits view model
+                        CreditsViewModel.shared.refreshCredits()
+                    }
                 )
             }
         }

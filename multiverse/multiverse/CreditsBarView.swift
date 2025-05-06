@@ -1,19 +1,60 @@
 import SwiftUI
 
+// Create an ObservableObject to manage credits state
+class CreditsViewModel: ObservableObject {
+    // Shared instance for global access
+    static let shared = CreditsViewModel()
+    
+    @Published var userCredits: Int = 0
+    @Published var isLoadingCredits: Bool = false
+    
+    func refreshCredits() {
+        fetchUserCredits()
+    }
+    
+    // Function to fetch user credits
+    func fetchUserCredits() {
+        isLoadingCredits = true
+        
+        Task {
+            do {
+                let credits = try await NetworkService.shared.fetchUserCredits(
+                    userID: UserManager.shared.getCurrentUserID()
+                )
+                
+                await MainActor.run {
+                    self.userCredits = credits
+                    self.isLoadingCredits = false
+                }
+            } catch {
+                print("Error fetching credits: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.isLoadingCredits = false
+                }
+            }
+        }
+    }
+}
+
 struct CreditsBarView: View {
-    @State private var userCredits: Int = 0
-    @State private var isLoadingCredits: Bool = false
+    // Use the shared ViewModel instance
+    @ObservedObject var viewModel: CreditsViewModel
     @State private var showStore: Bool = false
+    
+    // Default initializer uses the shared instance
+    init(viewModel: CreditsViewModel = CreditsViewModel.shared) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         HStack(alignment: .center) {
             HStack {
-                if isLoadingCredits {
+                if viewModel.isLoadingCredits {
                     ProgressView()
                 } else {
                     Image(systemName: "microbe.circle.fill")
                         .foregroundColor(.green)
-                    Text("\(userCredits)").foregroundColor(.green)
+                    Text("\(viewModel.userCredits)").foregroundColor(.green)
                 }
             }
             .padding(10)
@@ -44,36 +85,13 @@ struct CreditsBarView: View {
         // .padding(.horizontal)
         .padding(.bottom, 10)
         .onAppear {
-            fetchUserCredits()
-        }
-    }
-    
-    // Function to fetch user credits
-    private func fetchUserCredits() {
-        isLoadingCredits = true
-        
-        Task {
-            do {
-                let credits = try await NetworkService.shared.fetchUserCredits(
-                    userID: UserManager.shared.getCurrentUserID()
-                )
-                
-                await MainActor.run {
-                    userCredits = credits
-                    isLoadingCredits = false
-                }
-            } catch {
-                print("Error fetching credits: \(error.localizedDescription)")
-                await MainActor.run {
-                    isLoadingCredits = false
-                }
-            }
+            viewModel.fetchUserCredits()
         }
     }
     
     // Function to refresh credits (can be called from parent views)
     func refreshCredits() {
-        fetchUserCredits()
+        viewModel.refreshCredits()
     }
 }
 

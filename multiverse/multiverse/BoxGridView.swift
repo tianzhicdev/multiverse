@@ -196,7 +196,10 @@ struct BoxGridView: View {
                 
                 // Update credits display
                 await MainActor.run {
-                    userCredits = remainingCredits
+                    // userCredits = remainingCredits
+                    
+                    // Refresh the global credits view model
+                    CreditsViewModel.shared.refreshCredits()
                 }
                 
                 // Use the shared service to generate new images
@@ -214,6 +217,9 @@ struct BoxGridView: View {
                 await MainActor.run {
                     reloadTrigger += 1
                     isRerolling = false
+                    
+                    // Refresh the global credits view model
+                    CreditsViewModel.shared.refreshCredits()
                 }
             } catch {
                 print("Error rerolling images: \(error.localizedDescription)")

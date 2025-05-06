@@ -171,6 +171,9 @@ struct FullImageView: View {
                     showSuccessAlert = true
                     // Notify parent about credit update
                     onCreditsUpdated?(remainingCredits)
+                    
+                    // Refresh the global credits view model
+                    CreditsViewModel.shared.refreshCredits()
                 }
 
                 // Track the download action (non-blocking)

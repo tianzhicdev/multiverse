@@ -7,6 +7,7 @@ import SwiftUI        // SwiftUI is Apple's framework for building user interfac
 import PhotosUI       // PhotosUI is Apple's framework for accessing the photo library
                       // It allows users to select photos from their device
 import StoreKit       // StoreKit is Apple's framework for in-app purchases and subscriptions
+import SwiftData
 
 // Main view structure for the app
 // In SwiftUI, everything is built using structures (struct) that conform to the View protocol
@@ -172,6 +173,9 @@ struct LandingView: View {
                                 await MainActor.run {
                                     userCredits = remainingCredits
                                     performSearch()
+                                    
+                                    // Refresh the global credits view model
+                                    CreditsViewModel.shared.refreshCredits()
                                 }
                             } catch {
                                 await MainActor.run {
@@ -268,7 +272,10 @@ struct LandingView: View {
                 )
                 
                 // Refresh user credits
-                fetchUserCredits()
+                // fetchUserCredits()
+                
+                // Refresh the global credits view model
+                CreditsViewModel.shared.refreshCredits()
                 
                 // Navigate to BoxGridView
                 await MainActor.run {
