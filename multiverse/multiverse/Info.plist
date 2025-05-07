@@ -6,5 +6,7 @@
 	<array/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photos to generate creative variations of your images.</string>
 </dict>
 </plist>

@@ -16,6 +16,8 @@ struct BoxView: View {
             // Notify when loading state changes
             if oldValue != isLoading {
                 onLoadingChanged?(number, isLoading)
+                // Register with LoadingManager
+                LoadingManager.shared.registerBox(number, isLoading: isLoading)
             }
         }
     }
@@ -32,6 +34,9 @@ struct BoxView: View {
     @State private var resultImageID: String = ""  // Add result image ID state
     @State private var shouldReveal = false  // Determines if we should reveal (wiggle + sound) when the image appears
     @State private var engineName: String = ""  // Add engine name state
+    
+    // Add ObservedObject for LoadingManager
+    @ObservedObject private var loadingManager = LoadingManager.shared
     
     var body: some View {
         ZStack {
@@ -101,8 +106,11 @@ struct BoxView: View {
                 }
             } else if isLoading {
                 VStack {
-                    FakeLoadingBar(resetTrigger: reloadTrigger)
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    // Only show loading animation if this box is the active box
+                    if loadingManager.activeBoxNumber == number {
+                        FakeLoadingBar(resetTrigger: reloadTrigger)
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    }
                     if isDebugMode {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("RID: \(requestID.prefix(5))")

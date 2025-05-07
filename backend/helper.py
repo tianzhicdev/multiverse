@@ -120,10 +120,10 @@ def process_image_to_image(result_image_id, image_file, user_description, theme_
         image, engine = result
         return image, engine
     
-    result = generate_with_stability(img2img_prompt, image_file)
-    if result:
-        image, engine = result
-        return image, engine
+    # result = generate_with_stability(img2img_prompt, image_file)
+    # if result:
+    #     image, engine = result
+    #     return image, engine
     
     result = generate_with_replicate(img2img_prompt, image_file)
     if result:
