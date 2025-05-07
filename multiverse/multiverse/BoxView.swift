@@ -53,9 +53,6 @@ struct BoxView: View {
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .rotationEffect(.degrees(wiggleAmount))
-                    .onTapGesture {
-                        showFullImage = true
-                    }
                     .onAppear {
                         if shouldReveal {
                             // Start wiggle animation
@@ -136,6 +133,11 @@ struct BoxView: View {
                 Text("\(number)")
                     .font(.title)
                     .foregroundColor(.black)
+            }
+        }
+        .onTapGesture {
+            if imageData != nil {
+                showFullImage = true
             }
         }
         .task {

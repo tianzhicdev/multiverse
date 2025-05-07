@@ -84,7 +84,8 @@ struct FullImageView: View {
                         }
 
                     if showFireworks {
-                        FireworksView()
+                        // todo: display some other watermark
+                        // FireworksView()
                     }
 
                     // Theme name overlay at the bottom
