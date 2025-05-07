@@ -360,11 +360,6 @@ def image_gen(prompt):
     try:
         logger.info(f"Using prompt: {prompt}")
 
-        # Try Replicate SDXL first
-        result = generate_with_replicate(prompt)
-        if result:
-            return result
-
         # Try OpenAI next
         result = generate_with_openai(prompt)
         if result:
