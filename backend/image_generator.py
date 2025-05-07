@@ -8,6 +8,7 @@ import base64
 from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 import tempfile
 from PIL import Image 
+import replicate
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -22,12 +23,14 @@ modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
 openai_image1_rate = Rate(9, Duration.MINUTE)  # New rate for GPT Image 1
 stability_rate = Rate(150, Duration.SECOND * 10)  # 150 requests per 10 seconds
+replicate_rate = Rate(1, Duration.MINUTE)  # 1 request per minute for Replicate SDXL
 
 openai_limiter = Limiter(openai_rate)
 modelslab_limiter = Limiter(modelslab_rate)
 pollinations_limiter = Limiter(pollinations_rate)
 openai_image1_limiter = Limiter(openai_image1_rate)  # New limiter for GPT Image 1
 stability_limiter = Limiter(stability_rate)  # Limiter for Stability AI
+replicate_limiter = Limiter(replicate_rate)  # Limiter for Replicate SDXL
 
 def generate_with_stability(prompt, image_file):
     """
@@ -253,6 +256,84 @@ def generate_with_pollinations(prompt):
         logger.error(f"Error in Pollinations image generation: {str(e)}")
         return None
 
+def generate_with_replicate(prompt, image_file):
+    """
+    Generate image using Replicate's SDXL model with img2img
+    
+    Args:
+        prompt: The text prompt for image generation
+        image_file: Input image file in JPEG format for img2img mode
+        
+    Returns:
+        tuple: (BytesIO, str) - A file-like object containing the generated image and the engine name
+    """
+    try:
+        replicate_limiter.try_acquire("replicate_image_gen")
+        logger.info("Generating image with Replicate SDXL")
+        
+        # Check if Replicate API token is configured
+        api_token = os.environ.get("REPLICATE_API_TOKEN")
+        if not api_token:
+            raise ValueError("REPLICATE_API_TOKEN environment variable not set")
+        
+        # Configure Replicate client
+        client = replicate.Client(api_token=api_token)
+        
+        # Prepare input parameters
+        input_params = {
+            "width": 1024,
+            "height": 1024,
+            "prompt": prompt,
+            "refine": "expert_ensemble_refiner",
+            "apply_watermark": False,
+            "num_inference_steps": 25,
+            "guidance_scale": 7.5,
+            "scheduler": "K_EULER",
+            "num_outputs": 1,
+            "negative_prompt": "",
+            "prompt_strength": 0.8,
+            "high_noise_frac": 0.8,
+            "disable_safety_checker": False
+        }
+        
+        # Create a temporary file to store the image
+        with tempfile.NamedTemporaryFile(suffix='.jpeg', delete=False) as temp_file:
+            # Save the image to the temporary file
+            if isinstance(image_file, BytesIO):
+                temp_file.write(image_file.getvalue())
+            else:
+                temp_file.write(image_file.read())
+            temp_file_path = temp_file.name
+            
+            try:
+                # Add image to input parameters
+                input_params["image"] = open(temp_file_path, "rb")
+                
+                # Generate image with SDXL using img2img
+                output = client.run(
+                    "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+                    input=input_params
+                )
+            finally:
+                # Clean up the temporary file
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
+        
+        # Download the generated image
+        image_url = output[0]
+        image_response = requests.get(image_url)
+        image_response.raise_for_status()
+        
+        # Return image as BytesIO object
+        return BytesIO(image_response.content), "replicate-sdxl"
+        
+    except BucketFullException:
+        logger.warning("Replicate rate limit reached")
+        return None
+    except Exception as e:
+        logger.error(f"Error in Replicate image generation: {str(e)}")
+        return None
+
 def image_gen(prompt):
     """
     Generate an image using either ModelLabs, OpenAI, or Pollinations.ai based on the specified model type.
@@ -267,7 +348,12 @@ def image_gen(prompt):
     try:
         logger.info(f"Using prompt: {prompt}")
 
-        # Try OpenAI first
+        # Try Replicate SDXL first
+        result = generate_with_replicate(prompt)
+        if result:
+            return result
+
+        # Try OpenAI next
         result = generate_with_openai(prompt)
         if result:
             return result, "openai"

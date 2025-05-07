@@ -7,7 +7,7 @@ from PIL import Image
 import logging
 import openai
 from db import execute_query
-from image_generator import image_gen, generate_with_openai_image_1, generate_with_stability
+from image_generator import image_gen, generate_with_openai_image_1, generate_with_stability, generate_with_replicate
 
 # Configure logging
 logging.basicConfig(
@@ -105,7 +105,7 @@ theme_descriptions = [
 
 def process_image_to_image(result_image_id, image_file, user_description, theme_description):
 
-    image_1_prompt = f"""
+    img2img_prompt = f"""
     Generate an image that incorporates the theme: {theme_description}. 
     MUST follow the user's instruction: {user_description}. 
     MUST use precisely the layout of the image, including the main characters/objects and their positions. 
@@ -115,12 +115,17 @@ def process_image_to_image(result_image_id, image_file, user_description, theme_
     MUST NOT use realistic style.
     """
     
-    result = generate_with_openai_image_1(image_1_prompt, image_file)
+    result = generate_with_openai_image_1(img2img_prompt, image_file)
     if result:
         image, engine = result
         return image, engine
     
-    result = generate_with_stability(image_1_prompt, image_file)
+    result = generate_with_stability(img2img_prompt, image_file)
+    if result:
+        image, engine = result
+        return image, engine
+    
+    result = generate_with_replicate(img2img_prompt, image_file)
     if result:
         image, engine = result
         return image, engine
@@ -128,7 +133,6 @@ def process_image_to_image(result_image_id, image_file, user_description, theme_
         # Fall back to the other image generation method
         image, engine = process_description_to_image(image_file, user_description, theme_description)
     
-
     return image, engine
 
 def process_description_to_image(image_file, user_description, theme_description):
