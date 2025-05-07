@@ -85,6 +85,8 @@ struct StoreView: View {
     }
     
     private func loadProducts() {
+        
+        
         Task {
             do {
                 // Product IDs from the storekit file

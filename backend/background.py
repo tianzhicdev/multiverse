@@ -112,7 +112,7 @@ def process_request(request):
         # Update the request status to ready
         update_request_status(request['result_image_id'], 'ready')
         
-        logger.info(f"Successfully processed request {request['request_id']}")
+        logger.info(f"Successfully processed request {request['request_id']} with engine {engine}")
         
     except Exception as e:
         logger.error(f"Error processing request {request['request_id']}: {str(e)}")

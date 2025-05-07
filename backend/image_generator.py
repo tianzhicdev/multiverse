@@ -17,10 +17,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configure rate limiters
-openai_rate = Rate(5, Duration.MINUTE)
+openai_rate = Rate(1, Duration.MINUTE)
 modelslab_rate = Rate(500, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
-openai_image1_rate = Rate(9, Duration.MINUTE)  # New rate for GPT Image 1
+openai_image1_rate = Rate(1, Duration.MINUTE)  # New rate for GPT Image 1
 stability_rate = Rate(150, Duration.SECOND * 10)  # 150 requests per 10 seconds
 
 openai_limiter = Limiter(openai_rate)
@@ -72,6 +72,7 @@ def generate_with_stability(prompt, image_file):
             # Create a BytesIO object from the response content
             image_data = BytesIO(response.content)
             engine = "stability-structure"
+            logger.info(f"Stability AI image generation successful with engine {engine}")
             return image_data, engine
         else:
             logger.error(f"Stability AI API error: {response.status_code}, {response.text}")
@@ -116,8 +117,7 @@ def generate_with_openai_image_1(prompt, image_file):
                 result = client.images.edit(
                     model="gpt-image-1",
                     image=image,
-                    prompt=prompt,
-                    quality="low"
+                    prompt=prompt
                 )
         finally:
             # Clean up the temporary file
@@ -128,12 +128,14 @@ def generate_with_openai_image_1(prompt, image_file):
         if hasattr(result.data[0], 'b64_json'):
             image_base64 = result.data[0].b64_json
             image_bytes = base64.b64decode(image_base64)
+            logger.info(f"OpenAI image generation successful with engine image1 and b64")
             return BytesIO(image_bytes), "image1"
         elif hasattr(result.data[0], 'url'):
             # Download the generated image if URL is provided instead
             image_url = result.data[0].url
             image_response = requests.get(image_url)
             image_response.raise_for_status()
+            logger.info(f"OpenAI image generation successful with engine image1 and url")
             return BytesIO(image_response.content), "image1"
         else:
             raise ValueError("No image data found in OpenAI response")
@@ -174,6 +176,7 @@ def generate_with_openai(prompt):
         image_response.raise_for_status()
         
         # Return image as BytesIO object
+        logger.info(f"OpenAI image generation successful with engine openai")
         return BytesIO(image_response.content)
     except BucketFullException:
         logger.warning("OpenAI rate limit reached, falling back to ModelsLab")
@@ -220,6 +223,7 @@ def generate_with_modelslab(prompt):
             image_response.raise_for_status()
             
             # Return image as BytesIO object
+            logger.info(f"ModelsLab image generation successful with engine modelslab")
             return BytesIO(image_response.content)
         else:
             logger.error(f"ModelLabs image generation failed: {response.text}")
