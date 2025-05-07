@@ -144,39 +144,6 @@ def get_image(result_image_id):
         return jsonify({'error': f'Error retrieving image: {str(e)}'}), 500
 
 
-# @app.route('/api/image/test/<result_image_id>', methods=['GET'])
-# def get_image_test(result_image_id):
-#     """
-#     Test endpoint to retrieve an image by its result_image_id.
-#     This is a simplified version of get_image without user authentication.
-#     """
-#     try:
-#         logger.info(f"Received test image request for image with ID: {result_image_id}")
-        
-#         # Get the image data from the database
-#         query = "SELECT data, mime_type FROM images LIMIT 1"
-#         image_result = execute_query(query)
-        
-#         if not image_result:
-#             return jsonify({'error': 'Image data not found'}), 404
-            
-#         image_data, mime_type = image_result[0]
-        
-#         # Create a BytesIO object from the image data
-#         image_io = BytesIO(image_data)
-        
-#         # Return the image
-#         return send_file(
-#             image_io,
-#             mimetype=mime_type,
-#             as_attachment=True,
-#             download_name=f'{result_image_id}.jpg'
-#         )
-            
-#     except Exception as e:
-#         logger.error(f"Error retrieving test image: {str(e)}")
-#         return jsonify({'error': f'Error retrieving test image: {str(e)}'}), 500
-
 
 @app.route('/api/credits/<user_id>', methods=['GET'])
 def get_user_credits(user_id):
@@ -361,6 +328,119 @@ def roll_themes():
     except Exception as e:
         logger.error(f"Error rolling themes: {str(e)}")
         return jsonify({'error': f'Error rolling themes: {str(e)}'}), 500
+
+@app.route('/api/roll/test', methods=['POST'])
+def roll_themes_test():
+    """
+    Test endpoint that mimics /api/roll but returns existing 'ready' image requests.
+    Returns at least num_themes imageInfo objects with 'ready' status.
+    """
+    try:
+        logger.info("Received request to /api/roll/test")
+        
+        # Extract parameters from request
+        user_id = request.form.get('user_id')
+        num_themes = int(request.form.get('num_themes', 9))
+        source_image_id = request.form.get('source_image_id', str(uuid.uuid4()))
+        
+        # Validate user_id
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+        
+        # Find request_ids that have at least num_themes 'ready' images
+        count_query = """
+            SELECT request_id, COUNT(*) as count
+            FROM image_requests
+            WHERE user_id = %s AND status = 'ready'
+            GROUP BY request_id
+            HAVING COUNT(*) >= %s
+            ORDER BY MAX(created_at) DESC
+            LIMIT 1
+        """
+        count_result = execute_query(count_query, (user_id, num_themes))
+        
+        if not count_result:
+            logger.info(f"No requests with at least {num_themes} 'ready' images found for user {user_id}")
+            
+            # Get any 'ready' images for this user
+            backup_query = """
+                SELECT ir.result_image_id, ir.theme_id, t.name as theme_name
+                FROM image_requests ir
+                JOIN themes t ON ir.theme_id = t.id
+                WHERE ir.user_id = %s AND ir.status = 'ready'
+                ORDER BY ir.created_at DESC
+                LIMIT %s
+            """
+            backup_results = execute_query(backup_query, (user_id, num_themes))
+            
+            # Create a response with a new request_id
+            request_id = str(uuid.uuid4())
+            image_info = []
+            
+            for row in backup_results:
+                result_image_id, theme_id, theme_name = row
+                image_info.append({
+                    'result_image_id': result_image_id,
+                    'theme_id': theme_id,
+                    'theme_name': theme_name,
+                    'status': 'ready'
+                })
+            
+            # If we still don't have enough images, generate dummy ones
+            while len(image_info) < num_themes:
+                theme_id = len(image_info) + 1
+                image_info.append({
+                    'result_image_id': str(uuid.uuid4()),
+                    'theme_id': theme_id,
+                    'theme_name': f"Test Theme {theme_id}",
+                    'status': 'ready'
+                })
+            
+            return jsonify({
+                'request_id': request_id,
+                'source_image_id': source_image_id,
+                'images': image_info
+            })
+        
+        # We found a request with enough images
+        request_id = count_result[0][0]
+        
+        # Get the image details for this request
+        query = """
+            SELECT ir.result_image_id, ir.theme_id, t.name as theme_name, ir.source_image_id
+            FROM image_requests ir
+            JOIN themes t ON ir.theme_id = t.id
+            WHERE ir.request_id = %s AND ir.status = 'ready'
+            LIMIT %s
+        """
+        results = execute_query(query, (request_id, num_themes))
+        
+        # Use the actual source_image_id from the first result
+        if results and len(results) > 0:
+            source_image_id = results[0][3]
+        
+        # Format the response
+        image_info = []
+        for row in results:
+            result_image_id, theme_id, theme_name, _ = row
+            image_info.append({
+                'result_image_id': result_image_id,
+                'theme_id': theme_id,
+                'theme_name': theme_name,
+                'status': 'ready'
+            })
+        
+        logger.info(f"Found {len(image_info)} 'ready' images for request {request_id}")
+        
+        return jsonify({
+            'request_id': request_id,
+            'source_image_id': source_image_id,
+            'images': image_info
+        })
+            
+    except Exception as e:
+        logger.error(f"Error getting test themes: {str(e)}")
+        return jsonify({'error': f'Error getting test themes: {str(e)}'}), 500
 
 @app.route('/api/action', methods=['POST'])
 def create_action():

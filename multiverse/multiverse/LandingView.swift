@@ -63,8 +63,7 @@ struct LandingView: View {
     @State private var isLoadingCredits: Bool = false
     
     // StoreKit product identifiers
-    // REPLACE THESE with your actual product identifiers from App Store Connect
-    private let subscriptionProductID = "subscription.standard"
+    private let subscriptionProductID = "subscription.photons.500"
     
     // The body property is required by the View protocol
     // It defines what the view looks like
