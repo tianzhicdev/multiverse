@@ -43,9 +43,6 @@
 		78A912272DB9B7CF007DAC2B /* drum_reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 78A912262DB9B7CF007DAC2B /* drum_reveal.mp3 */; };
 		78A912282DB9B7CF007DAC2B /* drum_reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 78A912262DB9B7CF007DAC2B /* drum_reveal.mp3 */; };
 		78A912292DB9B7CF007DAC2B /* drum_reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 78A912262DB9B7CF007DAC2B /* drum_reveal.mp3 */; };
-		78CB3CE92DCBCF5400542603 /* real.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 78CB3CE82DCBCF5400542603 /* real.storekit */; };
-		78CB3CEA2DCBCF5400542603 /* real.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 78CB3CE82DCBCF5400542603 /* real.storekit */; };
-		78CB3CEB2DCBCF5400542603 /* real.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 78CB3CE82DCBCF5400542603 /* real.storekit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,7 +75,6 @@
 		78A912152DB891B1007DAC2B /* ding4.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ding4.mp3; sourceTree = "<group>"; };
 		78A912222DB89481007DAC2B /* ding5.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ding5.mp3; sourceTree = "<group>"; };
 		78A912262DB9B7CF007DAC2B /* drum_reveal.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = drum_reveal.mp3; sourceTree = "<group>"; };
-		78CB3CE82DCBCF5400542603 /* real.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = real.storekit; sourceTree = "<group>"; };
 		78EADD8B2DB45DB200B62FF8 /* multiverse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = multiverse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78EADD9F2DB45DB300B62FF8 /* multiverseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = multiverseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		78EADDA92DB45DB300B62FF8 /* multiverseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = multiverseUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -143,7 +139,6 @@
 		78EADD822DB45DB100B62FF8 = {
 			isa = PBXGroup;
 			children = (
-				78CB3CE82DCBCF5400542603 /* real.storekit */,
 				787F78F12DC4908700D8D9C4 /* reveal2.mp3 */,
 				787F78E92DC48C9700D8D9C4 /* reveal.mp3 */,
 				787F78EA2DC48C9700D8D9C4 /* searching3.mp3 */,
@@ -295,7 +290,6 @@
 			files = (
 				787F78982DC3E56500D8D9C4 /* telescope.gif in Resources */,
 				78A912162DB891B1007DAC2B /* ding3.mp3 in Resources */,
-				78CB3CE92DCBCF5400542603 /* real.storekit in Resources */,
 				78A912172DB891B1007DAC2B /* ding2.mp3 in Resources */,
 				78A912252DB89481007DAC2B /* ding5.mp3 in Resources */,
 				78A912182DB891B1007DAC2B /* ding4.mp3 in Resources */,
@@ -325,7 +319,6 @@
 				78A912202DB891B1007DAC2B /* ding4.mp3 in Resources */,
 				787F78F42DC4908700D8D9C4 /* reveal2.mp3 in Resources */,
 				78A912212DB891B1007DAC2B /* ding1.mp3 in Resources */,
-				78CB3CEA2DCBCF5400542603 /* real.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,7 +338,6 @@
 				78A9121C2DB891B1007DAC2B /* ding4.mp3 in Resources */,
 				787F78F32DC4908700D8D9C4 /* reveal2.mp3 in Resources */,
 				78A9121D2DB891B1007DAC2B /* ding1.mp3 in Resources */,
-				78CB3CEB2DCBCF5400542603 /* real.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

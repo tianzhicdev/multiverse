@@ -85,23 +85,29 @@ struct StoreView: View {
     }
     
     private func loadProducts() {
-        
-        
         Task {
             do {
                 // Product IDs from the storekit file
                 let productIDs = [
                     // Consumables
-                    "consumable.photons.100",
-                    "consumable.photons.200",
-                    "consumable.photons.500",
-                    "consumable.photons.1200",
+                    "photons100",
+                    "photons200",
+                    "photons500",
+                    "photons1200",
                     // Subscriptions
-                    "subscription.photons.500",
-                    "subscription.photons.1200"
+                    "premium"
                 ]
                 
+                print("Attempting to fetch products with IDs: \(productIDs)")
                 let products = try await Product.products(for: productIDs)
+                print("Products fetched: \(products.count)")
+                if products.isEmpty {
+                    print("Warning: No products were returned from the App Store")
+                } else {
+                    for product in products {
+                        print("Product loaded: \(product.id), \(product.displayName), \(product.displayPrice)")
+                    }
+                }
                 await MainActor.run {
                     self.products = products
                 }
