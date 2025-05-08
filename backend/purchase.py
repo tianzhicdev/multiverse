@@ -58,7 +58,7 @@ def register_routes(app):
                     
                 # Decode and verify the JWS payload
                 decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
-
+                logger.info(f"Decoded payload: {decoded_payload}")
                 
                 # Process different notification types
                 notification_type = decoded_payload.notificationType
@@ -66,76 +66,33 @@ def register_routes(app):
                 
                 if notification_type == NotificationTypeV2.SUBSCRIBED:
                     logger.info("Processing SUBSCRIBED notification")
-                    logger.info(f"Decoded payload: {decoded_payload}")
                     # Add subscription to user account logic here
                 
                 elif notification_type == NotificationTypeV2.DID_RENEW:
                     # Handle subscription renewal
                     logger.info("Processing DID_RENEW notification")
-                    product_id = "subscription.photons.500"  # Extract from transaction info if available
-                    response_message = f"Subscription renewed for {product_id}"
                     # Update subscription renewal date logic here
                 
                 elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
                     # Handle failed renewal
                     logger.info("Processing DID_FAIL_TO_RENEW notification")
-                    response_message = "Subscription failed to renew"
-                    # Update subscription status logic here
                 
                 elif notification_type == NotificationTypeV2.CONSUMPTION_REQUEST:
                     # Handle one-time purchase
                     logger.info("Processing CONSUMPTION_REQUEST notification")
-                    product_id = "consumable.photons.100"  # Extract from transaction info if available
-                    response_message = f"One-time purchase processed for {product_id}"
                     # Add consumable items to user account logic here
                 
                 elif notification_type == NotificationTypeV2.ONE_TIME_CHARGE:
                     # Handle one-time charge
                     logger.info("Processing ONE_TIME_CHARGE notification")
                     
-                    # Extract transaction info from the decoded payload
-                    logger.info(f"Decoded payload: {decoded_payload}")
-                    transaction_info = decoded_payload.data.signedTransactionInfo
-                    if hasattr(transaction_info, 'productId'):
-                        product_id = transaction_info.productId
-                    else:
-                        product_id = 'unknown'
-                    
-                    logger.info(f"Extracted product_id from notification: {product_id}")
-                    response_message = f"One-time charge processed for {product_id}"
-                    
-                    # Log detailed purchase information
-                    logger.info(f"Purchase Details:")
-                    logger.info(f"Product ID: {product_id}")
-                    logger.info(f"Transaction Info: {transaction_info}")
-                    
-                    # Access other fields properly from the decoded payload
-                    if hasattr(decoded_payload.data, 'appAppleId'):
-                        logger.info(f"App Apple ID: {decoded_payload.data.appAppleId}")
-                    
-                    if hasattr(decoded_payload.data, 'bundleId'):
-                        logger.info(f"Bundle ID: {decoded_payload.data.bundleId}")
-                    
-                    if hasattr(decoded_payload, 'notificationUUID'):
-                        logger.info(f"Notification UUID: {decoded_payload.notificationUUID}")
-                    
-                    if hasattr(decoded_payload.data, 'environment'):
-                        logger.info(f"Environment: {decoded_payload.data.environment}")
-                
                 elif notification_type == NotificationTypeV2.REFUND:
                     # Handle refund
                     logger.info("Processing REFUND notification")
-                    response_message = "Refund processed"
-                    # Remove purchased items or subscription from user account logic here
                 
                 elif notification_type == NotificationTypeV2.TEST:
                     # Handle test notification
                     logger.info("Processing TEST notification")
-                    response_message = "Test notification processed"
-                else:
-                    response_message = f"Unknown notification type: {notification_type}"
-                    logger.info(f"Decoded payload: {decoded_payload}")
-                
                 return jsonify({
                     'status': 'success',
                     'message': response_message
