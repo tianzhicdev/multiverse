@@ -97,6 +97,7 @@ def register_routes(app):
                     logger.info("Processing ONE_TIME_CHARGE notification")
                     
                     # Extract transaction info from the decoded payload
+                    logger.info(f"Decoded payload: {decoded_payload}")
                     transaction_info = decoded_payload.data.signedTransactionInfo
                     if hasattr(transaction_info, 'productId'):
                         product_id = transaction_info.productId
