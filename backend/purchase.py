@@ -65,11 +65,8 @@ def register_routes(app):
                 response_message = "Successfully processed purchase notification"
                 
                 if notification_type == NotificationTypeV2.SUBSCRIBED:
-                    # Handle new subscription
                     logger.info("Processing SUBSCRIBED notification")
-                    # Subscription product ID would be in transaction info
-                    product_id = "subscription.photons.500"  # Extract from transaction info if available
-                    response_message = f"Subscription started for {product_id}"
+                    logger.info(f"Decoded payload: {decoded_payload}")
                     # Add subscription to user account logic here
                 
                 elif notification_type == NotificationTypeV2.DID_RENEW:
