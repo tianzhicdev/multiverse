@@ -1,5 +1,6 @@
 import SwiftUI
 import StoreKit
+import Foundation
 
 // StoreView for handling purchases and subscriptions
 struct StoreView: View {
@@ -110,7 +111,7 @@ struct StoreView: View {
                 }
                 await MainActor.run {
                     self.products = products
-                }
+                } 
             } catch {
                 await MainActor.run {
                     errorMessage = "Failed to load products: \(error.localizedDescription)"
@@ -126,7 +127,13 @@ struct StoreView: View {
         
         Task {
             do {
-                let result = try await product.purchase()
+                // Get user UUID from UserManager
+                let userUUIDString = UserManager.shared.getCurrentUserID()
+                let appAccountToken = UUID(uuidString: userUUIDString)
+                let options: Set<Product.PurchaseOption> = appAccountToken != nil ? 
+                    [.appAccountToken(appAccountToken!)] : []
+                
+                let result = try await product.purchase(options: options)
                 
                 switch result {
                 case .success(let verification):

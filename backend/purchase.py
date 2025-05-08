@@ -59,7 +59,9 @@ def register_routes(app):
                 # Decode and verify the JWS payload
                 decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
                 logger.info(f"Decoded payload: {decoded_payload}")
+
                 
+
                 # Process different notification types
                 notification_type = decoded_payload.notificationType
                 response_message = "Successfully processed purchase notification"
@@ -85,6 +87,27 @@ def register_routes(app):
                 elif notification_type == NotificationTypeV2.ONE_TIME_CHARGE:
                     # Handle one-time charge
                     logger.info("Processing ONE_TIME_CHARGE notification")
+                    
+                    # Decode the signedTransactionInfo
+                    try:
+                        transaction_info = decoded_payload.data.signedTransactionInfo
+                        if transaction_info:
+                            # Decode the JWS transaction payload
+                            transaction_payload = signed_data_verifier.verify_and_decode_transaction(transaction_info)
+                            logger.info(f"Decoded transaction: {transaction_payload}")
+                            
+                            # Process transaction details
+                            product_id = transaction_payload.productId
+                            transaction_id = transaction_payload.transactionId
+                            purchase_date = transaction_payload.purchaseDate
+                            
+                            # Add logic to grant the consumable item to user based on product_id
+                            logger.info(f"Granting product {product_id} from transaction {transaction_id}")
+                            # TODO: Update database to credit user account with purchased item
+                    except VerificationException as e:
+                        logger.error(f"Transaction verification error: {str(e)}")
+                    except Exception as e:
+                        logger.error(f"Error processing transaction: {str(e)}")
                     
                 elif notification_type == NotificationTypeV2.REFUND:
                     # Handle refund
