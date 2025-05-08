@@ -128,7 +128,8 @@ def generate_with_openai_image_1(prompt, image_file):
                 result = client.images.edit(
                     model="gpt-image-1",
                     image=image,
-                    prompt=prompt
+                    prompt=prompt,
+                    quality="low"
                 )
         finally:
             # Clean up the temporary file
