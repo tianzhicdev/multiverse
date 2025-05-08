@@ -18,6 +18,33 @@ def load_root_certificates():
     with open("/usr/local/.secrets/apple/AppleRootCA-G3.cer", "rb") as f:
         return [f.read()]
 
+def decode_transaction(signed_transaction_info, signed_data_verifier):
+    """
+    Decode the signed transaction information.
+    
+    Args:
+        signed_transaction_info: The signed transaction data from Apple
+        signed_data_verifier: The SignedDataVerifier instance
+        
+    Returns:
+        dict: Decoded transaction payload or None if no transaction info is available
+    """
+    if not signed_transaction_info:
+        logger.info("No signed transaction information available")
+        return None
+        
+    try:
+        # Decode the JWS transaction payload
+        transaction_payload = signed_data_verifier.verify_and_decode_signed_transaction(signed_transaction_info)
+        logger.info(f"Decoded transaction: {transaction_payload}")
+        return transaction_payload
+    except VerificationException as e:
+        logger.error(f"Transaction verification error: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Error processing transaction: {str(e)}")
+        return None
+
 def register_routes(app):
     @app.route('/purchase', methods=['POST'])
     def process_purchase():
@@ -46,7 +73,6 @@ def register_routes(app):
             signed_data_verifier = SignedDataVerifier(root_certificates, enable_online_checks, 
                                                     environment, bundle_id, app_apple_id)
             
-            # Process the signed notification payload
             try:
                 # Extract signedPayload from the request
                 signed_payload = data.get('signedPayload')
@@ -60,62 +86,95 @@ def register_routes(app):
                 decoded_payload = signed_data_verifier.verify_and_decode_notification(signed_payload)
                 logger.info(f"Decoded payload: {decoded_payload}")
 
+                # Get notification type
+                notification_type = decoded_payload.notificationType
                 
+                # Extract transaction info right away if available
+                transaction_payload = None
+                if hasattr(decoded_payload, 'data'):
+                    # Extract any renewal info or original transaction info if available
+                    
+                    # Decode the transaction info if it exists
+                    if hasattr(decoded_payload.data, 'signedTransactionInfo'):
+                        transaction_payload = decode_transaction(
+                            decoded_payload.data.signedTransactionInfo, 
+                            signed_data_verifier
+                        )
+                        
+                        if transaction_payload:
+                            logger.info(f"Transaction data extracted early: Product {transaction_payload.productId}, "
+                                       f"Transaction {transaction_payload.transactionId}")
 
                 # Process different notification types
-                notification_type = decoded_payload.notificationType
                 response_message = "Successfully processed purchase notification"
                 
                 if notification_type == NotificationTypeV2.SUBSCRIBED:
                     logger.info("Processing SUBSCRIBED notification")
                     # Add subscription to user account logic here
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        transaction_id = transaction_payload.transactionId
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        logger.info(f"Subscription started for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
                 
                 elif notification_type == NotificationTypeV2.DID_RENEW:
                     # Handle subscription renewal
                     logger.info("Processing DID_RENEW notification")
                     # Update subscription renewal date logic here
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        transaction_id = transaction_payload.transactionId
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        logger.info(f"Subscription renewed for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
                 
                 elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
                     # Handle failed renewal
                     logger.info("Processing DID_FAIL_TO_RENEW notification")
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        transaction_id = transaction_payload.transactionId
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        logger.info(f"Subscription failed to renew for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
                 
                 elif notification_type == NotificationTypeV2.CONSUMPTION_REQUEST:
                     # Handle one-time purchase
                     logger.info("Processing CONSUMPTION_REQUEST notification")
                     # Add consumable items to user account logic here
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        transaction_id = transaction_payload.transactionId
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        logger.info(f"Consumption request for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
                 
                 elif notification_type == NotificationTypeV2.ONE_TIME_CHARGE:
                     # Handle one-time charge
                     logger.info("Processing ONE_TIME_CHARGE notification")
-                    
-                    # Decode the signedTransactionInfo
-                    try:
-                        transaction_info = decoded_payload.data.signedTransactionInfo
-                        if transaction_info:
-                            # Decode the JWS transaction payload
-                            transaction_payload = signed_data_verifier.verify_and_decode_signed_transaction(transaction_info)
-                            logger.info(f"Decoded transaction: {transaction_payload}")
-                            
-                            # Process transaction details
-                            product_id = transaction_payload.productId
-                            transaction_id = transaction_payload.transactionId
-                            purchase_date = transaction_payload.purchaseDate
-                            
-                            # Add logic to grant the consumable item to user based on product_id
-                            logger.info(f"Granting product {product_id} from transaction {transaction_id}")
-                            # TODO: Update database to credit user account with purchased item
-                    except VerificationException as e:
-                        logger.error(f"Transaction verification error: {str(e)}")
-                    except Exception as e:
-                        logger.error(f"Error processing transaction: {str(e)}")
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        transaction_id = transaction_payload.transactionId
+                        purchase_date = transaction_payload.purchaseDate
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        
+                        # Add logic to grant the consumable item to user based on product_id
+                        logger.info(f"Granting product {product_id} from transaction {transaction_id}, appAccountToken: {app_account_token}")
                     
                 elif notification_type == NotificationTypeV2.REFUND:
                     # Handle refund
                     logger.info("Processing REFUND notification")
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        transaction_id = transaction_payload.transactionId
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        logger.info(f"Refund processed for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
                 
                 elif notification_type == NotificationTypeV2.TEST:
                     # Handle test notification
                     logger.info("Processing TEST notification")
+                    if transaction_payload:
+                        product_id = transaction_payload.productId
+                        app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
+                        logger.info(f"Test notification with transaction data received: product {product_id}, appAccountToken: {app_account_token}")
+                        
                 return jsonify({
                     'status': 'success',
                     'message': response_message
