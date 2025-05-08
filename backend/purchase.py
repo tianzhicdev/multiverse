@@ -92,6 +92,38 @@ def register_routes(app):
                     response_message = f"One-time purchase processed for {product_id}"
                     # Add consumable items to user account logic here
                 
+                elif notification_type == NotificationTypeV2.ONE_TIME_CHARGE:
+                    # Handle one-time charge
+                    logger.info("Processing ONE_TIME_CHARGE notification")
+                    
+                    # Extract transaction info from the decoded payload
+                    transaction_info = decoded_payload.data.signedTransactionInfo
+                    if hasattr(transaction_info, 'productId'):
+                        product_id = transaction_info.productId
+                    else:
+                        product_id = 'unknown'
+                    
+                    logger.info(f"Extracted product_id from notification: {product_id}")
+                    response_message = f"One-time charge processed for {product_id}"
+                    
+                    # Log detailed purchase information
+                    logger.info(f"Purchase Details:")
+                    logger.info(f"Product ID: {product_id}")
+                    logger.info(f"Transaction Info: {transaction_info}")
+                    
+                    # Access other fields properly from the decoded payload
+                    if hasattr(decoded_payload.data, 'appAppleId'):
+                        logger.info(f"App Apple ID: {decoded_payload.data.appAppleId}")
+                    
+                    if hasattr(decoded_payload.data, 'bundleId'):
+                        logger.info(f"Bundle ID: {decoded_payload.data.bundleId}")
+                    
+                    if hasattr(decoded_payload, 'notificationUUID'):
+                        logger.info(f"Notification UUID: {decoded_payload.notificationUUID}")
+                    
+                    if hasattr(decoded_payload.data, 'environment'):
+                        logger.info(f"Environment: {decoded_payload.data.environment}")
+                
                 elif notification_type == NotificationTypeV2.REFUND:
                     # Handle refund
                     logger.info("Processing REFUND notification")
