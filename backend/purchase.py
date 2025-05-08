@@ -93,7 +93,7 @@ def register_routes(app):
                         transaction_info = decoded_payload.data.signedTransactionInfo
                         if transaction_info:
                             # Decode the JWS transaction payload
-                            transaction_payload = signed_data_verifier.verify_and_decode_transaction(transaction_info)
+                            transaction_payload = signed_data_verifier.verify_and_decode_signed_transaction(transaction_info)
                             logger.info(f"Decoded transaction: {transaction_payload}")
                             
                             # Process transaction details
