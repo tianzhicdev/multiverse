@@ -29,7 +29,7 @@ services:
     networks:
       - web_network
     deploy:
-      replicas: 1
+      replicas: 4
       resources:
         limits:
           cpus: '0.50'    # max 0.5 CPU core

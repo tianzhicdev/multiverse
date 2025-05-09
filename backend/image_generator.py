@@ -17,20 +17,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Configure rate limiters
-# openai_rate = Rate(5, Duration.MINUTE)
-# modelslab_rate = Rate(500, Duration.MINUTE)
-# pollinations_rate = Rate(500, Duration.MINUTE)
-# openai_image1_rate = Rate(9, Duration.MINUTE)  # New rate for GPT Image 1
-# stability_rate = Rate(150, Duration.SECOND * 10)  # 150 requests per 10 seconds
-
-
-openai_image1_rate = Rate(1, Duration.MINUTE)  # New rate for GPT Image 1
-stability_rate = Rate(1, Duration.SECOND * 10)  # 150 requests per 10 seconds
-openai_rate = Rate(1, Duration.MINUTE)
-modelslab_rate = Rate(1, Duration.MINUTE)
+openai_image1_rate = Rate(50, Duration.MINUTE)  # New rate for GPT Image 1
+stability_rate = Rate(25, Duration.SECOND * 10)  # 150 requests per 10 seconds
+openai_rate = Rate(250, Duration.MINUTE)
+modelslab_rate = Rate(20, Duration.MINUTE)
 pollinations_rate = Rate(500, Duration.MINUTE)
 replicate_rate = Rate(1, Duration.MINUTE)  # 1 request per minute for Replicate SDXL
+
+
+# openai_image1_rate = Rate(1, Duration.MINUTE)  # New rate for GPT Image 1
+# stability_rate = Rate(1, Duration.SECOND * 10)  # 150 requests per 10 seconds
+# openai_rate = Rate(1, Duration.MINUTE)
+# modelslab_rate = Rate(1, Duration.MINUTE)
+# pollinations_rate = Rate(500, Duration.MINUTE)
+# replicate_rate = Rate(1, Duration.MINUTE)  # 1 request per minute for Replicate SDXL
 
 
 openai_limiter = Limiter(openai_rate)

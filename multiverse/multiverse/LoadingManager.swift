@@ -24,27 +24,21 @@ class LoadingManager: ObservableObject {
     private func startRotation() {
         guard timer == nil, !boxes.isEmpty else { return }
         
-        // Start with the first box
+        // Start with a random box
         if activeBoxNumber == nil || !boxes.contains(activeBoxNumber!) {
-            activeBoxNumber = boxes.first
+            let boxesArray = Array(boxes)
+            let randomIndex = Int.random(in: 0..<boxesArray.count)
+            activeBoxNumber = boxesArray[randomIndex]
         }
         
         // Create timer to rotate between boxes every 0.5 seconds
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self = self, !self.boxes.isEmpty else { return }
             
-            // Find the next box in the set
-            if let current = self.activeBoxNumber {
-                let sortedBoxes = self.boxes.sorted()
-                if let currentIndex = sortedBoxes.firstIndex(of: current) {
-                    let nextIndex = (currentIndex + 1) % sortedBoxes.count
-                    self.activeBoxNumber = sortedBoxes[nextIndex]
-                } else {
-                    self.activeBoxNumber = sortedBoxes.first
-                }
-            } else {
-                self.activeBoxNumber = self.boxes.first
-            }
+            // Randomly select a box from the set
+            let boxesArray = Array(self.boxes)
+            let randomIndex = Int.random(in: 0..<boxesArray.count)
+            self.activeBoxNumber = boxesArray[randomIndex]
         }
     }
     

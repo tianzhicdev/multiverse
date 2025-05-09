@@ -279,9 +279,7 @@ def add_credits(user_id, credits):
         query = "UPDATE users SET credits = credits + %s WHERE user_id = %s RETURNING credits"
         update_result = execute_query(query, (credits, user_id))
         
-        if update_result:
-            new_balance = update_result[0][0]
-            logger.info(f"Added {credits} credits to user {user_id}. New balance: {new_balance}")
+        if update_result == 1:
             return True
         else:
             logger.error(f"Failed to add credits to user {user_id}")
