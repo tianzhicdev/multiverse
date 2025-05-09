@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 import logging
+import re
 from appstoreserverlibrary.api_client import AppStoreServerAPIClient, APIException
 from appstoreserverlibrary.models.Environment import Environment
 from appstoreserverlibrary.models.JWSTransactionDecodedPayload import JWSTransactionDecodedPayload
 from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
 from appstoreserverlibrary.signed_data_verifier import VerificationException, SignedDataVerifier
+from helper import add_credits
 
 # Configure logging
 logging.basicConfig(
@@ -102,7 +104,7 @@ def register_routes(app):
                         )
                         
                         if transaction_payload:
-                            logger.info(f"Transaction data extracted early: Product {transaction_payload.productId}, "
+                            logger.info(f"Transaction data extracted: Product {transaction_payload.productId}, "
                                        f"Transaction {transaction_payload.transactionId}")
 
                 # Process different notification types
@@ -116,6 +118,11 @@ def register_routes(app):
                         transaction_id = transaction_payload.transactionId
                         app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
                         logger.info(f"Subscription started for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
+                        
+                        # Add credits if the product is premium
+                        if product_id == 'premium':
+                            # Use app_account_token as user_id
+                            add_credits(app_account_token, 500)
                 
                 elif notification_type == NotificationTypeV2.DID_RENEW:
                     # Handle subscription renewal
@@ -126,6 +133,11 @@ def register_routes(app):
                         transaction_id = transaction_payload.transactionId
                         app_account_token = getattr(transaction_payload, 'appAccountToken', 'None')
                         logger.info(f"Subscription renewed for product {product_id}, transaction {transaction_id}, appAccountToken: {app_account_token}")
+                        
+                        # Add credits if the product is premium
+                        if product_id == 'premium':
+                            # Use app_account_token as user_id
+                            add_credits(app_account_token, 500)
                 
                 elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
                     # Handle failed renewal
@@ -157,6 +169,13 @@ def register_routes(app):
                         
                         # Add logic to grant the consumable item to user based on product_id
                         logger.info(f"Granting product {product_id} from transaction {transaction_id}, appAccountToken: {app_account_token}")
+                        
+                        # Check if this is a photons purchase
+                        photons_match = re.match(r'photons(\d+)', product_id)
+                        if photons_match:
+                            credits = int(photons_match.group(1))
+                            # Use app_account_token as user_id
+                            add_credits(app_account_token, credits)
                     
                 elif notification_type == NotificationTypeV2.REFUND:
                     # Handle refund

@@ -254,9 +254,46 @@ def use_credits(user_id, credits):
         logger.error(f"Error in use_credits: {str(e)}")
         return False
 
+def add_credits(user_id, credits):
+    """
+    Add credits to a user's account.
+    
+    Args:
+        user_id: The user's ID
+        credits: Number of credits to add
+        
+    Returns:
+        bool: True if successful, False if user not found or on error
+    """
+    try:
+        # First check if the user exists
+        query = "SELECT user_id FROM users WHERE user_id = %s"
+        result = execute_query(query, (user_id,))
+        
+        if not result:
+            logger.error(f"User with ID {user_id} not found")
+            # Create user if they don't exist
+            return init_user(user_id)
+        
+        # Add credits to the user's account
+        query = "UPDATE users SET credits = credits + %s WHERE user_id = %s RETURNING credits"
+        update_result = execute_query(query, (credits, user_id))
+        
+        if update_result:
+            new_balance = update_result[0][0]
+            logger.info(f"Added {credits} credits to user {user_id}. New balance: {new_balance}")
+            return True
+        else:
+            logger.error(f"Failed to add credits to user {user_id}")
+            return False
+        
+    except Exception as e:
+        logger.error(f"Error in add_credits: {str(e)}")
+        return False
+
 def init_user(user_id):
     """
-    Initialize a new user with 10 credits in the database.
+    Initialize a new user with 100 credits in the database.
     
     Args:
         user_id: The user's ID
@@ -273,14 +310,14 @@ def init_user(user_id):
             logger.info(f"User with ID {user_id} already exists")
             return False
             
-        # Insert new user with 10 credits
-        query = "INSERT INTO users (user_id, credits) VALUES (%s, %s) RETURNING user_id, credits"
-        result = execute_query(query, (user_id, 100))
-        logger.info(f"init_user db result: {result}")
+        # Insert new user with 0 credits
+        query = "INSERT INTO users (user_id, credits) VALUES (%s, %s) RETURNING user_id"
+        result = execute_query(query, (user_id, 0))
         
         if result == 1:
-            logger.info(f"Created new user {user_id} with 100 credits")
-            return True
+            logger.info(f"Created new user {user_id}")
+            # Add 100 initial credits using add_credits function
+            return add_credits(user_id, 100)
         else:
             logger.error(f"Failed to create user {user_id}")
             return False
