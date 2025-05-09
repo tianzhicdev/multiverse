@@ -133,17 +133,10 @@ struct multiverseApp: App {
         }
     }()
 
-    var body: some Scene {
-        WindowGroup {
-            LandingView()
-        }
-        .modelContainer(sharedModelContainer)
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            handleScenePhaseChange(from: oldPhase, to: newPhase)
-        }
-    }
-    
     @Environment(\.scenePhase) private var scenePhase
+    
+    // State to control splash screen visibility
+    @State private var showSplashScreen = true
     
     // Setup observers for app lifecycle events
     private func setupLifecycleObservers() {
@@ -162,6 +155,29 @@ struct multiverseApp: App {
         if newPhase == .background {
             // App is entering background
             AudioManager.shared.stopLoadingSound()
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ZStack {
+                if showSplashScreen {
+                    SplashScreenView()
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                withAnimation {
+                                    showSplashScreen = false
+                                }
+                            }
+                        }
+                } else {
+                    LandingView()
+                }
+            }
+        }
+        .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
     }
 }
