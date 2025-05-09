@@ -1,23 +1,17 @@
 from flask import Flask
 from flask import request, send_file, jsonify    
-import io
 import logging
 import os
-# from dotenv import load_dotenv
-from helper import process_image_to_image
-from helper import theme_descriptions
-from helper import use_credits
-from helper import init_user
-import random
+from src.common.helper import use_credits
+from src.common.helper import init_user
 from io import BytesIO  
 import uuid
-from db import execute_query
+from src.common.db import execute_query
 import json
-from helper import get_themes
-from helper import image_gen
-from purchase import register_routes
-# Load environment variables from .env file if present
-# load_dotenv()
+from src.common.helper import get_themes
+from src.common.helper import image_gen
+from src.web.purchase import register_routes
+
 FLASK_PORT = os.getenv('FLASK_PORT')
 print(f"FLASK_PORT: {FLASK_PORT}")
 
@@ -179,6 +173,7 @@ def use_user_credits():
     try:
         user_id = request.json.get('user_id')
         credits = request.json.get('credits', 0)
+        reason = request.json.get('reason', 'API credit usage')
         
         if not user_id:
             return jsonify({'error': 'Missing user_id parameter'}), 400
@@ -187,7 +182,7 @@ def use_user_credits():
             return jsonify({'error': 'Credits must be a positive integer'}), 400
             
         # Use the helper function to deduct credits
-        if use_credits(user_id, credits):
+        if use_credits(user_id, credits, reason):
             # If successful, get remaining credits
             query = "SELECT credits FROM users WHERE user_id = %s"
             result = execute_query(query, (user_id,))
@@ -279,7 +274,7 @@ def roll_themes():
             
         # Step 1: Check user credits - we don't actually deduct credits at this stage,
         # but we need to verify they have at least 1 credit
-        if not use_credits(user_id, 0):
+        if not use_credits(user_id, 0, "Credit check for roll themes"):
             return jsonify({'error': 'User not found or invalid account'}), 404
             
         # Step 2: Get themes for user
@@ -495,7 +490,7 @@ def initialize_user():
             return jsonify({'error': 'Missing user_id parameter'}), 400
             
         # Initialize the user
-        init_user(user_id)
+        init_user(user_id, "API user initialization")
         
         return jsonify({
             'success': True,

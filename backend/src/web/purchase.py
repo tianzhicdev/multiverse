@@ -6,7 +6,7 @@ from appstoreserverlibrary.models.Environment import Environment
 from appstoreserverlibrary.models.JWSTransactionDecodedPayload import JWSTransactionDecodedPayload
 from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
 from appstoreserverlibrary.signed_data_verifier import VerificationException, SignedDataVerifier
-from helper import add_credits
+from src.common.helper import add_credits
 
 # Configure logging
 logging.basicConfig(
@@ -122,7 +122,7 @@ def register_routes(app):
                         # Add credits if the product is premium
                         if product_id == 'premium':
                             # Use app_account_token as user_id
-                            add_credits(app_account_token, 500)
+                            add_credits(app_account_token, 500, "Premium subscription started")
                 
                 elif notification_type == NotificationTypeV2.DID_RENEW:
                     # Handle subscription renewal
@@ -137,7 +137,7 @@ def register_routes(app):
                         # Add credits if the product is premium
                         if product_id == 'premium':
                             # Use app_account_token as user_id
-                            add_credits(app_account_token, 500)
+                            add_credits(app_account_token, 500, "Premium subscription renewed")
                 
                 elif notification_type == NotificationTypeV2.DID_FAIL_TO_RENEW:
                     # Handle failed renewal
@@ -175,7 +175,7 @@ def register_routes(app):
                         if photons_match:
                             credits = int(photons_match.group(1))
                             # Use app_account_token as user_id
-                            add_credits(app_account_token, credits)
+                            add_credits(app_account_token, credits, f"Purchase of {product_id}")
                     
                 elif notification_type == NotificationTypeV2.REFUND:
                     # Handle refund

@@ -6,8 +6,8 @@ from io import BytesIO
 from PIL import Image
 import logging
 import openai
-from db import execute_query
-from image_generator import image_gen, generate_with_openai_image_1, generate_with_stability, generate_with_replicate
+from src.common.db import execute_query
+from src.bg.image_generator import image_gen, generate_with_openai_image_1, generate_with_stability, generate_with_replicate
 
 # Configure logging
 logging.basicConfig(
@@ -216,13 +216,14 @@ def process_description_to_image(image_file, user_description, theme_description
         logger.error(f"Error in process_image_with_theme: {str(e)}")
         raise
 
-def use_credits(user_id, credits):
+def use_credits(user_id, credits, reason="Unspecified use"):
     """
-    Deduct credits from a user's account.
+    Deduct credits from a user's account and record the transaction.
     
     Args:
         user_id: The user's ID
         credits: Number of credits to deduct
+        reason: Reason for the credit deduction
         
     Returns:
         bool: True if successful, False if insufficient credits
@@ -247,20 +248,36 @@ def use_credits(user_id, credits):
         # Deduct credits from the user's account
         query = "UPDATE users SET credits = credits - %s WHERE user_id = %s RETURNING credits"
         update_result = execute_query(query, (credits, user_id))
-
-        return update_result == 1
+        
+        if update_result != 1:
+            logger.error(f"Failed to update credits for user {user_id}")
+            return False
+            
+        # Record the transaction
+        transaction_query = "INSERT INTO transactions (user_id, credit, reason) VALUES (%s, %s, %s)"
+        transaction_result = execute_query(transaction_query, (user_id, -credits, reason))
+        
+        if transaction_result != 1:
+            logger.error(f"Failed to record transaction for user {user_id}")
+            # If transaction recording fails, try to revert the credits change
+            revert_query = "UPDATE users SET credits = credits + %s WHERE user_id = %s"
+            execute_query(revert_query, (credits, user_id))
+            return False
+            
+        return True
         
     except Exception as e:
         logger.error(f"Error in use_credits: {str(e)}")
         return False
 
-def add_credits(user_id, credits):
+def add_credits(user_id, credits, reason="Unspecified addition"):
     """
-    Add credits to a user's account.
+    Add credits to a user's account and record the transaction.
     
     Args:
         user_id: The user's ID
         credits: Number of credits to add
+        reason: Reason for adding credits
         
     Returns:
         bool: True if successful, False if user not found or on error
@@ -273,28 +290,40 @@ def add_credits(user_id, credits):
         if not result:
             logger.error(f"User with ID {user_id} not found")
             # Create user if they don't exist
-            return init_user(user_id)
+            return init_user(user_id, reason)
         
         # Add credits to the user's account
         query = "UPDATE users SET credits = credits + %s WHERE user_id = %s RETURNING credits"
         update_result = execute_query(query, (credits, user_id))
         
-        if update_result == 1:
-            return True
-        else:
+        if update_result != 1:
             logger.error(f"Failed to add credits to user {user_id}")
             return False
+            
+        # Record the transaction
+        transaction_query = "INSERT INTO transactions (user_id, credit, reason) VALUES (%s, %s, %s)"
+        transaction_result = execute_query(transaction_query, (user_id, credits, reason))
+        
+        if transaction_result != 1:
+            logger.error(f"Failed to record transaction for user {user_id}")
+            # If transaction recording fails, try to revert the credits change
+            revert_query = "UPDATE users SET credits = credits - %s WHERE user_id = %s"
+            execute_query(revert_query, (credits, user_id))
+            return False
+            
+        return True
         
     except Exception as e:
         logger.error(f"Error in add_credits: {str(e)}")
         return False
 
-def init_user(user_id):
+def init_user(user_id, reason="User initialization"):
     """
     Initialize a new user with 100 credits in the database.
     
     Args:
         user_id: The user's ID
+        reason: Reason for initializing the user
         
     Returns:
         bool: True if successful, False if user already exists or on error
@@ -315,7 +344,7 @@ def init_user(user_id):
         if result == 1:
             logger.info(f"Created new user {user_id}")
             # Add 100 initial credits using add_credits function
-            return add_credits(user_id, 100)
+            return add_credits(user_id, 100, f"Initial credits")
         else:
             logger.error(f"Failed to create user {user_id}")
             return False
