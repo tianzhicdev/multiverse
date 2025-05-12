@@ -6,7 +6,7 @@ import os
 # Add the parent directory to sys.path to make src.common importable
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.common import execute_query
+from src.common.db import execute_query
 
 def dump_themes_csv_to_db():
     """
