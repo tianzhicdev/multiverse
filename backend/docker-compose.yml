@@ -13,6 +13,11 @@ services:
     restart: always
     networks:
       - web_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "100"
 
   background:
     build:
@@ -37,6 +42,11 @@ services:
         reservations:
           cpus: '0.25'    # scheduler tries to keep this much free
           memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "100"
 
   nginx:
     image: nginx:latest
@@ -51,6 +61,11 @@ services:
     restart: always
     networks:
       - web_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "100"
 
   db:
     image: postgres
@@ -64,6 +79,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - web_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "100"
 
 networks:
   web_network:
@@ -71,3 +91,4 @@ networks:
 
 volumes:
   postgres_data:
+  logs_data:

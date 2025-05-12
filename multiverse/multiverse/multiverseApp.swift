@@ -138,6 +138,9 @@ struct multiverseApp: App {
     // State to control splash screen visibility
     @State private var showSplashScreen = true
     
+    // State to control terms and conditions visibility
+    @State private var showTermsAndConditions = false
+    
     // Setup observers for app lifecycle events
     private func setupLifecycleObservers() {
         // Adding observers for app termination
@@ -167,11 +170,16 @@ struct multiverseApp: App {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                                 withAnimation {
                                     showSplashScreen = false
+                                    // Check if user has accepted terms
+                                    showTermsAndConditions = !UserManager.shared.hasAcceptedTerms()
                                 }
                             }
                         }
                 } else {
                     LandingView()
+                        .fullScreenCover(isPresented: $showTermsAndConditions) {
+                            TermsAndConditionsView(isPresented: $showTermsAndConditions)
+                        }
                 }
             }
         }

@@ -1,84 +1,50 @@
-// This is the main file for the app's user interface
-// It's named ContentView.swift because it contains the primary view of the application
 
-// Import necessary frameworks
-import SwiftUI        // SwiftUI is Apple's framework for building user interfaces
-                      // It provides tools to create buttons, text fields, images, etc.
-import PhotosUI       // PhotosUI is Apple's framework for accessing the photo library
-                      // It allows users to select photos from their device
-import StoreKit       // StoreKit is Apple's framework for in-app purchases and subscriptions
+import SwiftUI
+import PhotosUI
+import StoreKit
 import SwiftData
 
-// Main view structure for the app
-// In SwiftUI, everything is built using structures (struct) that conform to the View protocol
 struct LandingView: View {
-    // Reference to user manager that handles the UUID
+    
     @State private var userManager = UserManager.shared
     
-    // Debug mode state
     @State private var isDebugMode: Bool = false
     
-    // State variables to manage the UI and data
-    // @State is a property wrapper that tells SwiftUI to watch for changes
-    // When these values change, SwiftUI automatically updates the UI
-    
-    // Stores the photo selected by the user from the photo picker
     @State private var selectedImage: PhotosPickerItem?
-    
-    // Stores the actual image data (the bytes that make up the image)
+
     @State private var imageData: Data?
     
-    // Stores the source image ID
     @State private var sourceImageID: String?
-    
-    // Stores the text entered by the user
+
     @State private var user_description: String = ""
     
-    // Tracks whether an upload is in progress
     @State private var isUploading = false
     
-    // Tracks whether a search is in progress
     @State private var isSearching = false
     
-    // Controls whether to show an error message
     @State private var showError = false
     
-    // Stores the text of the error message
     @State private var errorMessage = ""
     
-    // Controls navigation to the BoxGridView
     @State private var showBoxGrid = false
     
-    // Controls navigation to the store view
     @State private var showStore = false
-    
-    // Search related states
+
     @State private var searchText: String = ""
     @State private var selectedStyle: String = "Default"
-    // Predefined styles list
     private let styleOptions = ["Default", "Modern", "Vintage", "Minimal", "Bold", "Custom"]
     
-    // User credits
     @State private var userCredits: Int = 0
     @State private var isLoadingCredits: Bool = false
     
-    // StoreKit product identifiers
     private let subscriptionProductID = "subscription.photons.500"
     
-    // The body property is required by the View protocol
-    // It defines what the view looks like
     var body: some View {
-        // NavigationStack provides navigation functionality
-        // It allows moving between different screens in the app
         NavigationStack {
             VStack {
-                // Add the CreditsBarView here
                 CreditsBarView()
                 
-                // PhotosPicker is a built-in component for selecting photos
-                // It shows the device's photo library
                 PhotosPicker(selection: $selectedImage, matching: .images) {
-                    // Conditional view based on whether an image is selected
                     if let imageData = imageData,
                         let uiImage = UIImage(data: imageData) {
                         // If an image is selected, display it
@@ -205,6 +171,42 @@ struct LandingView: View {
                     .cornerRadius(8)
                 }
                 .disabled(isUploading || sourceImageID == nil)  
+                
+                // Debug buttons that only appear when isDebugMode is true
+                if isDebugMode {
+                    Divider()
+                        .padding(.vertical, 10)
+                    
+                    Text("Debug Options")
+                        .font(.headline)
+                    
+                    HStack {
+                        Button(action: {
+                            userManager.clearUserID()
+                            imageData = nil
+                            sourceImageID = nil
+                            user_description = ""
+                        }) {
+                            Text("Reset User")
+                                .padding(8)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        
+                        Button(action: {
+                            userManager.resetTermsAcceptance()
+                            fetchUserCredits()
+                        }) {
+                            Text("Reset Terms")
+                                .padding(8)
+                                .background(Color.orange)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(.bottom, 10)
+                }
             }
             .padding()  // Adds space around the entire VStack
             // Error alert that appears when showError is true
