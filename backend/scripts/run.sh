@@ -22,7 +22,7 @@ source .venv/bin/activate
 
 # Install requirements
 echo "Installing requirements..."
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 
 # Check and load environment variables
 if [ -f ".env" ]; then
