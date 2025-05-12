@@ -2,79 +2,12 @@ import Foundation
 import os.log
 
 class NetworkService {
-    private let domain = "https://multiverse.for-better.biz"
+    // private let domain = "https://multiverse.for-better.biz"
+    private let domain = "https://favorite-lions.metalseed.net"
     private var userManager = UserManager.shared
     static let shared = NetworkService()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
-    
-    // func uploadItem(imageData: Data?, text: String) async throws -> Data? {
-    //     logger.info("Starting upload request with text: \(text)")
-    //     logger.info("Image data present: \(imageData != nil)")
-    //     if let imageData = imageData {
-    //         logger.info("Image data size: \(imageData.count) bytes")
-    //     }
-        
-    //     var request = URLRequest(url: URL(string: "\(domain)/api/gen/test")!)
-    //     request.httpMethod = "POST"
-        
-    //     // Create multipart form data
-    //     let boundary = UUID().uuidString
-    //     request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-    //     logger.info("Request headers: \(request.allHTTPHeaderFields ?? [:])")
-        
-    //     var body = Data()
-        
-    //     // Add text
-    //     body.append("--\(boundary)\r\n".data(using: .utf8)!)
-    //     body.append("Content-Disposition: form-data; name=\"user_description\"\r\n\r\n".data(using: .utf8)!)
-    //     body.append(text.data(using: .utf8)!)
-    //     body.append("\r\n".data(using: .utf8)!)
-        
-    //     // Add image if exists
-    //     if let imageData = imageData {
-    //         logger.info("Adding image data to request")
-    //         body.append("--\(boundary)\r\n".data(using: .utf8)!)
-    //         body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-    //         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-    //         body.append(imageData)
-    //         body.append("\r\n".data(using: .utf8)!)
-    //     } else {
-    //         logger.info("No image data provided")
-    //     }
-        
-    //     body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-    //     request.httpBody = body
-    //     logger.info("Request body size: \(body.count) bytes")
-        
-    //     do {
-    //         let (data, response) = try await URLSession.shared.data(for: request)
-            
-    //         guard let httpResponse = response as? HTTPURLResponse else {
-    //             logger.error("Invalid response type")
-    //             throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
-    //         }
-            
-    //         if !(200...299).contains(httpResponse.statusCode) {
-    //             let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-    //             logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
-    //             throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-    //         }
-            
-    //         // Check if the response is an image
-    //         if let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"),
-    //            contentType.contains("image/") {
-    //             logger.info("Received image response")
-    //             return data
-    //         } else {
-    //             logger.info("Received non-image response")
-    //             return nil
-    //         }
-    //     } catch {
-    //         logger.error("Network request failed: \(error.localizedDescription)")
-    //         throw error
-    //     }
-    // }
-    
+
     func uploadToCreateAPI(imageData: Data?, userID: String, userDescription: String, numThemes: Int) async throws -> [String: Any] {
         let timestamp = Date()
         logger.info("Starting upload to /api/create with userID: \(userID) at \(timestamp)")

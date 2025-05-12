@@ -34,6 +34,9 @@ else
     echo "Warning: .env file not found. Environment variables may not be properly set."
 fi
 
+# Add parent directory to PYTHONPATH to make imports work
+export PYTHONPATH=$PYTHONPATH:$(dirname $(pwd))
+
 # Run the specified Python file
 echo "Running $PYTHON_FILE..."
 python $PYTHON_FILE
