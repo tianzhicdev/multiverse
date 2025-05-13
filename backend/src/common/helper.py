@@ -108,7 +108,7 @@ def process_image_to_image(result_image_id, image_file, user_description, theme_
     MUST focus on the main characters/obejcts and critical features of the characters/objects in the image.
     MUST create clothing, accessories, and visual elements in your description that aligns with the theme.
     MAINTAIN the exact layout of the original image. Characters in the foreground must remain in the foreground, and background elements must stay in the background. 
-    MUST NOT use realistic style.
+    MUST NOT use realistic style. MUST NOT display explicit nudity.
     """
     
     result = generate_with_openai_image_1(img2img_prompt, image_file)
@@ -171,7 +171,7 @@ def process_description_to_image(image_file, user_description, theme_description
                             MUST use precisely the layout of the image, including the main characters/objects and their positions.
                             MUST focus on the main characters/obejcts and critical features of the characters/objects in the image. 
                             MUST create clothing, accessories, and visual elements in your description that aligns with the theme. 
-                            MUST NOT use realistic style.
+                            MUST NOT use realistic style. MUST NOT display explicit nudity.
                             MAINTAIN the exact layout of the original image. Characters in the foreground must remain in the foreground, and background elements must stay in the background. Spatial relationships between all elements must be preserved.
                             MUST use less than 200 words."""
         logger.info(f"Image description prompt: {image_description_prompt}")

@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Configuration
-API_URL=${API_URL:-"http://localhost:5000"}
+# API_URL=${API_URL:-"https://favorite-lions.metalseed.net"}
+
+API_URL=${API_URL:-"https://multiverse.for-better.biz"}
 OUTPUT_DIR="$(dirname "$0")/images"
 USER_ID=${USER_ID:-""}  # Optional user ID filter
 PAGE_SIZE=100
