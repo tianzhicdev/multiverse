@@ -9,5 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
+# Create logs directory with proper permissions
+RUN mkdir -p /logs && chmod 777 /logs
+
 # Run the background process
 CMD ["python", "-m", "src.bg.background"] 

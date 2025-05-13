@@ -64,6 +64,11 @@ curl -X POST http://localhost:5000/api/gen \
 You can also run the application using Docker:
 
 ```bash
+# First ensure the log directories exist and have proper permissions
+cd backend
+./ensure-logs.sh
+
+# Then start the containers
 docker-compose up -d
 ```
 

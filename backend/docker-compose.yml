@@ -8,7 +8,7 @@ services:
     volumes:
       - .:/app
       - ${MULTIVERSE_SECRETS_PATH}:/usr/local/.secrets/apple/
-      - ${PWD}/logs_web:/logs/
+      - ./logs_web:/logs/
     env_file:
       - .env
     restart: always
@@ -22,7 +22,7 @@ services:
     volumes:
       - .:/app
       - ${MULTIVERSE_SECRETS_PATH}:/usr/local/.secrets/apple/
-      - ${PWD}/logs_background:/logs/
+      - ./logs_background:/logs/
     env_file:
       - .env
     depends_on:
@@ -79,3 +79,5 @@ networks:
 
 volumes:
   postgres_data:
+  logs_web:
+  logs_background:
