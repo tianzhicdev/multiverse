@@ -1,3 +1,4 @@
+from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask import request, send_file, jsonify    
 import logging
@@ -12,6 +13,7 @@ from src.common.helper import get_themes
 from src.common.helper import image_gen
 from src.web.purchase import register_routes
 
+
 FLASK_PORT = os.getenv('FLASK_PORT')
 print(f"FLASK_PORT: {FLASK_PORT}")
 
@@ -21,14 +23,15 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 # Configure logging
+handler = RotatingFileHandler(
+    '/logs/web.log',
+    maxBytes=10*1024*1024,  # 10MB
+    backupCount=10
+)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    filename='/logs/web.log',  
-    filemode='a',
-    rotation='10M',
-    backupCount=10
+    handlers=[handler]
 )
 logger = logging.getLogger(__name__)
 
