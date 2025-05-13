@@ -19,7 +19,7 @@ from queue import Queue
 import queue
 
 # Configure logger using centralized logging config
-logger = setup_logger(__name__, 'background.log')
+logger = setup_logger(__name__, f'background.{int(time.time())}.log')
 
 # Global queue for image requests
 request_queue = Queue()
