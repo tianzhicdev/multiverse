@@ -340,7 +340,7 @@ def init_user(user_id, reason="User initialization"):
         if result == 1:
             logger.info(f"Created new user {user_id}")
             # Add 100 initial credits using add_credits function
-            return add_credits(user_id, 100, f"Initial credits")
+            return add_credits(user_id, 30, f"Initial credits")
         else:
             logger.error(f"Failed to create user {user_id}")
             return False
