@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import logging
+from src.common.logging_config import setup_logger
 import re
 from appstoreserverlibrary.api_client import AppStoreServerAPIClient, APIException
 from appstoreserverlibrary.models.Environment import Environment
@@ -8,13 +9,8 @@ from appstoreserverlibrary.models.NotificationTypeV2 import NotificationTypeV2
 from appstoreserverlibrary.signed_data_verifier import VerificationException, SignedDataVerifier
 from src.common.helper import add_credits
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-logger = logging.getLogger(__name__)
+# Configure logger using centralized logging config
+logger = setup_logger(__name__, 'purchase.log')
 
 def load_root_certificates():
     with open("/usr/local/.secrets/apple/AppleRootCA-G3.cer", "rb") as f:

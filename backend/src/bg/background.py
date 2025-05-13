@@ -7,7 +7,7 @@ from a queue, allowing for better concurrency and reduced processing delays.
 """
         
 import logging
-from logging.handlers import RotatingFileHandler
+from src.common.logging_config import setup_logger
 import threading
 import time
 from io import BytesIO
@@ -18,19 +18,8 @@ from src.common.helper import process_image_to_image, image_gen
 from queue import Queue
 import queue
 
-# Configure logging with a rotating file handler
-handler = RotatingFileHandler(
-    '/logs/background.log',
-    maxBytes=10*1024*1024,  # 10MB
-    backupCount=10
-)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[handler]
-)
-logger = logging.getLogger(__name__)
+# Configure logger using centralized logging config
+logger = setup_logger(__name__, 'background.log')
 
 # Global queue for image requests
 request_queue = Queue()

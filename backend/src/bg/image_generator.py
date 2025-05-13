@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import logging
+from src.common.logging_config import setup_logger
 from io import BytesIO
 import openai
 import base64
@@ -9,13 +10,9 @@ from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 import tempfile
 from PIL import Image 
 import replicate
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-logger = logging.getLogger(__name__)
+
+# Configure logger using centralized logging config
+logger = setup_logger(__name__, 'image_generator.log')
 
 openai_image1_rate = Rate(50, Duration.MINUTE)  # New rate for GPT Image 1
 stability_rate = Rate(25, Duration.SECOND * 10)  # 150 requests per 10 seconds

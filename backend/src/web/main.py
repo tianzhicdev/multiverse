@@ -1,7 +1,7 @@
-from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask import request, send_file, jsonify    
 import logging
+from src.common.logging_config import setup_logger
 import os
 from src.common.helper import use_credits
 from src.common.helper import init_user
@@ -22,18 +22,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-# Configure logging
-handler = RotatingFileHandler(
-    '/logs/web.log',
-    maxBytes=10*1024*1024,  # 10MB
-    backupCount=10
-)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[handler]
-)
-logger = logging.getLogger(__name__)
+# Configure logger using centralized logging config
+logger = setup_logger(__name__, 'web.log')
 
 # Initialize CORS with default settings to allow all origins
 CORS(app)

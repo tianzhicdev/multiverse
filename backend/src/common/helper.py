@@ -5,17 +5,13 @@ import json
 from io import BytesIO
 from PIL import Image
 import logging
+from src.common.logging_config import setup_logger
 import openai
 from src.common.db import execute_query
 from src.bg.image_generator import image_gen, generate_with_openai_image_1, generate_with_stability, generate_with_replicate
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-logger = logging.getLogger(__name__)
+# Configure logger using centralized logging config
+logger = setup_logger(__name__, 'helper.log')
 
 theme_descriptions = [
     {

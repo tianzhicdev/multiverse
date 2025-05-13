@@ -2,14 +2,10 @@ import os
 from psycopg2 import pool
 from typing import Optional
 import logging
+from src.common.logging_config import setup_logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-logger = logging.getLogger(__name__)
+# Configure logger using centralized logging config
+logger = setup_logger(__name__, 'db.log')
 
 class DatabaseConnection:
     """
