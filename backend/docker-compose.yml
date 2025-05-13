@@ -8,7 +8,7 @@ services:
     volumes:
       - .:/app
       - ${MULTIVERSE_SECRETS_PATH}:/usr/local/.secrets/apple/
-      - logs_data:/logs/
+      - ${PWD}/logs_web:/logs/
     env_file:
       - .env
     restart: always
@@ -22,7 +22,7 @@ services:
     volumes:
       - .:/app
       - ${MULTIVERSE_SECRETS_PATH}:/usr/local/.secrets/apple/
-      - logs_data:/var/log/app
+      - ${PWD}/logs_background:/logs/
     env_file:
       - .env
     depends_on:
@@ -39,11 +39,6 @@ services:
         reservations:
           cpus: '0.25'    # scheduler tries to keep this much free
           memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "100"
 
   nginx:
     image: nginx:latest
@@ -75,7 +70,7 @@ services:
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
-      - logs_data:/var/log/postgresql
+      - ${PWD}/logs_db:/var/log/postgresql
     networks:
       - web_network
     logging:
@@ -90,9 +85,3 @@ networks:
 
 volumes:
   postgres_data:
-  logs_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/logs
