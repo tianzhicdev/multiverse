@@ -12,6 +12,7 @@ import json
 from src.common.helper import get_themes
 from src.common.helper import image_gen
 from src.web.purchase import register_routes
+from src.web.download import register_routes as register_download_routes
 
 
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -30,6 +31,8 @@ CORS(app)
 
 # Register routes from purchase module
 register_routes(app)
+# Register routes from download module
+register_download_routes(app)
 
 @app.route('/')
 def hello_world():

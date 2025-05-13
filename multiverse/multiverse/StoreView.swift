@@ -9,6 +9,9 @@ struct StoreView: View {
     @State private var purchasingProductID: String?
     @State private var errorMessage = ""
     @State private var showError = false
+    @State private var isRestoring = false
+    @State private var userCredits = 0
+    @State private var showCreditsPopup = false
     
     var body: some View {
         VStack {
@@ -16,6 +19,22 @@ struct StoreView: View {
                 .font(.largeTitle)
                 .padding()
                 .foregroundColor(.green)
+            
+            // Restore button at the top
+            Button(action: restorePurchases) {
+                HStack {
+                    Image(systemName: "arrow.clockwise.circle")
+                    Text(isRestoring ? "Restoring..." : "Restore Purchases")
+                }
+                .frame(minWidth: 200)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            .disabled(isRestoring)
+            .padding(.bottom)
             
             if products.isEmpty {
                 ProgressView("Loading products...")
@@ -73,6 +92,11 @@ struct StoreView: View {
         } message: {
             Text(errorMessage)
         }
+        .alert("Your Credits", isPresented: $showCreditsPopup) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("You have \(userCredits) credits available.")
+        }
     }
     
     private var consumableProducts: [Product] {
@@ -115,6 +139,35 @@ struct StoreView: View {
             } catch {
                 await MainActor.run {
                     errorMessage = "Failed to load products: \(error.localizedDescription)"
+                    showError = true
+                }
+            }
+        }
+    }
+    
+    private func restorePurchases() {
+        isRestoring = true
+        
+        Task {
+            do {
+                // Get the user ID
+                let userID = UserManager.shared.getCurrentUserID()
+                
+                // Call the API to initialize/restore the user
+                await NetworkService.shared.initializeUser(userID: userID)
+                
+                // Fetch user credits
+                let credits = try await NetworkService.shared.fetchUserCredits(userID: userID)
+                
+                await MainActor.run {
+                    isRestoring = false
+                    userCredits = credits
+                    showCreditsPopup = true
+                }
+            } catch {
+                await MainActor.run {
+                    isRestoring = false
+                    errorMessage = "Failed to restore purchases: \(error.localizedDescription)"
                     showError = true
                 }
             }
