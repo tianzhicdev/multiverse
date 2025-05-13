@@ -8,17 +8,12 @@ services:
     volumes:
       - .:/app
       - ${MULTIVERSE_SECRETS_PATH}:/usr/local/.secrets/apple/
-      - logs_data:/var/log/app
+      - logs_data:/logs/
     env_file:
       - .env
     restart: always
     networks:
       - web_network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "100"
 
   background:
     build:

@@ -24,7 +24,11 @@ app = Flask(__name__)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename='/logs/web.log',  
+    filemode='a',
+    rotation='10M',
+    backupCount=10
 )
 logger = logging.getLogger(__name__)
 
