@@ -1,2 +1,4 @@
 SELECT percentile_cont(ARRAY[0.2, 0.4, 0.6, 0.8, 1.0]) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (finished_at - created_at))) AS quintiles FROM image_requests WHERE finished_at IS NOT NULL;
 SELECT AVG(EXTRACT(EPOCH FROM (finished_at - created_at))) AS average_processing_time FROM image_requests WHERE finished_at IS NOT NULL;
+SELECT u.user_id, u.subscription_type, u.credits AS user_credits, COALESCE(SUM(t.credit), 0) AS transaction_credits, u.credits - COALESCE(SUM(t.credit), 0) AS difference FROM users u LEFT JOIN transactions t ^C u.user_id = t.user_id GROUP BY u.user_id, u.subscription_type
+, u.credits ORDER BY difference DESC;
