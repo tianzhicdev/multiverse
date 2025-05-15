@@ -96,12 +96,9 @@ def register_routes(app):
                 SELECT 
                     id,
                     user_id,
-                    amount,
-                    credits,
-                    status,
-                    payment_method,
-                    created_at,
-                    metadata
+                    credit,
+                    reason,
+                    created_at
                 FROM transactions
                 ORDER BY created_at DESC
                 LIMIT 100
@@ -112,16 +109,13 @@ def register_routes(app):
             # Format the response
             transactions = []
             for row in results:
-                id, user_id, amount, credits, status, payment_method, created_at, metadata = row
+                id, user_id, credit, reason, created_at = row
                 transactions.append({
                     'id': id,
                     'user_id': user_id,
-                    'amount': float(amount) if amount else 0,
-                    'credits': credits,
-                    'status': status,
-                    'payment_method': payment_method,
-                    'created_at': created_at.isoformat() if created_at else None,
-                    'metadata': metadata
+                    'credit': credit,
+                    'reason': reason,
+                    'created_at': created_at.isoformat() if created_at else None
                 })
             
             return jsonify(transactions)
