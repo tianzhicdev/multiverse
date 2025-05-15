@@ -120,11 +120,12 @@ def register_routes(app):
         """
         try:
             hourly_data = get_new_users_data()
-            return jsonify(hourly_data, indent=2)
+            return jsonify(hourly_data)
                 
         except Exception as e:
             logger.error(f"Error retrieving new users metrics: {str(e)}")
-            return jsonify({'error': f'Error retrieving new users metrics: {str(e)}'}, indent=2), 500
+            error_response = {'error': f'Error retrieving new users metrics: {str(e)}'}
+            return jsonify(error_response), 500
 
     @app.route('/api/metrics/image_requests', methods=['GET'])
     def image_requests_last_48h():
@@ -134,11 +135,12 @@ def register_routes(app):
         """
         try:
             hourly_data = get_image_requests_data()
-            return jsonify(hourly_data, indent=2)
+            return jsonify(hourly_data)
                 
         except Exception as e:
             logger.error(f"Error retrieving image requests metrics: {str(e)}")
-            return jsonify({'error': f'Error retrieving image requests metrics: {str(e)}'}, indent=2), 500
+            error_response = {'error': f'Error retrieving image requests metrics: {str(e)}'}
+            return jsonify(error_response), 500
 
     @app.route('/api/metrics/transactions', methods=['GET'])
     def recent_transactions():
@@ -148,11 +150,12 @@ def register_routes(app):
         """
         try:
             transactions = get_transactions_data()
-            return jsonify(transactions, indent=2)
+            return jsonify(transactions)
                 
         except Exception as e:
             logger.error(f"Error retrieving transaction metrics: {str(e)}")
-            return jsonify({'error': f'Error retrieving transaction metrics: {str(e)}'}, indent=2), 500
+            error_response = {'error': f'Error retrieving transaction metrics: {str(e)}'}
+            return jsonify(error_response), 500
 
     # New HTML table endpoints
     @app.route('/metrics/new_users_table', methods=['GET'])
