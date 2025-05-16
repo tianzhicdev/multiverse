@@ -289,15 +289,7 @@ def add_credits(user_id, credits, reason="Unspecified addition", transaction_id=
             # Create user if they don't exist
             return init_user(user_id, reason)
         
-        # Add credits to the user's account
-        query = "UPDATE users SET credits = credits + %s WHERE user_id = %s RETURNING credits"
-        update_result = execute_query(query, (credits, user_id))
-        
-        if update_result != 1:
-            logger.error(f"Failed to add credits to user {user_id}")
-            return False
-            
-        # Record the transaction
+        # Record the transaction first
         if transaction_id:
             transaction_query = "INSERT INTO transactions (id, user_id, credit, reason) VALUES (%s, %s, %s, %s) ON CONFLICT (id, user_id) DO NOTHING"
             transaction_result = execute_query(transaction_query, (transaction_id, user_id, credits, reason))
@@ -307,9 +299,14 @@ def add_credits(user_id, credits, reason="Unspecified addition", transaction_id=
         
         if transaction_result != 1:
             logger.error(f"Failed to record transaction for user {user_id}")
-            # If transaction recording fails, try to revert the credits change
-            revert_query = "UPDATE users SET credits = credits - %s WHERE user_id = %s"
-            execute_query(revert_query, (credits, user_id))
+            return False
+            
+        # Only update user credits after successful transaction recording
+        query = "UPDATE users SET credits = credits + %s WHERE user_id = %s RETURNING credits"
+        update_result = execute_query(query, (credits, user_id))
+        
+        if update_result != 1:
+            logger.error(f"Failed to add credits to user {user_id}")
             return False
             
         return True
