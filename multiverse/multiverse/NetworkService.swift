@@ -437,6 +437,47 @@ class NetworkService {
         }
     }
     
+    func oneTimePurchase(userID: String, transactionID: String, credits: Int) async throws -> Int {
+        logger.info("Recording one-time purchase of \(credits) credits for userID: \(userID)")
+        
+        let purchaseURL = URL(string: "\(domain)/api/one-time-purchase")!
+        var request = URLRequest(url: purchaseURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": userID,
+            "transaction_id": transactionID,
+            "credits": credits
+        ]
+        
+        do {
+            // Convert the dictionary to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // After successful purchase, fetch and return updated credits
+            return try await fetchUserCredits(userID: userID)
+        } catch {
+            logger.error("Failed to record one-time purchase: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
     func initializeUser(userID: String) async {
         logger.info("Initializing user with ID: \(userID)")
         

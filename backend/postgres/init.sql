@@ -47,13 +47,17 @@ CREATE TABLE image_requests (
 );
 
 CREATE TABLE transactions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(user_id),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id TEXT NOT NULL REFERENCES users(user_id),
     credit INTEGER NOT NULL,
     reason TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_transactions_user_id ON transactions(user_id);
+
+CREATE UNIQUE INDEX idx_transactions_id_user_id ON transactions(id, user_id);
+
+
 
 

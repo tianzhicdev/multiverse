@@ -266,7 +266,7 @@ def use_credits(user_id, credits, reason="Unspecified use"):
         logger.error(f"Error in use_credits: {str(e)}")
         return False
 
-def add_credits(user_id, credits, reason="Unspecified addition"):
+def add_credits(user_id, credits, reason="Unspecified addition", transaction_id=None):
     """
     Add credits to a user's account and record the transaction.
     
@@ -274,6 +274,7 @@ def add_credits(user_id, credits, reason="Unspecified addition"):
         user_id: The user's ID
         credits: Number of credits to add
         reason: Reason for adding credits
+        transaction_id: Optional transaction ID to use instead of auto-generated UUID
         
     Returns:
         bool: True if successful, False if user not found or on error
@@ -297,8 +298,12 @@ def add_credits(user_id, credits, reason="Unspecified addition"):
             return False
             
         # Record the transaction
-        transaction_query = "INSERT INTO transactions (user_id, credit, reason) VALUES (%s, %s, %s)"
-        transaction_result = execute_query(transaction_query, (user_id, credits, reason))
+        if transaction_id:
+            transaction_query = "INSERT INTO transactions (id, user_id, credit, reason) VALUES (%s, %s, %s, %s) ON CONFLICT (id, user_id) DO NOTHING"
+            transaction_result = execute_query(transaction_query, (transaction_id, user_id, credits, reason))
+        else:
+            transaction_query = "INSERT INTO transactions (user_id, credit, reason) VALUES (%s, %s, %s)"
+            transaction_result = execute_query(transaction_query, (user_id, credits, reason))
         
         if transaction_result != 1:
             logger.error(f"Failed to record transaction for user {user_id}")
@@ -340,7 +345,7 @@ def init_user(user_id, reason="User initialization"):
         if result == 1:
             logger.info(f"Created new user {user_id}")
             # Add 100 initial credits using add_credits function
-            return add_credits(user_id, 30, f"Initial credits")
+            return add_credits(user_id, 30, f"Initial credits", None)
         else:
             logger.error(f"Failed to create user {user_id}")
             return False

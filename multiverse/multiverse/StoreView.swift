@@ -195,10 +195,48 @@ struct StoreView: View {
                     // Finish the transaction
                     await transaction.finish()
                     
+                    
+                    // Log purchase based on product ID and transaction details
+                    print("Transaction completed - ID: \(transaction.id), productID: \(product.id), purchaseDate: \(transaction.purchaseDate), originalID: \(transaction.originalID), appAccountToken: \(transaction.appAccountToken?.uuidString ?? "nil"), expirationDate: \(transaction.expirationDate?.description ?? "nil"), offerID: \(transaction.offerID ?? "nil"), offerType: \(transaction.offerType?.rawValue ?? -1), environment: \(transaction.environment.rawValue), revocationDate: \(transaction.revocationDate?.description ?? "nil"), revocationReason: \(transaction.revocationReason?.rawValue ?? -1), ownershipType: \(transaction.ownershipType.rawValue), signed: \(transaction.isUpgraded)")
+                    
+                    // Determine credits based on product ID
+                    var credits = 0
+                    switch product.id {
+                    case "photons100":
+                        credits = 100
+                    case "photons200":
+                        credits = 200
+                    case "photons500":
+                        credits = 500
+                    case "photons1200":
+                        credits = 1200
+                    default:
+                        break
+                    }
+                    
+                    // Call backend API to record one-time purchase
+                    if credits > 0 {
+                        let userID = UserManager.shared.getCurrentUserID()
+                        do {
+                            // Call API to add credits to user account
+                            let updatedCredits = try await NetworkService.shared.oneTimePurchase(
+                                userID: userID,
+                                transactionID: String(transaction.id),
+                                credits: credits
+                            )
+                            
+                            await MainActor.run {
+                                userCredits = updatedCredits
+                                showCreditsPopup = true
+                            }
+                        } catch {
+                            print("Failed to record purchase on backend: \(error.localizedDescription)")
+                        }
+                    }
+                    
                     await MainActor.run {
                         isPurchasing = false
                         purchasingProductID = nil
-                        // Here you could update the user's balance or subscription status
                     }
                     
                 case .userCancelled:
