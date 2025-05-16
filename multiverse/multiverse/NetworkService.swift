@@ -440,7 +440,7 @@ class NetworkService {
     func oneTimePurchase(userID: String, transactionID: String, credits: Int) async throws -> Int {
         logger.info("Recording one-time purchase of \(credits) credits for userID: \(userID)")
         
-        let purchaseURL = URL(string: "\(domain)/api/one-time-purchase")!
+        let purchaseURL = URL(string: "\(domain)/one-time-purchase")!
         var request = URLRequest(url: purchaseURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
