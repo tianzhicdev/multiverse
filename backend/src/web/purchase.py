@@ -60,7 +60,7 @@ def process_purchase_request(environment):
         key_id = "6RCN2GN648"
         issuer_id = "69a6de84-f57d-47e3-e053-5b8c7c11a4d1"
         bundle_id = "com.tianzhistudio.multiverse"
-        app_apple_id = None  # Only required for Production environment
+        app_apple_id = "6744942990"  # Only required for Production environment
         
         # Initialize the SignedDataVerifier
         root_certificates = load_root_certificates()  # Load root certificates if needed
