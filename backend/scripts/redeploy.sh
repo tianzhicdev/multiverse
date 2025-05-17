@@ -3,8 +3,11 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Get the branch name from command line argument or use "main" as default
-BRANCH=${1:-main}
+# Get current branch as default
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Get the branch name from command line argument or use current branch as default
+BRANCH=${1:-$CURRENT_BRANCH}
 
 echo "Redeploying from branch: $BRANCH"
 
