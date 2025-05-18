@@ -1,12 +1,9 @@
-
 import SwiftUI
 import PhotosUI
 import StoreKit
 import SwiftData
 
 struct LandingView: View {
-    
-    @State private var userManager = UserManager.shared
     
     @State private var isDebugMode: Bool = false
     
@@ -87,7 +84,7 @@ struct LandingView: View {
                                 
                                 sourceImageID = try await NetworkService.shared.uploadImage(
                                     imageData: processedData,
-                                    userID: userManager.getCurrentUserID()
+                                    userID: UserManager.shared.getCurrentUserID()
                                 )
                             } catch {
                                 errorMessage = "Failed to upload image: \(error.localizedDescription)"
@@ -131,7 +128,7 @@ struct LandingView: View {
                             do {
                                 // Try to deduct 10 credits
                                 let remainingCredits = try await NetworkService.shared.useCredits(
-                                    userID: userManager.getCurrentUserID(),
+                                    userID: UserManager.shared.getCurrentUserID(),
                                     credits: 10
                                 )
                                 
@@ -182,7 +179,7 @@ struct LandingView: View {
                     
                     HStack {
                         Button(action: {
-                            userManager.clearUserID()
+                            UserManager.shared.clearUserID()
                             imageData = nil
                             sourceImageID = nil
                             user_description = ""
@@ -195,7 +192,7 @@ struct LandingView: View {
                         }
                         
                         Button(action: {
-                            userManager.resetTermsAcceptance()
+                            UserManager.shared.resetTermsAcceptance()
                             fetchUserCredits()
                         }) {
                             Text("Reset Terms")
@@ -225,7 +222,7 @@ struct LandingView: View {
             }
             .onAppear {
                 // Ensure the UserManager is initialized when the view appears
-                print("User ID: \(userManager.getCurrentUserID())")
+                print("User ID: \(UserManager.shared.getCurrentUserID())")
                 print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
 
                 // Fetch user credits
@@ -241,7 +238,7 @@ struct LandingView: View {
         Task {
             do {
                 let credits = try await NetworkService.shared.fetchUserCredits(
-                    userID: userManager.getCurrentUserID()
+                    userID: UserManager.shared.getCurrentUserID()
                 )
                 
                 await MainActor.run {
@@ -269,7 +266,7 @@ struct LandingView: View {
             do {
                 let result = try await ImageGenerationService.shared.generateImages(
                     sourceImageID: sourceImageID,
-                    userID: userManager.getCurrentUserID(),
+                    userID: UserManager.shared.getCurrentUserID(),
                     userDescription: user_description,
                     numThemes: 9
                 )

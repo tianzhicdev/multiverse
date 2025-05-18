@@ -4,13 +4,13 @@ import os.log
 class NetworkService {
     private let domain = "https://multiverse.for-better.biz"
     // private let domain = "https://favorite-lions.metalseed.net"
-    private var userManager = UserManager.shared
     static let shared = NetworkService()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
 
     func uploadToCreateAPI(imageData: Data?, userID: String, userDescription: String, numThemes: Int) async throws -> [String: Any] {
         let timestamp = Date()
         logger.info("Starting upload to /api/create with userID: \(userID) at \(timestamp)")
+        logDeviceData(message: "Starting image generation with userDescription: \(userDescription)")
         let createURL = URL(string: "\(domain)/api/create")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
@@ -89,6 +89,7 @@ class NetworkService {
     func uploadToCreateAPI(sourceImageID: String, userID: String, userDescription: String, numThemes: Int) async throws -> [String: Any] {
         let timestamp = Date()
         logger.info("Starting upload to /api/roll with userID: \(userID) at \(timestamp)")
+        logDeviceData(message: "Re-rolling with source image: \(sourceImageID)")
         let createURL = URL(string: "\(domain)/api/roll")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
@@ -159,12 +160,13 @@ class NetworkService {
     
     func fetchImage(resultImageID: String) async throws -> (Data?, String?) {
         logger.info("Fetching image with resultImageID: \(resultImageID)")
+        logDeviceData(message: "Fetching image: \(resultImageID)")
         
         let imageURL = URL(string: "\(domain)/api/image/\(resultImageID)")!
         var request = URLRequest(url: imageURL)
         request.httpMethod = "GET"
         // Add user_id parameter from UserManager
-        let userID = userManager.getCurrentUserID()
+        let userID = UserManager.shared.getCurrentUserID()
         let urlWithParams = URL(string: imageURL.absoluteString + "?user_id=\(userID)")!
         request.url = urlWithParams
         
@@ -212,6 +214,7 @@ class NetworkService {
             throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Response did not contain an image: \(responseText)"])
         } catch {
             logger.error("Failed to fetch image: \(error.localizedDescription)")
+            logDeviceData(message: "Error fetching image: \(error.localizedDescription)")
             throw error
         }
     }
@@ -253,6 +256,7 @@ class NetworkService {
     // Add a new method to fetch user credits
     func fetchUserCredits(userID: String) async throws -> Int {
         logger.info("Fetching credits for userID: \(userID)")
+        logDeviceData(message: "Checking user credits")
         
         let creditsURL = URL(string: "\(domain)/api/credits/\(userID)")!
         var request = URLRequest(url: creditsURL)
@@ -277,6 +281,7 @@ class NetworkService {
                let jsonDict = jsonObject as? [String: Any],
                let credits = jsonDict["credits"] as? Int {
                 logger.info("Received credits: \(credits)")
+                logDeviceData(message: "User has \(credits) credits")
                 return credits
             } else {
                 logger.error("Invalid JSON response or missing credits field")
@@ -284,12 +289,14 @@ class NetworkService {
             }
         } catch {
             logger.error("Failed to fetch credits: \(error.localizedDescription)")
+            logDeviceData(message: "Error fetching credits: \(error.localizedDescription)")
             throw error
         }
     }
     
     func useCredits(userID: String, credits: Int) async throws -> Int {
         logger.info("Using \(credits) credits for userID: \(userID)")
+        logDeviceData(message: "Using \(credits) credits")
         
         let creditsURL = URL(string: "\(domain)/api/use_credits")!
         var request = URLRequest(url: creditsURL)
@@ -325,6 +332,7 @@ class NetworkService {
                let jsonDict = jsonObject as? [String: Any],
                let remainingCredits = jsonDict["remaining_credits"] as? Int {
                 logger.info("Successfully used \(credits) credits, remaining: \(remainingCredits)")
+                logDeviceData(message: "Credits used. Remaining: \(remainingCredits)")
                 return remainingCredits
             } else {
                 logger.error("Invalid JSON response or missing remaining_credits field")
@@ -332,12 +340,14 @@ class NetworkService {
             }
         } catch {
             logger.error("Failed to use credits: \(error.localizedDescription)")
+            logDeviceData(message: "Error using credits: \(error.localizedDescription)")
             throw error
         }
     }
     
     func uploadImage(imageData: Data, userID: String) async throws -> String {
         logger.info("Uploading image for userID: \(userID)")
+        logDeviceData(message: "Uploading user image")
         
         let uploadURL = URL(string: "\(domain)/api/upload")!
         var request = URLRequest(url: uploadURL)
@@ -384,6 +394,7 @@ class NetworkService {
                let jsonDict = jsonObject as? [String: Any],
                let sourceImageID = jsonDict["source_image_id"] as? String {
                 logger.info("Successfully uploaded image, source_image_id: \(sourceImageID)")
+                logDeviceData(message: "Image uploaded successfully: \(sourceImageID)")
                 return sourceImageID
             } else {
                 logger.error("Invalid JSON response or missing source_image_id field")
@@ -391,12 +402,15 @@ class NetworkService {
             }
         } catch {
             logger.error("Failed to upload image: \(error.localizedDescription)")
+            logDeviceData(message: "Error uploading image: \(error.localizedDescription)")
             throw error
         }
     }
     
     func trackUserAction(userID: String, action: String, imageID: String? = nil) {
         logger.info("Tracking user action: \(action) for userID: \(userID)")
+        let message = imageID != nil ? "User action: \(action) on image: \(imageID!)" : "User action: \(action)"
+        logDeviceData(message: message)
         
         let actionURL = URL(string: "\(domain)/api/action")!
         var request = URLRequest(url: actionURL)
@@ -439,6 +453,7 @@ class NetworkService {
     
     func oneTimePurchase(userID: String, transactionID: String, credits: Int) async throws -> Int {
         logger.info("Recording one-time purchase of \(credits) credits for userID: \(userID)")
+        logDeviceData(message: "One-time purchase of \(credits) credits")
         
         let purchaseURL = URL(string: "\(domain)/one-time-purchase")!
         var request = URLRequest(url: purchaseURL)
@@ -474,12 +489,14 @@ class NetworkService {
             return try await fetchUserCredits(userID: userID)
         } catch {
             logger.error("Failed to record one-time purchase: \(error.localizedDescription)")
+            logDeviceData(message: "Error processing purchase: \(error.localizedDescription)")
             throw error
         }
     }
     
     func initializeUser(userID: String) async {
         logger.info("Initializing user with ID: \(userID)")
+        logDeviceData(message: "App initialized with user: \(userID)")
         
         let initURL = URL(string: "\(domain)/api/init_user")!
         var request = URLRequest(url: initURL)
@@ -514,6 +531,40 @@ class NetworkService {
             task.resume()
         } catch {
             logger.error("Failed to serialize user initialization data: \(error.localizedDescription)")
+        }
+    }
+    
+    func logDeviceData(message: String) {
+        logger.info("Sending remote log: \(message)")
+        
+        let logURL = URL(string: "\(domain)/api/device/logs")!
+        var request = URLRequest(url: logURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": UserManager.shared.getCurrentUserID(),
+            "message": message
+        ]
+        
+        // Try to send the log but don't wait for response
+        Task {
+            do {
+                // Convert the dictionary to JSON data
+                let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+                request.httpBody = jsonData
+                
+                // Fire and forget - we don't care about the response
+                let task = URLSession.shared.dataTask(with: request) { _, _, error in
+                    if let error = error {
+                        self.logger.error("Failed to send remote log: \(error.localizedDescription)")
+                    }
+                }
+                task.resume()
+            } catch {
+                logger.error("Failed to serialize log data: \(error.localizedDescription)")
+            }
         }
     }
 } 
