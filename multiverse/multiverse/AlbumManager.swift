@@ -18,13 +18,33 @@ class AlbumManager: ObservableObject {
 
 struct AlbumToggleView: View {
     @ObservedObject private var albumManager = AlbumManager.shared
+    @State private var showAlbumList = false
     
     var body: some View {
-        Toggle(isOn: $albumManager.isMyAlbum) {
-            Text("My Album")
-                .font(.caption)
+        HStack {
+            Toggle(isOn: $albumManager.isMyAlbum) {
+                Text("My Album")
+                    .font(.caption)
+            }
+            .toggleStyle(SwitchToggleStyle(tint: .blue))
+            
+            Spacer()
+            
+            Button {
+                showAlbumList = true
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "list.bullet")
+                        .font(.caption)
+                    Text("Manage")
+                        .font(.caption)
+                }
+            }
+            .foregroundColor(.blue)
         }
-        .toggleStyle(SwitchToggleStyle(tint: .blue))
         .padding(.horizontal)
+        .sheet(isPresented: $showAlbumList) {
+            AlbumListView()
+        }
     }
 } 

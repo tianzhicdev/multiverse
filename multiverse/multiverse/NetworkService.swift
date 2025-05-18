@@ -602,4 +602,91 @@ class NetworkService {
             throw error
         }
     }
+    
+    func getUserAlbum(userID: String) async throws -> [AlbumTheme] {
+        logger.info("Fetching album for userID: \(userID)")
+        
+        let albumURL = URL(string: "\(domain)/api/album?user_id=\(userID)")!
+        var request = URLRequest(url: albumURL)
+        request.httpMethod = "GET"
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse the JSON response
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any],
+               let themesArray = jsonDict["themes"] as? [[String: Any]] {
+                
+                var albumThemes = [AlbumTheme]()
+                
+                for themeDict in themesArray {
+                    if let themeID = themeDict["theme_id"] as? String,
+                       let name = themeDict["name"] as? String {
+                        albumThemes.append(AlbumTheme(themeID: themeID, name: name))
+                    }
+                }
+                
+                logger.info("Successfully fetched \(albumThemes.count) themes from user's album")
+                return albumThemes
+            } else {
+                logger.error("Invalid JSON response or missing themes field")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response"])
+            }
+        } catch {
+            logger.error("Failed to fetch user album: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func removeFromAlbum(userID: String, themeID: String) async throws -> Bool {
+        logger.info("Removing theme \(themeID) from album for userID: \(userID)")
+        
+        let albumURL = URL(string: "\(domain)/api/album")!
+        var request = URLRequest(url: albumURL)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": userID,
+            "theme_id": themeID
+        ]
+        
+        do {
+            // Convert the dictionary to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            logger.info("Successfully removed theme from album")
+            return true
+        } catch {
+            logger.error("Failed to remove theme from album: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 
