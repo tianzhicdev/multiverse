@@ -90,7 +90,7 @@ def register_routes(app):
                 ORDER BY a.updated_at DESC
             """
             
-            results = execute_query(query, [user_id], fetch=True)
+            results = execute_query(query, [user_id])
             
             themes = []
             for row in results:
