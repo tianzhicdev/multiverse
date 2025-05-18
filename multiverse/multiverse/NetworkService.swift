@@ -2,8 +2,8 @@ import Foundation
 import os.log
 
 class NetworkService {
-    private let domain = "https://multiverse.for-better.biz"
-    // private let domain = "https://favorite-lions.metalseed.net"
+    // private let domain = "https://multiverse.for-better.biz"
+    private let domain = "https://favorite-lions.metalseed.net"
     static let shared = NetworkService()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
 

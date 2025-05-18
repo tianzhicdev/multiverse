@@ -1,6 +1,29 @@
 import Foundation
 import os.log
 
+// Define the missing NSUbiquitousKeyValueStoreChangeReason enum
+enum NSUbiquitousKeyValueStoreChangeReason: Int {
+    case serverChange = 0
+    case initialSyncChange = 1
+    case quotaViolationChange = 2
+    case accountChange = 3
+    
+    var description: String {
+        switch self {
+        case .serverChange:
+            return "Server Change"
+        case .initialSyncChange:
+            return "Initial Sync"
+        case .quotaViolationChange:
+            return "Quota Violation"
+        case .accountChange:
+            return "Account Change"
+        @unknown default:
+            return "Unknown Change (\(self.rawValue))"
+        }
+    }
+}
+
 class UserManager {
     // Key for storing the UUID in iCloud KVS
     private static let userUUIDKey = "com.multiverse.userUUID"
@@ -147,24 +170,6 @@ class UserManager {
         // Re-initialize user on the backend
         Task {
             await NetworkService.shared.initializeUser(userID: userIdentifier)
-        }
-    }
-}
-
-// Extension to provide description for NSUbiquitousKeyValueStoreChangeReason
-extension NSUbiquitousKeyValueStoreChangeReason {
-    var description: String {
-        switch self {
-        case .serverChange:
-            return "Server Change"
-        case .initialSyncChange:
-            return "Initial Sync"
-        case .quotaViolationChange:
-            return "Quota Violation"
-        case .accountChange:
-            return "Account Change"
-        @unknown default:
-            return "Unknown Change (\(self.rawValue))"
         }
     }
 } 
