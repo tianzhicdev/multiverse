@@ -26,6 +26,12 @@ struct multiverseApp: App {
             NSUbiquitousKeyValueStore.default.synchronize()
         }
         
+        // Track app open
+        NetworkService.shared.trackUserAction(
+            userID: UserManager.shared.getCurrentUserID(), 
+            action: "app_open"
+        )
+        
         // Setup app lifecycle observation
         setupLifecycleObservers()
         

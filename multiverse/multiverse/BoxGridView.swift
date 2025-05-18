@@ -188,6 +188,10 @@ struct BoxGridView: View {
         
         Task {
             do {
+                 NetworkService.shared.trackUserAction(
+                    userID: UserManager.shared.getCurrentUserID(),
+                        action: "rediscover"
+                    )
                 // First use the credits
                 let remainingCredits = try await NetworkService.shared.useCredits(
                     userID: UserManager.shared.getCurrentUserID(),

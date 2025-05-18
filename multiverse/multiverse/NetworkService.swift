@@ -4,7 +4,6 @@ import os.log
 class NetworkService {
     private let domain = "https://multiverse.for-better.biz"
     // private let domain = "https://favorite-lions.metalseed.net"
-    private var userManager = UserManager.shared
     static let shared = NetworkService()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
 
@@ -164,7 +163,7 @@ class NetworkService {
         var request = URLRequest(url: imageURL)
         request.httpMethod = "GET"
         // Add user_id parameter from UserManager
-        let userID = userManager.getCurrentUserID()
+        let userID = UserManager.shared.getCurrentUserID()
         let urlWithParams = URL(string: imageURL.absoluteString + "?user_id=\(userID)")!
         request.url = urlWithParams
         
@@ -397,6 +396,7 @@ class NetworkService {
     
     func trackUserAction(userID: String, action: String, imageID: String? = nil) {
         logger.info("Tracking user action: \(action) for userID: \(userID)")
+        let message = imageID != nil ? "User action: \(action) on image: \(imageID!)" : "User action: \(action)"
         
         let actionURL = URL(string: "\(domain)/api/action")!
         var request = URLRequest(url: actionURL)
@@ -514,6 +514,40 @@ class NetworkService {
             task.resume()
         } catch {
             logger.error("Failed to serialize user initialization data: \(error.localizedDescription)")
+        }
+    }
+    
+    func logDeviceData(message: String) {
+        logger.info("Sending remote log: \(message)")
+        
+        let logURL = URL(string: "\(domain)/api/device/logs")!
+        var request = URLRequest(url: logURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": UserManager.shared.getCurrentUserID(),
+            "message": message
+        ]
+        
+        // Try to send the log but don't wait for response
+        Task {
+            do {
+                // Convert the dictionary to JSON data
+                let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+                request.httpBody = jsonData
+                
+                // Fire and forget - we don't care about the response
+                let task = URLSession.shared.dataTask(with: request) { _, _, error in
+                    if let error = error {
+                        self.logger.error("Failed to send remote log: \(error.localizedDescription)")
+                    }
+                }
+                task.resume()
+            } catch {
+                logger.error("Failed to serialize log data: \(error.localizedDescription)")
+            }
         }
     }
 } 

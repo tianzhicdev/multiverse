@@ -62,6 +62,13 @@ struct FullImageView: View {
                             // Play reveal sound
                             audioPlayer?.play()
                             
+                            // Track full image view open
+                            NetworkService.shared.trackUserAction(
+                                userID: UserManager.shared.getCurrentUserID(),
+                                action: "open_fullview",
+                                imageID: resultImageID
+                            )
+                            
                             // Reveal the image with rotation immediately
                             withAnimation(.easeInOut(duration: 0.5)) {
                                 opacity = 1.0

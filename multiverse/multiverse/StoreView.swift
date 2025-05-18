@@ -194,6 +194,12 @@ struct StoreView: View {
                     
                     // Finish the transaction
                     await transaction.finish()
+
+                                                // Track successful purchase
+                    NetworkService.shared.trackUserAction(
+                        userID: userID,
+                        action: "make_purchase \(product.id)"
+                    )
                     
                     
                     // Log purchase based on product ID and transaction details
@@ -240,6 +246,12 @@ struct StoreView: View {
                     }
                     
                 case .userCancelled:
+                    // Track cancelled purchase
+                    NetworkService.shared.trackUserAction(
+                        userID: UserManager.shared.getCurrentUserID(),
+                        action: "cancel_purchase"
+                    )
+                    
                     await MainActor.run {
                         isPurchasing = false
                         purchasingProductID = nil
