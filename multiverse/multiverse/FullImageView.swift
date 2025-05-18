@@ -5,6 +5,7 @@ import AVFoundation
 struct FullImageView: View {
     let uiImage: UIImage
     let themeName: String
+    let themeID: String
     let resultImageID: String
     let onCreditsUpdated: ((Int) -> Void)?
     
@@ -26,9 +27,10 @@ struct FullImageView: View {
     private var audioPlayer: AVAudioPlayer?
     
     // Custom initializer so callers can optionally provide the credits callback
-    init(uiImage: UIImage, themeName: String, resultImageID: String, onCreditsUpdated: ((Int) -> Void)? = nil) {
+    init(uiImage: UIImage, themeName: String, themeID: String, resultImageID: String, onCreditsUpdated: ((Int) -> Void)? = nil) {
         self.uiImage = uiImage
         self.themeName = themeName
+        self.themeID = themeID
         self.resultImageID = resultImageID
         self.onCreditsUpdated = onCreditsUpdated
         
@@ -123,6 +125,19 @@ struct FullImageView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                     }
+                    
+                    Button {
+                        saveToAlbum()
+                    } label: {
+                        HStack {
+                            Image(systemName: "photo.on.rectangle.angled")
+                            Text("Save")
+                        }
+                        .padding(8)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                    }
 
                     Button("Close") {
                         dismiss()
@@ -194,6 +209,46 @@ struct FullImageView: View {
                 print("Failed to download image: \(error.localizedDescription)")
                 await MainActor.run {
                     errorMessage = "Download failed: Insufficient credits. Each download costs 10 credits."
+                    showError = true
+                }
+            }
+        }
+    }
+    
+    // MARK: - Save to Album Logic
+    private func saveToAlbum() {
+        Task {
+            do {
+                let userID = UserManager.shared.getCurrentUserID()
+                
+                // Call API to add theme to album
+                let success = try await NetworkService.shared.addToAlbum(
+                    userID: userID,
+                    themeID: themeID
+                )
+                
+                if success {
+                    await MainActor.run {
+                        successMessage = "Theme saved to your album!"
+                        showSuccessAlert = true
+                    }
+                    
+                    // Track the save action
+                    NetworkService.shared.trackUserAction(
+                        userID: userID,
+                        action: "save_to_album",
+                        imageID: resultImageID
+                    )
+                } else {
+                    await MainActor.run {
+                        errorMessage = "Failed to save theme to album."
+                        showError = true
+                    }
+                }
+            } catch {
+                print("Failed to save to album: \(error.localizedDescription)")
+                await MainActor.run {
+                    errorMessage = "Failed to save theme to album: \(error.localizedDescription)"
                     showError = true
                 }
             }

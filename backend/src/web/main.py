@@ -15,6 +15,7 @@ from src.web.purchase import register_routes
 from src.web.download import register_routes as register_download_routes
 from src.web.metrics import register_routes as register_metrics_routes
 from src.web.device_logger import register_routes as register_device_logger_routes
+from src.web.album import register_routes as register_album_routes
 
 
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -39,6 +40,8 @@ register_download_routes(app)
 register_metrics_routes(app)
 # Register routes from device logger module
 register_device_logger_routes(app)
+# Register routes from album module
+register_album_routes(app)
 
 @app.route('/')
 def hello_world():

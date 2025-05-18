@@ -562,4 +562,44 @@ class NetworkService {
             }
         }
     }
+    
+    func addToAlbum(userID: String, themeID: String) async throws -> Bool {
+        logger.info("Adding theme \(themeID) to album for userID: \(userID)")
+        
+        let albumURL = URL(string: "\(domain)/api/add_to_album")!
+        var request = URLRequest(url: albumURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create the request body
+        let requestBody: [String: Any] = [
+            "user_id": userID,
+            "theme_id": themeID
+        ]
+        
+        do {
+            // Convert the dictionary to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            logger.info("Successfully added theme to album")
+            return true
+        } catch {
+            logger.error("Failed to add theme to album: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 

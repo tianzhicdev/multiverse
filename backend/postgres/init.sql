@@ -29,6 +29,7 @@ CREATE TABLE themes (
     name TEXT NOT NULL,
     theme TEXT NOT NULL,
     metadata JSONB,
+    public BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -56,6 +57,14 @@ CREATE TABLE transactions (
 
 CREATE INDEX idx_transactions_user_id ON transactions(user_id);
 CREATE UNIQUE INDEX idx_transactions_id_user_id ON transactions(id, user_id);
+
+CREATE TABLE albums (
+    theme_id UUID REFERENCES themes(id),
+    user_id UUID NOT NULL REFERENCES users(user_id),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (theme_id, user_id)
+);
+
 
 
 

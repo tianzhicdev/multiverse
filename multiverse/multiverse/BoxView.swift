@@ -34,6 +34,7 @@ struct BoxView: View {
     @State private var resultImageID: String = ""  // Add result image ID state
     @State private var shouldReveal = false  // Determines if we should reveal (wiggle + sound) when the image appears
     @State private var engineName: String = ""  // Add engine name state
+    @State private var themeID: String = ""  // Add theme ID state
     
     // Add ObservedObject for LoadingManager
     @ObservedObject private var loadingManager = LoadingManager.shared
@@ -173,6 +174,7 @@ struct BoxView: View {
                 FullImageView(
                     uiImage: uiImage,
                     themeName: themeName,
+                    themeID: themeID,
                     resultImageID: resultImageID,
                     onCreditsUpdated: { newCredits in
                         // Pass the update to parent if callback exists
@@ -248,6 +250,7 @@ struct BoxView: View {
                         self.themeName = themeImage.themeName
                         self.requestID = apiResponse.requestID
                         self.resultImageID = themeImage.resultImageID
+                        self.themeID = themeImage.themeID
                     }
                     
                     // Check if the image is already cached
