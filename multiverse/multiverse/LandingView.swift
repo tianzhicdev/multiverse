@@ -134,6 +134,13 @@ struct LandingView: View {
                                 
                                 await MainActor.run {
                                     userCredits = remainingCredits
+                                    
+                                    // Track discover action
+                                    NetworkService.shared.trackUserAction(
+                                        userID: UserManager.shared.getCurrentUserID(),
+                                        action: "discover"
+                                    )
+                                    
                                     performSearch()
                                     
                                     // Refresh the global credits view model
@@ -219,6 +226,13 @@ struct LandingView: View {
             // Navigation to StoreView when showStore becomes true
             .navigationDestination(isPresented: $showStore) {
                 StoreView()
+                    .onAppear {
+                        // Track store check action
+                        NetworkService.shared.trackUserAction(
+                            userID: UserManager.shared.getCurrentUserID(),
+                            action: "check_store"
+                        )
+                    }
             }
             .onAppear {
                 // Ensure the UserManager is initialized when the view appears

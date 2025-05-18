@@ -225,6 +225,12 @@ struct StoreView: View {
                                 credits: credits
                             )
                             
+                            // Track successful purchase
+                            NetworkService.shared.trackUserAction(
+                                userID: userID,
+                                action: "make_purchase"
+                            )
+                            
                             await MainActor.run {
                                 userCredits = updatedCredits
                                 showCreditsPopup = true
@@ -240,6 +246,12 @@ struct StoreView: View {
                     }
                     
                 case .userCancelled:
+                    // Track cancelled purchase
+                    NetworkService.shared.trackUserAction(
+                        userID: UserManager.shared.getCurrentUserID(),
+                        action: "cancel_purchase"
+                    )
+                    
                     await MainActor.run {
                         isPurchasing = false
                         purchasingProductID = nil
