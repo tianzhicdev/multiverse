@@ -194,6 +194,12 @@ struct StoreView: View {
                     
                     // Finish the transaction
                     await transaction.finish()
+
+                                                // Track successful purchase
+                    NetworkService.shared.trackUserAction(
+                        userID: userID,
+                        action: "make_purchase \(product.id)"
+                    )
                     
                     
                     // Log purchase based on product ID and transaction details
@@ -223,12 +229,6 @@ struct StoreView: View {
                                 userID: userID,
                                 transactionID: String(transaction.id),
                                 credits: credits
-                            )
-                            
-                            // Track successful purchase
-                            NetworkService.shared.trackUserAction(
-                                userID: userID,
-                                action: "make_purchase"
                             )
                             
                             await MainActor.run {
