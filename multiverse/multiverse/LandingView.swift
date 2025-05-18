@@ -34,12 +34,17 @@ struct LandingView: View {
     @State private var userCredits: Int = 0
     @State private var isLoadingCredits: Bool = false
     
+    @ObservedObject private var albumManager = AlbumManager.shared
+    
     private let subscriptionProductID = "subscription.photons.500"
     
     var body: some View {
         NavigationStack {
             VStack {
                 CreditsBarView()
+                
+                // Add album toggle
+                AlbumToggleView()
                 
                 PhotosPicker(selection: $selectedImage, matching: .images) {
                     if let imageData = imageData,
@@ -282,7 +287,8 @@ struct LandingView: View {
                     sourceImageID: sourceImageID,
                     userID: UserManager.shared.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 9
+                    numThemes: 9,
+                    album: albumManager.getCurrentAlbumMode()
                 )
                 
                 // Refresh user credits

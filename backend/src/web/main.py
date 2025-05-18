@@ -273,6 +273,8 @@ def roll_themes():
         user_description = request.form.get('user_description', '')
         num_themes = request.form.get('num_themes')
         request_id = request.form.get('request_id', str(uuid.uuid4()))
+        album = request.form.get('album', 'default')
+        logger.info(f"Album: {album}")
         
         # Validate required parameters
         if not all([source_image_id, user_id]):
@@ -343,6 +345,8 @@ def roll_themes_test():
         user_id = request.form.get('user_id')
         num_themes = int(request.form.get('num_themes', 9))
         source_image_id = request.form.get('source_image_id', str(uuid.uuid4()))
+        album = request.form.get('album', 'default')
+        logger.info(f"Album: {album}")
         
         # Validate user_id
         if not user_id:

@@ -32,6 +32,9 @@ struct BoxGridView: View {
     // Lifecycle tracking
     @State private var viewAppeared = false
     
+    // Album state
+    @ObservedObject private var albumManager = AlbumManager.shared
+    
     var body: some View {
         GeometryReader { geometry in
             let screenWidth = geometry.size.width
@@ -57,6 +60,9 @@ struct BoxGridView: View {
                 
                 // Add CreditsBarView at the top
                 CreditsBarView()
+                
+                // Add album toggle
+                AlbumToggleView()
                 
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: gridSpacing) {
@@ -211,7 +217,8 @@ struct BoxGridView: View {
                     sourceImageID: response.sourceImageID,
                     userID: UserManager.shared.getCurrentUserID(),
                     userDescription: inputs.userDescription,
-                    numThemes: totalBoxes
+                    numThemes: totalBoxes,
+                    album: albumManager.getCurrentAlbumMode()
                 )
                 
                 // Clear cached images because we will fetch new ones

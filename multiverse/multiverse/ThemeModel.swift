@@ -34,11 +34,13 @@ struct GenerationInputs: Codable {
     let userDescription: String
     let imageDataExists: Bool
     let timestamp: Date
+    let album: String
     
-    init(userDescription: String, hasImageData: Bool) {
+    init(userDescription: String, hasImageData: Bool, album: String = "default") {
         self.userDescription = userDescription
         self.imageDataExists = hasImageData
         self.timestamp = Date()
+        self.album = album
     }
 }
 
@@ -52,7 +54,7 @@ class APIResponseStore {
     private let sourceImageKey = "lastSourceImage"
     
     // Save the API response along with generation inputs
-    func saveResponse(_ response: APIResponse, userDescription: String, sourceImageData: Data?) {
+    func saveResponse(_ response: APIResponse, userDescription: String, sourceImageData: Data?, album: String = "default") {
         // Save the response
         if let encoded = try? JSONEncoder().encode(response) {
             userDefaults.set(encoded, forKey: responseKey)
@@ -66,7 +68,7 @@ class APIResponseStore {
         }
         
         // Save the generation inputs
-        let inputs = GenerationInputs(userDescription: userDescription, hasImageData: sourceImageData != nil)
+        let inputs = GenerationInputs(userDescription: userDescription, hasImageData: sourceImageData != nil, album: album)
         if let encoded = try? JSONEncoder().encode(inputs) {
             userDefaults.set(encoded, forKey: inputsKey)
         }

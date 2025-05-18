@@ -9,7 +9,8 @@ class ImageGenerationService {
         sourceImageID: String,
         userID: String,
         userDescription: String,
-        numThemes: Int
+        numThemes: Int,
+        album: String = "default"
     ) async throws -> [String: Any] {
         // Clear any previous API response data
         APIResponseStore.shared.clearAll()
@@ -21,7 +22,8 @@ class ImageGenerationService {
             sourceImageID: sourceImageID,
             userID: userID,
             userDescription: userDescription,
-            numThemes: numThemes
+            numThemes: numThemes,
+            album: album
         )
         
         print("Successfully processed API/create: \(result)")
@@ -51,7 +53,8 @@ class ImageGenerationService {
             APIResponseStore.shared.saveResponse(
                 apiResponse,
                 userDescription: userDescription,
-                sourceImageData: nil  // We don't need to store the source image data anymore
+                sourceImageData: nil,  // We don't need to store the source image data anymore
+                album: album
             )
             print("Stored API response with \(themeImages.count) theme images")
             
