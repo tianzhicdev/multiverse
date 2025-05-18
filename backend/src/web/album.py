@@ -83,9 +83,9 @@ def register_routes(app):
                 
             # Join albums and themes tables to get theme information
             query = """
-                SELECT t.theme_id, t.name
+                SELECT t.id, t.name
                 FROM albums a
-                JOIN themes t ON a.theme_id = t.theme_id
+                JOIN themes t ON a.theme_id = t.id
                 WHERE a.user_id = %s
                 ORDER BY a.updated_at DESC
             """
