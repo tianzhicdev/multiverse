@@ -197,10 +197,9 @@ struct StoreView: View {
 
                                                 // Track successful purchase
                     NetworkService.shared.trackUserAction(
-                        userID: userID,
+                        userID: UserManager.shared.getCurrentUserID(),
                         action: "make_purchase \(product.id)"
                     )
-                    
                     
                     // Log purchase based on product ID and transaction details
                     print("Transaction completed - ID: \(transaction.id), productID: \(product.id), purchaseDate: \(transaction.purchaseDate), originalID: \(transaction.originalID), appAccountToken: \(transaction.appAccountToken?.uuidString ?? "nil"), expirationDate: \(transaction.expirationDate?.description ?? "nil"), offerID: \(transaction.offerID ?? "nil"), offerType: \(transaction.offerType?.rawValue ?? -1), environment: \(transaction.environment.rawValue), revocationDate: \(transaction.revocationDate?.description ?? "nil"), revocationReason: \(transaction.revocationReason?.rawValue ?? -1), ownershipType: \(transaction.ownershipType.rawValue), signed: \(transaction.isUpgraded)")
