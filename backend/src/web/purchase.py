@@ -224,6 +224,7 @@ def register_routes(app):
             transaction_id = data.get('transaction_id')
             credits = data.get('credits')
             user_id = data.get('user_id')
+            logger.info(f"One-time purchase request received: transaction_id: {transaction_id}, credits: {credits}, user_id: {user_id}")
             
             # Validate required parameters
             if not transaction_id or not credits or not user_id:
