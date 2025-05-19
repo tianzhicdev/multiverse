@@ -58,11 +58,8 @@ struct BoxGridView: View {
                     }
                 }
                 
-                // Add CreditsBarView at the top
-                CreditsBarView()
-                
-                // Add album toggle
-                AlbumToggleView()
+                // Add HeaderView
+                HeaderView()
                 
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: gridSpacing) {

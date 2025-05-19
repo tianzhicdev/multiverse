@@ -85,9 +85,9 @@ struct CreditsBarView: View {
         // .padding(.horizontal)
         .padding(.bottom, 10)
         .onAppear {
-            viewModel.fetchUserCredits()
+            viewModel.refreshCredits()
         }.onTapGesture {
-            viewModel.fetchUserCredits()
+            viewModel.refreshCredits()
         }
     }
     

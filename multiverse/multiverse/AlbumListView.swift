@@ -19,7 +19,7 @@ struct AlbumListView: View {
         NavigationStack {
             Group {
                 if isLoading {
-                    ProgressView("Loading your album...")
+                    ProgressView("Loading your Themes...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if albumThemes.isEmpty {
                     VStack {
@@ -28,7 +28,7 @@ struct AlbumListView: View {
                             .foregroundColor(.gray)
                             .padding()
                         
-                        Text("Your album is empty")
+                        Text("Your Themes are empty")
                             .font(.headline)
                         
                         Text("Save themes to view them here")
@@ -83,7 +83,7 @@ struct AlbumListView: View {
                     )
                 }
             }
-            .navigationTitle("My Album")
+            .navigationTitle("My Themes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -137,7 +137,7 @@ struct AlbumListView: View {
                 }
                 
                 Section {
-                    Button("Add to Album") {
+                    Button("Add to Themes") {
                         addThemeToAlbum()
                     }
                     .disabled(newThemeID.isEmpty)

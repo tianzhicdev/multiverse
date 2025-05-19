@@ -49,7 +49,7 @@ struct FullImageView: View {
         NavigationStack {
             VStack {
                 // Credits bar
-                CreditsBarView()
+                HeaderView()
 
                 ZStack {
                     // The image

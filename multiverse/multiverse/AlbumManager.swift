@@ -22,25 +22,37 @@ struct AlbumToggleView: View {
     
     var body: some View {
         HStack {
-            Toggle(isOn: $albumManager.isMyAlbum) {
-                Text("My Album")
-                    .font(.caption)
-            }
-            .toggleStyle(SwitchToggleStyle(tint: .blue))
-            
-            Spacer()
-            
+                        
             Button {
                 showAlbumList = true
             } label: {
                 HStack(spacing: 4) {
-                    Image(systemName: "list.bullet")
+                    Image(systemName: "suit.heart.fill")
                         .font(.caption)
-                    Text("Manage")
+                    Text("Manage Saved Themes")
                         .font(.caption)
                 }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.blue, lineWidth: 1)
+                )
             }
             .foregroundColor(.blue)
+                        
+            Spacer()
+
+            HStack(spacing: 4) {
+                Text("Use My Themes")
+                    .font(.caption)
+                Toggle("", isOn: $albumManager.isMyAlbum)
+                    .toggleStyle(SwitchToggleStyle(tint: .blue))
+                    .labelsHidden()
+            }
+
         }
         .padding(.horizontal)
         .sheet(isPresented: $showAlbumList) {

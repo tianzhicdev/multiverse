@@ -4,6 +4,7 @@ import Foundation
 
 // StoreView for handling purchases and subscriptions
 struct StoreView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var products: [Product] = []
     @State private var isPurchasing = false
     @State private var purchasingProductID: String?
@@ -12,9 +13,24 @@ struct StoreView: View {
     @State private var isRestoring = false
     @State private var userCredits = 0
     @State private var showCreditsPopup = false
+    var dismissAction: () -> Void = {}
     
     var body: some View {
         VStack {
+            HStack {
+                Button(action: { dismiss() }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .foregroundColor(.blue)
+                }
+                .padding(.leading)
+                
+                Spacer()
+            }
+            .padding(.top)
+            
            Image(systemName: "storefront.circle.fill")
                 .font(.largeTitle)
                 .padding()
@@ -195,11 +211,11 @@ struct StoreView: View {
                     // Finish the transaction
                     await transaction.finish()
 
-                                                // Track successful purchase
                     NetworkService.shared.trackUserAction(
                         userID: UserManager.shared.getCurrentUserID(),
                         action: "make_purchase \(product.id)"
                     )
+                    
                     
                     // Log purchase based on product ID and transaction details
                     print("Transaction completed - ID: \(transaction.id), productID: \(product.id), purchaseDate: \(transaction.purchaseDate), originalID: \(transaction.originalID), appAccountToken: \(transaction.appAccountToken?.uuidString ?? "nil"), expirationDate: \(transaction.expirationDate?.description ?? "nil"), offerID: \(transaction.offerID ?? "nil"), offerType: \(transaction.offerType?.rawValue ?? -1), environment: \(transaction.environment.rawValue), revocationDate: \(transaction.revocationDate?.description ?? "nil"), revocationReason: \(transaction.revocationReason?.rawValue ?? -1), ownershipType: \(transaction.ownershipType.rawValue), signed: \(transaction.isUpgraded)")
@@ -345,4 +361,4 @@ enum StoreError: Error {
 // Preview provider for SwiftUI previews
 #Preview {
     StoreView()
-} 
+}

@@ -31,8 +31,7 @@ struct LandingView: View {
     @State private var selectedStyle: String = "Default"
     private let styleOptions = ["Default", "Modern", "Vintage", "Minimal", "Bold", "Custom"]
     
-    @State private var userCredits: Int = 0
-    @State private var isLoadingCredits: Bool = false
+    @ObservedObject private var creditsViewModel = CreditsViewModel.shared
     
     @ObservedObject private var albumManager = AlbumManager.shared
     
@@ -41,10 +40,7 @@ struct LandingView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                CreditsBarView()
-                
-                // Add album toggle
-                AlbumToggleView()
+                HeaderView()
                 
                 PhotosPicker(selection: $selectedImage, matching: .images) {
                     if let imageData = imageData,
@@ -127,7 +123,7 @@ struct LandingView: View {
                     .frame(height: 20)
                 
                 Button(action: {
-                    if userCredits >= 10 {
+                    if creditsViewModel.userCredits >= 10 {
                         Task {
                             isSearching = true
                             do {
@@ -138,7 +134,7 @@ struct LandingView: View {
                                 )
                                 
                                 await MainActor.run {
-                                    userCredits = remainingCredits
+                                    creditsViewModel.userCredits = remainingCredits
                                     
                                     // Track discover action
                                     NetworkService.shared.trackUserAction(
@@ -205,7 +201,7 @@ struct LandingView: View {
                         
                         Button(action: {
                             UserManager.shared.resetTermsAcceptance()
-                            fetchUserCredits()
+                            creditsViewModel.refreshCredits()
                         }) {
                             Text("Reset Terms")
                                 .padding(8)
@@ -245,30 +241,7 @@ struct LandingView: View {
                 print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
 
                 // Fetch user credits
-                fetchUserCredits()
-            }
-        }
-    }
-    
-    // Function to fetch user credits
-    private func fetchUserCredits() {
-        isLoadingCredits = true
-        
-        Task {
-            do {
-                let credits = try await NetworkService.shared.fetchUserCredits(
-                    userID: UserManager.shared.getCurrentUserID()
-                )
-                
-                await MainActor.run {
-                    userCredits = credits
-                    isLoadingCredits = false
-                }
-            } catch {
-                print("Error fetching credits: \(error.localizedDescription)")
-                await MainActor.run {
-                    isLoadingCredits = false
-                }
+                creditsViewModel.refreshCredits()
             }
         }
     }
@@ -290,9 +263,6 @@ struct LandingView: View {
                     numThemes: 9,
                     album: albumManager.getCurrentAlbumMode()
                 )
-                
-                // Refresh user credits
-                // fetchUserCredits()
                 
                 // Refresh the global credits view model
                 CreditsViewModel.shared.refreshCredits()
