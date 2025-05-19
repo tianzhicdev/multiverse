@@ -289,7 +289,7 @@ def roll_themes():
             return jsonify({'error': 'User not found or invalid account'}), 404
             
         # Step 2: Get themes for user
-        selected_themes = get_themes(user_id, num_themes)
+        selected_themes = get_themes(user_id, num_themes, album)
         
         # Step 3: Create result_image_ids for async processing
         result_image_ids = []
@@ -395,14 +395,18 @@ def roll_themes_test():
                 })
             
             # If we still don't have enough images, generate dummy ones
-            while len(image_info) < num_themes:
-                theme_id = len(image_info) + 1
-                image_info.append({
-                    'result_image_id': str(uuid.uuid4()),
-                    'theme_id': theme_id,
-                    'theme_name': f"Test Theme {theme_id}",
-                    'status': 'ready'
-                })
+            if len(image_info) < num_themes:
+                # Use get_themes to fill the remaining spots
+                remaining = num_themes - len(image_info)
+                remaining_themes = get_themes(user_id, remaining, album)
+                
+                for theme in remaining_themes:
+                    image_info.append({
+                        'result_image_id': str(uuid.uuid4()),
+                        'theme_id': theme["id"],
+                        'theme_name': theme["name"],
+                        'status': 'ready'
+                    })
             
             return jsonify({
                 'request_id': request_id,

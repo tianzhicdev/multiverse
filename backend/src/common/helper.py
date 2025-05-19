@@ -351,26 +351,72 @@ def init_user(user_id, reason="User initialization"):
         logger.error(f"Error in init_user: {str(e)}")
         return False
 
-def get_themes(user_id, num):
+def get_themes(user_id, num, album=None):
     """
     Get a specified number of themes from the database.
+    If an album is specified, themes will be fetched from that album first.
+    If there are not enough themes in the album, random themes will be used to fill the remainder.
     
     Args:
-        user_id: The user's ID (not used currently)
+        user_id: The user's ID
         num: Number of themes to return
+        album: (Optional) Album name to fetch themes from
         
     Returns:
         list: List of theme IDs and names from the database
     """
     try:
-        # Query to get theme IDs and names from the database
-        query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
-        result = execute_query(query, (num,))
+        themes = []
         
-        # Extract IDs and names from result
-        themes = [{"id": row[0], "name": row[1]} for row in result] if result else []
+        # If album is specified and not default, fetch themes from that album first
+        if album and album != "default":
+            # Query to get theme IDs and names from the album
+            album_query = """
+                SELECT t.id, t.name
+                FROM albums a
+                JOIN themes t ON a.theme_id = t.id
+                WHERE a.user_id = %s
+                ORDER BY RANDOM()
+            """
+            album_result = execute_query(album_query, (user_id,))
+            
+            # Extract IDs and names from album result
+            if album_result:
+                themes = [{"id": row[0], "name": row[1]} for row in album_result]
+                logger.info(f"Retrieved {len(themes)} themes from album '{album}'")
+            
+            # If we already have enough themes from the album, return them
+            if len(themes) >= int(num):
+                return themes[:int(num)]
+                
+            # If we don't have enough themes, get more random ones to fill the gap
+            remaining = int(num) - len(themes)
+            if remaining > 0:
+                # Exclude themes we already have
+                theme_ids = [theme["id"] for theme in themes]
+                if theme_ids:
+                    exclude_clause = "AND id NOT IN ({})".format(','.join(['%s'] * len(theme_ids)))
+                    random_query = f"SELECT id, name FROM themes WHERE 1=1 {exclude_clause} ORDER BY RANDOM() LIMIT %s"
+                    params = theme_ids + [remaining]
+                else:
+                    random_query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
+                    params = (remaining,)
+                    
+                random_result = execute_query(random_query, params)
+                if random_result:
+                    random_themes = [{"id": row[0], "name": row[1]} for row in random_result]
+                    themes.extend(random_themes)
+                    logger.info(f"Added {len(random_themes)} random themes to complement album themes")
+        else:
+            # If no album specified or it's the default album, get random themes
+            query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
+            result = execute_query(query, (num,))
+            
+            # Extract IDs and names from result
+            if result:
+                themes = [{"id": row[0], "name": row[1]} for row in result]
+                logger.info(f"Retrieved {len(themes)} random themes")
         
-        logger.info(f"Retrieved {len(themes)} themes from database")
         return themes
     except Exception as e:
         logger.error(f"Error in get_themes: {str(e)}")
