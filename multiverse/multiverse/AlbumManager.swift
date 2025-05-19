@@ -47,4 +47,6 @@ struct AlbumToggleView: View {
             AlbumListView()
         }
     }
-} 
+}
+
+ 

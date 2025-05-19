@@ -159,3 +159,75 @@ def register_routes(app):
         except Exception as e:
             logger.error(f"Error removing from album: {str(e)}")
             return jsonify({'error': f'Error removing from album: {str(e)}'}), 500
+            
+    @app.route('/api/create_theme', methods=['POST'])
+    def create_theme():
+        """
+        Create a new theme and add it to user's album
+        Required JSON body parameters:
+        - user_id: UUID of the user
+        - name: Name of the theme
+        - description: Description/content of the theme
+        """
+        try:
+            # Get request data
+            data = request.get_json()
+            
+            # Validate required fields
+            if not data:
+                return jsonify({'error': 'No data provided'}), 400
+                
+            user_id = data.get('user_id')
+            name = data.get('name')
+            description = data.get('description')
+            
+            if not user_id:
+                return jsonify({'error': 'User ID is required'}), 400
+            if not name:
+                return jsonify({'error': 'Theme name is required'}), 400
+            if not description:
+                return jsonify({'error': 'Theme description is required'}), 400
+                
+            # Validate UUID
+            try:
+                uuid.UUID(user_id)
+            except ValueError:
+                return jsonify({'error': 'Invalid UUID format'}), 400
+            
+            # Generate new UUID for theme
+            theme_id = str(uuid.uuid4())
+            
+            # Insert into themes table (note: description goes into the 'theme' column, not 'description')
+            theme_query = """
+                INSERT INTO themes (id, name, theme, public)
+                VALUES (%s, %s, %s, %s)
+            """
+            
+            theme_result = execute_query(theme_query, [theme_id, name, description, False])
+            
+            if theme_result != 1:
+                return jsonify({'error': 'Failed to create theme'}), 500
+                
+            # Insert into albums table
+            album_query = """
+                INSERT INTO albums (theme_id, user_id)
+                VALUES (%s, %s)
+            """
+            
+            album_result = execute_query(album_query, [theme_id, user_id])
+            
+            if album_result != 1:
+                # If album insertion fails, try to remove the theme
+                execute_query("DELETE FROM themes WHERE id = %s", [theme_id])
+                return jsonify({'error': 'Failed to add theme to album'}), 500
+                
+            return jsonify({
+                'theme_id': theme_id,
+                'name': name,
+                'description': description,
+                'message': 'Successfully created theme and added to album'
+            })
+                
+        except Exception as e:
+            logger.error(f"Error creating theme: {str(e)}")
+            return jsonify({'error': f'Error creating theme: {str(e)}'}), 500
