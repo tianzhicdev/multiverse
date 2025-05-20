@@ -49,6 +49,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		783191A92DDBFA800072EB6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 78EADD832DB45DB100B62FF8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 783191942DDBFA7E0072EB6C;
+			remoteInfo = "multiverse-shopping";
+		};
+		783191B32DDBFA800072EB6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 78EADD832DB45DB100B62FF8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 783191942DDBFA7E0072EB6C;
+			remoteInfo = "multiverse-shopping";
+		};
 		78EADDA02DB45DB300B62FF8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 78EADD832DB45DB100B62FF8 /* Project object */;
@@ -66,6 +80,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		783191952DDBFA7E0072EB6C /* multiverse-shopping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multiverse-shopping.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		787F78952DC3E56500D8D9C4 /* telescope.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = telescope.gif; sourceTree = "<group>"; };
 		787F789B2DC409FF00D8D9C4 /* searching1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = searching1.mp3; sourceTree = "<group>"; };
 		787F789C2DC409FF00D8D9C4 /* searching2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = searching2.mp3; sourceTree = "<group>"; };
@@ -85,6 +102,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		783191C02DDBFA800072EB6C /* Exceptions for "multiverse-shopping" folder in "multiverse-shopping" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 783191942DDBFA7E0072EB6C /* multiverse-shopping */;
+		};
 		78EADDB12DB45DB300B62FF8 /* Exceptions for "multiverse" folder in "multiverse" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -95,6 +119,24 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		783191962DDBFA7E0072EB6C /* multiverse-shopping */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				783191C02DDBFA800072EB6C /* Exceptions for "multiverse-shopping" folder in "multiverse-shopping" target */,
+			);
+			path = "multiverse-shopping";
+			sourceTree = "<group>";
+		};
+		783191AB2DDBFA800072EB6C /* multiverse-shoppingTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "multiverse-shoppingTests";
+			sourceTree = "<group>";
+		};
+		783191B52DDBFA800072EB6C /* multiverse-shoppingUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "multiverse-shoppingUITests";
+			sourceTree = "<group>";
+		};
 		78EADD8D2DB45DB200B62FF8 /* multiverse */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -116,6 +158,27 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		783191922DDBFA7E0072EB6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		783191A52DDBFA800072EB6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		783191AF2DDBFA800072EB6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		78EADD882DB45DB200B62FF8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -159,6 +222,9 @@
 				78EADD8D2DB45DB200B62FF8 /* multiverse */,
 				78EADDA22DB45DB300B62FF8 /* multiverseTests */,
 				78EADDAC2DB45DB300B62FF8 /* multiverseUITests */,
+				783191962DDBFA7E0072EB6C /* multiverse-shopping */,
+				783191AB2DDBFA800072EB6C /* multiverse-shoppingTests */,
+				783191B52DDBFA800072EB6C /* multiverse-shoppingUITests */,
 				78EADD8C2DB45DB200B62FF8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -169,6 +235,9 @@
 				78EADD8B2DB45DB200B62FF8 /* multiverse.app */,
 				78EADD9F2DB45DB300B62FF8 /* multiverseTests.xctest */,
 				78EADDA92DB45DB300B62FF8 /* multiverseUITests.xctest */,
+				783191952DDBFA7E0072EB6C /* multiverse-shopping.app */,
+				783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */,
+				783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -176,6 +245,74 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		783191942DDBFA7E0072EB6C /* multiverse-shopping */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 783191C12DDBFA800072EB6C /* Build configuration list for PBXNativeTarget "multiverse-shopping" */;
+			buildPhases = (
+				783191912DDBFA7E0072EB6C /* Sources */,
+				783191922DDBFA7E0072EB6C /* Frameworks */,
+				783191932DDBFA7E0072EB6C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				783191962DDBFA7E0072EB6C /* multiverse-shopping */,
+			);
+			name = "multiverse-shopping";
+			packageProductDependencies = (
+			);
+			productName = "multiverse-shopping";
+			productReference = 783191952DDBFA7E0072EB6C /* multiverse-shopping.app */;
+			productType = "com.apple.product-type.application";
+		};
+		783191A72DDBFA800072EB6C /* multiverse-shoppingTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 783191C22DDBFA800072EB6C /* Build configuration list for PBXNativeTarget "multiverse-shoppingTests" */;
+			buildPhases = (
+				783191A42DDBFA800072EB6C /* Sources */,
+				783191A52DDBFA800072EB6C /* Frameworks */,
+				783191A62DDBFA800072EB6C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				783191AA2DDBFA800072EB6C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				783191AB2DDBFA800072EB6C /* multiverse-shoppingTests */,
+			);
+			name = "multiverse-shoppingTests";
+			packageProductDependencies = (
+			);
+			productName = "multiverse-shoppingTests";
+			productReference = 783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		783191B12DDBFA800072EB6C /* multiverse-shoppingUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 783191C32DDBFA800072EB6C /* Build configuration list for PBXNativeTarget "multiverse-shoppingUITests" */;
+			buildPhases = (
+				783191AE2DDBFA800072EB6C /* Sources */,
+				783191AF2DDBFA800072EB6C /* Frameworks */,
+				783191B02DDBFA800072EB6C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				783191B42DDBFA800072EB6C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				783191B52DDBFA800072EB6C /* multiverse-shoppingUITests */,
+			);
+			name = "multiverse-shoppingUITests";
+			packageProductDependencies = (
+			);
+			productName = "multiverse-shoppingUITests";
+			productReference = 783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		78EADD8A2DB45DB200B62FF8 /* multiverse */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 78EADDB22DB45DB300B62FF8 /* Build configuration list for PBXNativeTarget "multiverse" */;
@@ -254,6 +391,17 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					783191942DDBFA7E0072EB6C = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					783191A72DDBFA800072EB6C = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 783191942DDBFA7E0072EB6C;
+					};
+					783191B12DDBFA800072EB6C = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 783191942DDBFA7E0072EB6C;
+					};
 					78EADD8A2DB45DB200B62FF8 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -284,11 +432,35 @@
 				78EADD8A2DB45DB200B62FF8 /* multiverse */,
 				78EADD9E2DB45DB300B62FF8 /* multiverseTests */,
 				78EADDA82DB45DB300B62FF8 /* multiverseUITests */,
+				783191942DDBFA7E0072EB6C /* multiverse-shopping */,
+				783191A72DDBFA800072EB6C /* multiverse-shoppingTests */,
+				783191B12DDBFA800072EB6C /* multiverse-shoppingUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		783191932DDBFA7E0072EB6C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		783191A62DDBFA800072EB6C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		783191B02DDBFA800072EB6C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		78EADD892DB45DB200B62FF8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -352,6 +524,27 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		783191912DDBFA7E0072EB6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		783191A42DDBFA800072EB6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		783191AE2DDBFA800072EB6C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		78EADD872DB45DB200B62FF8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -376,6 +569,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		783191AA2DDBFA800072EB6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 783191942DDBFA7E0072EB6C /* multiverse-shopping */;
+			targetProxy = 783191A92DDBFA800072EB6C /* PBXContainerItemProxy */;
+		};
+		783191B42DDBFA800072EB6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 783191942DDBFA7E0072EB6C /* multiverse-shopping */;
+			targetProxy = 783191B32DDBFA800072EB6C /* PBXContainerItemProxy */;
+		};
 		78EADDA12DB45DB300B62FF8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 78EADD8A2DB45DB200B62FF8 /* multiverse */;
@@ -389,6 +592,152 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		783191BA2DDBFA800072EB6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "multiverse-shopping/multiverse-shoppingDebug.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"multiverse-shopping/Preview Content\"";
+				DEVELOPMENT_TEAM = LYGZYH82G8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "multiverse-shopping/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tianzhistudio.multiverse-shopping";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		783191BB2DDBFA800072EB6C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "multiverse-shopping/multiverse_shopping.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"multiverse-shopping/Preview Content\"";
+				DEVELOPMENT_TEAM = LYGZYH82G8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "multiverse-shopping/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tianzhistudio.multiverse-shopping";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		783191BC2DDBFA800072EB6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LYGZYH82G8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tianzhic.multiverse-shoppingTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/multiverse-shopping.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/multiverse-shopping";
+			};
+			name = Debug;
+		};
+		783191BD2DDBFA800072EB6C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tianzhic.multiverse-shoppingTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/multiverse-shopping.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/multiverse-shopping";
+			};
+			name = Release;
+		};
+		783191BE2DDBFA800072EB6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LYGZYH82G8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tianzhic.multiverse-shoppingUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "multiverse-shopping";
+			};
+			name = Debug;
+		};
+		783191BF2DDBFA800072EB6C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tianzhic.multiverse-shoppingUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "multiverse-shopping";
+			};
+			name = Release;
+		};
 		78EADDB32DB45DB300B62FF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -655,6 +1004,33 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		783191C12DDBFA800072EB6C /* Build configuration list for PBXNativeTarget "multiverse-shopping" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				783191BA2DDBFA800072EB6C /* Debug */,
+				783191BB2DDBFA800072EB6C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		783191C22DDBFA800072EB6C /* Build configuration list for PBXNativeTarget "multiverse-shoppingTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				783191BC2DDBFA800072EB6C /* Debug */,
+				783191BD2DDBFA800072EB6C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		783191C32DDBFA800072EB6C /* Build configuration list for PBXNativeTarget "multiverse-shoppingUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				783191BE2DDBFA800072EB6C /* Debug */,
+				783191BF2DDBFA800072EB6C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		78EADD862DB45DB100B62FF8 /* Build configuration list for PBXProject "multiverse" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
