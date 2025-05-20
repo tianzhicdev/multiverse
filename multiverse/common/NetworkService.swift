@@ -2,8 +2,8 @@ import Foundation
 import os.log
 
 class NetworkService {
-    private let domain = "https://multiverse.for-better.biz"
-    // private let domain = "https://favorite-lions.metalseed.net"
+    // private let domain = "https://multiverse.for-better.biz"
+    private let domain = "https://favorite-lions.metalseed.net"
     static let shared = NetworkService()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
 
@@ -94,7 +94,7 @@ class NetworkService {
     func uploadToCreateAPI(sourceImageID: String, userID: String, userDescription: String, numThemes: Int, album: String = "default") async throws -> [String: Any] {
         let timestamp = Date()
         logger.info("Starting upload to /api/roll with userID: \(userID) at \(timestamp)")
-        let createURL = URL(string: "\(domain)/api/roll")!
+        let createURL = URL(string: "\(domain)/api/roll/test")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
         
@@ -132,6 +132,12 @@ class NetworkService {
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"album\"\r\n\r\n".data(using: .utf8)!)
         body.append(album.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add app_name
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"app_name\"\r\n\r\n".data(using: .utf8)!)
+        body.append(AppConfig.getAppName().data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
         
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)

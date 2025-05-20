@@ -63,23 +63,26 @@ struct CreditsBarView: View {
 
             Spacer()
             
-            Button(action: {
-                showStore = true
-            }) {
-                HStack {
-                    Image(systemName: "storefront.circle.fill")
-                        .foregroundColor(.white)
-                    Text("Store")
-                        .foregroundColor(.white)
+            // Only show store button if not in shopping app
+            if AppConfig.getAppName() != "multiverse_shopping" {
+                Button(action: {
+                    showStore = true
+                }) {
+                    HStack {
+                        Image(systemName: "storefront.circle.fill")
+                            .foregroundColor(.white)
+                        Text("Store")
+                            .foregroundColor(.white)
+                    }
+                    .padding(10)
+                    .background(Color(.green))
+                    .cornerRadius(8)
+                    .padding(.trailing, 5)
                 }
-                .padding(10)
-                .background(Color(.green))
-                .cornerRadius(8)
-                .padding(.trailing, 5)
-            }
-            
-            NavigationLink(destination: StoreView(), isActive: $showStore) {
-                EmptyView()
+                
+                NavigationLink(destination: StoreView(), isActive: $showStore) {
+                    EmptyView()
+                }
             }
         }
         // .padding(.horizontal)

@@ -277,7 +277,9 @@ def roll_themes():
         num_themes = request.form.get('num_themes')
         request_id = request.form.get('request_id', str(uuid.uuid4()))
         album = request.form.get('album', 'default')
+        app_name = request.form.get('app_name', 'multiverse')
         logger.info(f"Album: {album}")
+        logger.info(f"App Name: {app_name}")
         
         # Validate required parameters
         if not all([source_image_id, user_id]):

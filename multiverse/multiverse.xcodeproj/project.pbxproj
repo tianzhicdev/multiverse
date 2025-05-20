@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7809F6A52DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
+		7809F6A62DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
+		7809F6A72DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
+		7809F6A82DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
+		7809F6A92DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
+		7809F6AA2DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
 		783195822DDC1D8A0072EB6C /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7831955C2DDC1D8A0072EB6C /* searching2.mp3 */; };
 		783195832DDC1D8A0072EB6C /* ding3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195552DDC1D8A0072EB6C /* ding3.mp3 */; };
 		783195842DDC1D8A0072EB6C /* reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195592DDC1D8A0072EB6C /* reveal.mp3 */; };
@@ -32,7 +38,6 @@
 		783195982DDC1D8A0072EB6C /* BoxGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195662DDC1D8A0072EB6C /* BoxGridView.swift */; };
 		783195992DDC1D8A0072EB6C /* UploadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957F2DDC1D8A0072EB6C /* UploadItem.swift */; };
 		7831959A2DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195632DDC1D8A0072EB6C /* AlbumTheme.swift */; };
-		7831959B2DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */; };
 		7831959C2DDC1D8A0072EB6C /* Firework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831956B2DDC1D8A0072EB6C /* Firework.swift */; };
 		7831959D2DDC1D8A0072EB6C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195722DDC1D8A0072EB6C /* ImageCache.swift */; };
 		7831959E2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195682DDC1D8A0072EB6C /* CreditsBarView.swift */; };
@@ -62,7 +67,6 @@
 		783195B62DDC1D8A0072EB6C /* BoxGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195662DDC1D8A0072EB6C /* BoxGridView.swift */; };
 		783195B72DDC1D8A0072EB6C /* UploadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957F2DDC1D8A0072EB6C /* UploadItem.swift */; };
 		783195B82DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195632DDC1D8A0072EB6C /* AlbumTheme.swift */; };
-		783195B92DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */; };
 		783195BA2DDC1D8A0072EB6C /* Firework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831956B2DDC1D8A0072EB6C /* Firework.swift */; };
 		783195BB2DDC1D8A0072EB6C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195722DDC1D8A0072EB6C /* ImageCache.swift */; };
 		783195BC2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195682DDC1D8A0072EB6C /* CreditsBarView.swift */; };
@@ -106,7 +110,6 @@
 		783195E22DDC1D8A0072EB6C /* BoxGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195662DDC1D8A0072EB6C /* BoxGridView.swift */; };
 		783195E32DDC1D8A0072EB6C /* UploadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957F2DDC1D8A0072EB6C /* UploadItem.swift */; };
 		783195E42DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195632DDC1D8A0072EB6C /* AlbumTheme.swift */; };
-		783195E52DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */; };
 		783195E62DDC1D8A0072EB6C /* Firework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831956B2DDC1D8A0072EB6C /* Firework.swift */; };
 		783195E72DDC1D8A0072EB6C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195722DDC1D8A0072EB6C /* ImageCache.swift */; };
 		783195E82DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195682DDC1D8A0072EB6C /* CreditsBarView.swift */; };
@@ -150,7 +153,6 @@
 		7831960E2DDC1D8A0072EB6C /* BoxGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195662DDC1D8A0072EB6C /* BoxGridView.swift */; };
 		7831960F2DDC1D8A0072EB6C /* UploadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957F2DDC1D8A0072EB6C /* UploadItem.swift */; };
 		783196102DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195632DDC1D8A0072EB6C /* AlbumTheme.swift */; };
-		783196112DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */; };
 		783196122DDC1D8A0072EB6C /* Firework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831956B2DDC1D8A0072EB6C /* Firework.swift */; };
 		783196132DDC1D8A0072EB6C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195722DDC1D8A0072EB6C /* ImageCache.swift */; };
 		783196142DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195682DDC1D8A0072EB6C /* CreditsBarView.swift */; };
@@ -194,7 +196,6 @@
 		7831963A2DDC1D8A0072EB6C /* BoxGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195662DDC1D8A0072EB6C /* BoxGridView.swift */; };
 		7831963B2DDC1D8A0072EB6C /* UploadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957F2DDC1D8A0072EB6C /* UploadItem.swift */; };
 		7831963C2DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195632DDC1D8A0072EB6C /* AlbumTheme.swift */; };
-		7831963D2DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */; };
 		7831963E2DDC1D8A0072EB6C /* Firework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831956B2DDC1D8A0072EB6C /* Firework.swift */; };
 		7831963F2DDC1D8A0072EB6C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195722DDC1D8A0072EB6C /* ImageCache.swift */; };
 		783196402DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195682DDC1D8A0072EB6C /* CreditsBarView.swift */; };
@@ -252,7 +253,6 @@
 		783196742DDC1D8A0072EB6C /* BoxGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195662DDC1D8A0072EB6C /* BoxGridView.swift */; };
 		783196752DDC1D8A0072EB6C /* UploadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957F2DDC1D8A0072EB6C /* UploadItem.swift */; };
 		783196762DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195632DDC1D8A0072EB6C /* AlbumTheme.swift */; };
-		783196772DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */; };
 		783196782DDC1D8A0072EB6C /* Firework.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7831956B2DDC1D8A0072EB6C /* Firework.swift */; };
 		783196792DDC1D8A0072EB6C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195722DDC1D8A0072EB6C /* ImageCache.swift */; };
 		7831967A2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783195682DDC1D8A0072EB6C /* CreditsBarView.swift */; };
@@ -305,6 +305,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7809F6A42DDD277800270793 /* SharedAppBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppBase.swift; sourceTree = "<group>"; };
 		783191952DDBFA7E0072EB6C /* multiverse-shopping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multiverse-shopping.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -345,7 +346,6 @@
 		783195762DDC1D8A0072EB6C /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		783195772DDC1D8A0072EB6C /* LoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingManager.swift; sourceTree = "<group>"; };
 		783195792DDC1D8A0072EB6C /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
-		7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedMultiverseApp.swift; sourceTree = "<group>"; };
 		7831957B2DDC1D8A0072EB6C /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		7831957C2DDC1D8A0072EB6C /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
 		7831957D2DDC1D8A0072EB6C /* TermsAndConditionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsView.swift; sourceTree = "<group>"; };
@@ -506,7 +506,6 @@
 				783195762DDC1D8A0072EB6C /* LandingView.swift */,
 				783195772DDC1D8A0072EB6C /* LoadingManager.swift */,
 				783195792DDC1D8A0072EB6C /* NetworkService.swift */,
-				7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */,
 				7831957B2DDC1D8A0072EB6C /* SplashScreenView.swift */,
 				7831957C2DDC1D8A0072EB6C /* StoreView.swift */,
 				7831957D2DDC1D8A0072EB6C /* TermsAndConditionsView.swift */,
@@ -520,6 +519,7 @@
 		78EADD822DB45DB100B62FF8 = {
 			isa = PBXGroup;
 			children = (
+				7809F6A42DDD277800270793 /* SharedAppBase.swift */,
 				783195602DDC1D8A0072EB6C /* assets */,
 				783195812DDC1D8A0072EB6C /* common */,
 				78EADD8D2DB45DB200B62FF8 /* multiverse */,
@@ -877,6 +877,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783195902DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
+				7809F6A52DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783195912DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783195922DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195932DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
@@ -887,7 +888,6 @@
 				783195982DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				783195992DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				7831959A2DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				7831959B2DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */,
 				7831959C2DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				7831959D2DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				7831959E2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -914,6 +914,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7831966C2DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
+				7809F6A72DDD277800270793 /* SharedAppBase.swift in Sources */,
 				7831966D2DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				7831966E2DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				7831966F2DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
@@ -924,7 +925,6 @@
 				783196742DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				783196752DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				783196762DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				783196772DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */,
 				783196782DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783196792DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				7831967A2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -954,6 +954,7 @@
 				783196072DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783196082DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783196092DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
+				7809F6A62DDD277800270793 /* SharedAppBase.swift in Sources */,
 				7831960A2DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
 				7831960B2DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				7831960C2DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
@@ -961,7 +962,6 @@
 				7831960E2DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				7831960F2DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				783196102DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				783196112DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */,
 				783196122DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783196132DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783196142DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -988,6 +988,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783196322DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
+				7809F6A92DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783196332DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783196342DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783196352DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
@@ -998,7 +999,6 @@
 				7831963A2DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				7831963B2DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				7831963C2DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				7831963D2DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */,
 				7831963E2DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				7831963F2DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783196402DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -1025,6 +1025,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783195AE2DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
+				7809F6A82DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783195AF2DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783195B02DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195B12DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
@@ -1035,7 +1036,6 @@
 				783195B62DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				783195B72DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				783195B82DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				783195B92DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */,
 				783195BA2DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783195BB2DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783195BC2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -1066,13 +1066,13 @@
 				783195DC2DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195DD2DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
 				783195DE2DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
+				7809F6AA2DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783195DF2DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				783195E02DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
 				783195E12DDC1D8A0072EB6C /* ThemeModel.swift in Sources */,
 				783195E22DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				783195E32DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				783195E42DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				783195E52DDC1D8A0072EB6C /* SharedMultiverseApp.swift in Sources */,
 				783195E62DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783195E72DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783195E82DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
