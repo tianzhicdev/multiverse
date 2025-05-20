@@ -15,6 +15,17 @@ struct StoreView: View {
     @State private var showCreditsPopup = false
     var dismissAction: () -> Void = {}
     
+    // Custom product information dictionary
+    let productInfo: [String: (title: String, description: String)] = [
+        // Consumables
+        "photons100": (title: "Small Pack", description: "100 photons to explore the multiverse."),
+        "photons200": (title: "Medium Pack", description: "200 photons to explore the multiverse."),
+        "photons500": (title: "Large Pack", description: "500 photons to explore the multiverse."),
+        "photons1200": (title: "Mega Pack", description: "1200 photons to explore the multiverse."),
+        // Subscriptions
+        "premium": (title: "Premium Subscription", description: "Get 500 photons every month.")
+    ]
+    
     var body: some View {
         VStack {
             HStack {
@@ -69,7 +80,9 @@ struct StoreView: View {
                                     product: product,
                                     isPurchasing: isPurchasing && purchasingProductID == product.id,
                                     buttonText: "Subscribe",
-                                    action: { purchaseProduct(product) }
+                                    action: { purchaseProduct(product) },
+                                    customTitle: productInfo[product.id]?.title,
+                                    customDescription: productInfo[product.id]?.description
                                 )
                             }
                         }
@@ -91,12 +104,27 @@ struct StoreView: View {
                                     product: product,
                                     isPurchasing: isPurchasing && purchasingProductID == product.id,
                                     buttonText: "Buy Now",
-                                    action: { purchaseProduct(product) }
+                                    action: { purchaseProduct(product) },
+                                    customTitle: productInfo[product.id]?.title,
+                                    customDescription: productInfo[product.id]?.description
                                 )
                             }
                         }
                     }
                     .padding(.bottom)
+                    
+                    // Legal links
+                    VStack(spacing: 5) {
+                        Link("Terms of Service", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                            .font(.footnote)
+                            .foregroundColor(.blue)
+                        
+                        Link("Privacy Policy", destination: URL(string: "https://multiverseai.app/privacy-policy")!)
+                            .font(.footnote)
+                            .foregroundColor(.blue)
+                    }
+                    .padding(.top, 10)
+                    .padding(.bottom, 20)
                 }
             }
         }
@@ -315,13 +343,21 @@ struct ProductView: View {
     let isPurchasing: Bool
     let buttonText: String
     let action: () -> Void
+    let customTitle: String?
+    let customDescription: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(product.displayName)
+                Text(customTitle ?? product.displayName)
                 Image(systemName: "microbe.circle.fill")
-                                    .foregroundColor(.green)
+                    .foregroundColor(.green)
+            }
+            
+            if let description = customDescription {
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
             
             HStack {

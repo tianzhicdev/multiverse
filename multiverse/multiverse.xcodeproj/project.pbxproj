@@ -344,7 +344,6 @@
 		783195752DDC1D8A0072EB6C /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		783195762DDC1D8A0072EB6C /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		783195772DDC1D8A0072EB6C /* LoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingManager.swift; sourceTree = "<group>"; };
-		783195782DDC1D8A0072EB6C /* multiverseRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = multiverseRelease.entitlements; sourceTree = "<group>"; };
 		783195792DDC1D8A0072EB6C /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedMultiverseApp.swift; sourceTree = "<group>"; };
 		7831957B2DDC1D8A0072EB6C /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
@@ -506,7 +505,6 @@
 				783195752DDC1D8A0072EB6C /* Item.swift */,
 				783195762DDC1D8A0072EB6C /* LandingView.swift */,
 				783195772DDC1D8A0072EB6C /* LoadingManager.swift */,
-				783195782DDC1D8A0072EB6C /* multiverseRelease.entitlements */,
 				783195792DDC1D8A0072EB6C /* NetworkService.swift */,
 				7831957A2DDC1D8A0072EB6C /* SharedMultiverseApp.swift */,
 				7831957B2DDC1D8A0072EB6C /* SplashScreenView.swift */,
