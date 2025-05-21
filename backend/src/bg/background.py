@@ -81,7 +81,7 @@ def get_pending_requests():
             RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, ir.source_image_id, ir.user_description
         )
         SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.theme_id, pr.source_image_id, pr.user_description,
-               p.name as product_name, p.image as product_image, p.mime_type, pr.metadata
+               p.name as product_name, p.image as product_image, p.mime_type, p.metadata
         FROM pending_requests pr
         JOIN products p ON pr.theme_id = p.id
         ORDER BY pr.id
