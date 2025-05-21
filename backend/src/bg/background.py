@@ -121,6 +121,9 @@ def process_request(request):
             
             # Process the shopping image request with appropriate method
             # Save the processed image data to the database
+            # Convert metadata dictionary to JSON string
+            metadata_json = json.dumps(request['metadata']) if isinstance(request['metadata'], dict) else request['metadata']
+            
             query = """
                 INSERT INTO images (id, user_id, data, mime_type, metadata) 
                 VALUES (%s, %s, %s, %s, %s)
@@ -132,7 +135,7 @@ def process_request(request):
             execute_query(
                 query, 
                 (request['result_image_id'], request['user_id'], request['product_image'], 
-                 request['mime_type'], request['metadata'])
+                 request['mime_type'], metadata_json)
             )
             
             # Update the request status to ready
