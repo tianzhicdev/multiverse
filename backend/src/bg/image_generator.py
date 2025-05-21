@@ -414,11 +414,11 @@ def process_product_to_image(result_image_id, image_file, metadata):
         
         payload = {
             "key": os.environ.get("MODELSLAB_API_KEY", ""),  # API key should be stored in metadata or config
-            "prompt": metadata.get('prompt', ""),
+            "prompt": metadata.get('prompt', "wear the clothe"),
             "negative_prompt": "Low quality, unrealistic, bad cloth, warped cloth",
             "init_image": init_image_base64,
             "cloth_image": cloth_image_base64,
-            "cloth_type": metadata.get('cloth_type', 'upper_body'),
+            "cloth_type": metadata.get('type'),
             "guidance_scale": 7.5,
             "num_inference_steps": 21,
             "seed": None,
