@@ -111,9 +111,7 @@ def process_request_art(request):
         execute_query(engine_query, (engine, request['result_image_id']))
         # Update the request status to ready
         update_request_status(request['result_image_id'], 'ready')
-        
-        logger.info(f"Successfully processed art request {request['request_id']} with engine {engine}")
-        
+        logger.info(f"Art request {request['request_id']} completed successfully - result: {request['result_image_id']}, engine: {engine}")
     except Exception as e:
         logger.error(f"Error processing art request {request['request_id']}: {str(e)}")
         logger.debug(f"Stack trace:", exc_info=True)
