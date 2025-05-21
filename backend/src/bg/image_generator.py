@@ -382,3 +382,78 @@ def image_gen(prompt):
     except Exception as e:
         logger.error(f"Error in image_gen: {str(e)}")
         raise 
+
+
+def process_product_to_image(result_image_id, image_file, metadata):
+    """
+    Process a product image using ModelsLab fashion image editing API
+    
+    Args:
+        result_image_id: ID for the result image
+        image_file: BytesIO object containing source image data (init_image)
+        metadata: Theme metadata for processing instructions, contains cloth_image
+        
+    Returns:
+        tuple: (BytesIO object with the processed image, engine name)
+    """
+    logger.info(f"Processing product image for result_image_id: {result_image_id}")
+    
+    try:
+        # Get base64 encoding of the initial image
+        image_file.seek(0)
+        init_image_bytes = image_file.read()
+        init_image_base64 = base64.b64encode(init_image_bytes).decode('utf-8')
+        
+        # Get cloth image from metadata
+        cloth_image_base64 = metadata.get('image')
+        if not cloth_image_base64:
+            raise ValueError("No cloth image found in metadata")
+        
+        # Prepare API request
+        url = "https://modelslab.com/api/v6/image_editing/fashion"
+        
+        payload = {
+            "key": os.environ.get("MODELSLAB_API_KEY", ""),  # API key should be stored in metadata or config
+            "prompt": metadata.get('prompt', ""),
+            "negative_prompt": "Low quality, unrealistic, bad cloth, warped cloth",
+            "init_image": init_image_base64,
+            "cloth_image": cloth_image_base64,
+            "cloth_type": metadata.get('cloth_type', 'upper_body'),
+            "guidance_scale": 7.5,
+            "num_inference_steps": 21,
+            "seed": None,
+            "base64": False,  # Changed to false to get URL instead of base64
+            "webhook": None,
+            "track_id": None
+        }
+        
+        logger.info(f"ModelsLab payload: {payload}")
+        # Make API request
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        
+        # Process response
+        result_data = response.json()
+        logger.info(f"ModelsLab response: {result_data}")
+        
+        # Check if the response contains the 'output' array with the image URL
+        if 'status' in result_data and result_data['status'] == 'success' and 'output' in result_data and result_data['output']:
+            # Get the image URL from the output array
+            image_url = result_data['output'][0]
+            
+            # Download the image from the URL
+            image_response = requests.get(image_url)
+            image_response.raise_for_status()
+            
+            # Create a BytesIO object from the downloaded image
+            result = BytesIO(image_response.content)
+            result.seek(0)
+            
+            return result, "modelslab_fashion"
+        else:
+            raise ValueError(f"API response missing expected data: {result_data}")
+        
+    except Exception as e:
+        logger.error(f"Error in product image processing: {str(e)}")
+        logger.debug(f"Stack trace:", exc_info=True)
+        raise

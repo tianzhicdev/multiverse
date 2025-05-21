@@ -17,6 +17,9 @@ import json
 from src.common.helper import process_image_to_image, image_gen
 from queue import Queue
 import queue
+import requests
+import base64
+from src.bg.image_generator import process_product_to_image
 
 # Configure logger using centralized logging config
 logger = setup_logger(__name__, f'background.log')
@@ -119,28 +122,6 @@ def process_request_art(request):
         # Update the request status to retry
         update_request_status(request['result_image_id'], 'retry')
 
-def process_product_to_image(result_image_id, image_file, metadata):
-    """
-    Dummy function for product image processing
-    
-    Args:
-        result_image_id: ID for the result image
-        image_file: BytesIO object containing source image data
-        metadata: Theme metadata for processing instructions
-        
-    Returns:
-        tuple: (BytesIO object with the processed image, engine name)
-    """
-    # This is a placeholder - will be implemented in the future
-    logger.info(f"Dummy product processing for result_image_id: {result_image_id}")
-    
-    # For now, just return the original image
-    result = BytesIO()
-    image_file.seek(0)
-    result.write(image_file.read())
-    result.seek(0)
-    
-    return result, "product_dummy_engine"
 
 def process_request_product(request):
     """Process a product image request."""
