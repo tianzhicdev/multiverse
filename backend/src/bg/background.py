@@ -71,13 +71,13 @@ def get_pending_requests():
                 "app_name": "multiverse"
             })
     
-    # Get multiverse-shopping requests
+    # Get multiverse_shopping requests
     shopping_query = """
         WITH pending_requests AS (
             UPDATE image_requests ir
             SET status = 'pending'
             WHERE ir.status IN ('new', 'retry')
-            AND ir.app_name = 'multiverse-shopping'
+            AND ir.app_name = 'multiverse_shopping'
             RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, ir.source_image_id, ir.user_description
         )
         SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.theme_id, pr.source_image_id, pr.user_description,
@@ -87,7 +87,7 @@ def get_pending_requests():
         ORDER BY pr.id
     """
     shopping_results = execute_query_with_results(shopping_query)
-    logger.info(f"Found and updated {len(shopping_results) if shopping_results else 0} pending multiverse-shopping requests")
+    logger.info(f"Found and updated {len(shopping_results) if shopping_results else 0} pending multiverse_shopping requests")
     
     # Add shopping results to pending_requests
     if shopping_results:
@@ -104,7 +104,7 @@ def get_pending_requests():
                 "product_image": row[8],
                 "mime_type": row[9],
                 "metadata": row[10],
-                "app_name": "multiverse-shopping"
+                "app_name": "multiverse_shopping"
             })
     
     return pending_requests
@@ -115,7 +115,7 @@ def process_request(request):
         logger.info(f"Processing request {request['request_id']} for app {request.get('app_name', 'unknown')}")
         
         # Process based on app_name
-        if request.get('app_name') == "multiverse-shopping":
+        if request.get('app_name') == "multiverse_shopping":
             # Process shopping request
             logger.info(f"Processing shopping request for product: {request['product_name']}")
             
