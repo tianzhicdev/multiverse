@@ -73,7 +73,8 @@ def dump_products_to_db():
                         'image': image_data,
                         'product_id': product_category.name,
                         'category': product_category.name,
-                        'mime_type': 'image/jpeg'
+                        'mime_type': 'image/jpeg',
+                        'type': 'upper_body'
                     }
                     
                     

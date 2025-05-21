@@ -29,6 +29,7 @@ CREATE TABLE themes (
     name TEXT NOT NULL,
     theme TEXT NOT NULL,
     metadata JSONB,
+    type TEXT NOT NULL,
     public BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
