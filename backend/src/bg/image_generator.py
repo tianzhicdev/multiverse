@@ -422,7 +422,7 @@ def process_product_to_image(result_image_id, image_file, metadata):
             "guidance_scale": 7.5,
             "num_inference_steps": 21,
             "seed": None,
-            "base64": False,  # Changed to false to get URL instead of base64
+            "base64": True,  # Changed to false to get URL instead of base64
             "webhook": None,
             "track_id": None
         }
