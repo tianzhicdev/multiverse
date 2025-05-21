@@ -78,10 +78,12 @@ def get_pending_requests():
             SET status = 'pending'
             WHERE ir.status IN ('new', 'retry')
             AND ir.app_name = 'multiverse-shopping'
-            RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.product_name, ir.product_image, ir.mime_type, ir.metadata
+            RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.product_id, ir.metadata
         )
-        SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.product_name, pr.product_image, pr.mime_type, pr.metadata
+        SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, 
+               p.name as product_name, p.image as product_image, p.mime_type, pr.metadata
         FROM pending_requests pr
+        JOIN products p ON pr.product_id = p.id
         ORDER BY pr.id
     """
     shopping_results = execute_query_with_results(shopping_query)
