@@ -12,7 +12,7 @@ from src.common.db import execute_query
 
 def dump_products_to_db():
     """
-    Scan the amazon directory and import products to the database.
+    Scan the amazon directory and import products as themes to the database.
     Each product can be either:
     1. A directory within a category containing link.txt and 1.jpg
     2. Files directly in the category directory
@@ -25,11 +25,11 @@ def dump_products_to_db():
     product_count = 0
     
     try:
-        print("Starting product import to database...")
+        print("Starting product import to database as themes...")
         
-        # First, check which products already exist in the database
-        existing_products = execute_query("SELECT name FROM products")
-        existing_product_names = [product[0] for product in existing_products] if existing_products else []
+        # First, check which themes already exist in the database
+        existing_themes = execute_query("SELECT name FROM themes")
+        existing_theme_names = [theme[0] for theme in existing_themes] if existing_themes else []
         
         # Amazon directory path
         amazon_dir = Path('amazon')
@@ -65,38 +65,34 @@ def dump_products_to_db():
                     
                     # Read image file
                     with open(image_file, 'rb') as f:
-                        image_data = f.read()
+                        image_data = base64.b64encode(f.read()).decode('utf-8')
                     
                     # Prepare metadata
                     metadata = {
                         'link': link,
-                        'full_name': full_name,
+                        'image': image_data,
                         'product_id': product_category.name,
-                        'category': product_category.name
+                        'category': product_category.name,
+                        'mime_type': 'image/jpeg'
                     }
                     
-                    # Skip if product already exists
-                    if short_name in existing_product_names:
-                        print(f"Product already exists: {short_name}")
-                        continue
                     
-                    # Insert the new product
+                    # Insert the new theme
                     query = """
-                        INSERT INTO products (id, name, image, metadata, mime_type, created_at)
-                        VALUES (%s, %s, %s, %s, %s, NOW())
+                        INSERT INTO themes (id, name, theme, metadata, created_at)
+                        VALUES (%s, %s, %s, %s, NOW())
                     """
                     execute_query(
                         query, 
                         (
                             str(uuid.uuid4()), 
                             short_name, 
-                            image_data, 
-                            json.dumps(metadata), 
-                            'image/jpeg'
+                            full_name, 
+                            json.dumps(metadata)
                         )
                     )
                     product_count += 1
-                    print(f"Added product: {short_name}")
+                    print(f"Added theme: {short_name}")
                 except Exception as e:
                     print(f"Error processing {product_category}: {str(e)}")
                 
@@ -132,44 +128,44 @@ def dump_products_to_db():
                     
                     # Read image file
                     with open(image_file, 'rb') as f:
-                        image_data = f.read()
+                        image_data = base64.b64encode(f.read()).decode('utf-8')
                     
                     # Prepare metadata
                     metadata = {
                         'link': link,
-                        'full_name': full_name,
+                        'image': image_data,
                         'product_id': product_dir.name,
-                        'category': product_category.name
+                        'category': product_category.name,
+                        'mime_type': 'image/jpeg'
                     }
                     
-                    # Skip if product already exists
-                    if short_name in existing_product_names:
-                        print(f"Product already exists: {short_name}")
+                    # Skip if theme already exists
+                    if short_name in existing_theme_names:
+                        print(f"Theme already exists: {short_name}")
                         continue
                     
-                    # Insert the new product
+                    # Insert the new theme
                     query = """
-                        INSERT INTO products (id, name, image, metadata, mime_type, created_at)
-                        VALUES (%s, %s, %s, %s, %s, NOW())
+                        INSERT INTO themes (id, name, theme, metadata, created_at)
+                        VALUES (%s, %s, %s, %s, NOW())
                     """
                     execute_query(
                         query, 
                         (
                             str(uuid.uuid4()), 
                             short_name, 
-                            image_data, 
-                            json.dumps(metadata), 
-                            'image/jpeg'
+                            full_name, 
+                            json.dumps(metadata)
                         )
                     )
                     product_count += 1
-                    print(f"Added product: {short_name}")
+                    print(f"Added theme: {short_name}")
         
-        print(f"Product import completed. Added {product_count} new products.")
+        print(f"Product import completed. Added {product_count} new themes.")
         return product_count
         
     except Exception as e:
-        print(f"Error importing products to database: {str(e)}")
+        print(f"Error importing products as themes: {str(e)}")
         raise
 
 if __name__ == "__main__":
