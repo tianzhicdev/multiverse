@@ -33,12 +33,15 @@ def update_request_status(result_image_id, status):
 
 def get_pending_requests():
     """Get all image requests with 'new' or 'retry' status and update them to 'pending'."""
-    # Use a transaction to atomically select and update requests
-    query = """
+    pending_requests = []
+    
+    # Get multiverse requests
+    multiverse_query = """
         WITH pending_requests AS (
             UPDATE image_requests ir
             SET status = 'pending'
             WHERE ir.status IN ('new', 'retry')
+            AND ir.app_name = 'multiverse'
             RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, ir.source_image_id, ir.user_description
         )
         SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.theme_id, 
@@ -48,13 +51,12 @@ def get_pending_requests():
         LEFT JOIN images i ON pr.source_image_id = i.id
         ORDER BY pr.id
     """
-    results = execute_query_with_results(query)
-    logger.info(f"Found and updated {len(results) if results else 0} pending requests")
+    multiverse_results = execute_query_with_results(multiverse_query)
+    logger.info(f"Found and updated {len(multiverse_results) if multiverse_results else 0} pending multiverse requests")
     
-    # Convert results to a list of objects
-    pending_requests = []
-    if results:
-        for row in results:
+    # Add multiverse results to pending_requests
+    if multiverse_results:
+        for row in multiverse_results:
             pending_requests.append({
                 "id": row[0],
                 "request_id": row[1],
@@ -65,7 +67,39 @@ def get_pending_requests():
                 "theme": row[6],
                 "source_image_id": row[7],
                 "source_image_data": row[8],
-                "user_description": row[9]
+                "user_description": row[9],
+                "app_name": "multiverse"
+            })
+    
+    # Get multiverse-shopping requests
+    shopping_query = """
+        WITH pending_requests AS (
+            UPDATE image_requests ir
+            SET status = 'pending'
+            WHERE ir.status IN ('new', 'retry')
+            AND ir.app_name = 'multiverse-shopping'
+            RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.product_name, ir.product_image, ir.mime_type, ir.metadata
+        )
+        SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.product_name, pr.product_image, pr.mime_type, pr.metadata
+        FROM pending_requests pr
+        ORDER BY pr.id
+    """
+    shopping_results = execute_query_with_results(shopping_query)
+    logger.info(f"Found and updated {len(shopping_results) if shopping_results else 0} pending multiverse-shopping requests")
+    
+    # Add shopping results to pending_requests
+    if shopping_results:
+        for row in shopping_results:
+            pending_requests.append({
+                "id": row[0],
+                "request_id": row[1],
+                "result_image_id": row[2],
+                "user_id": row[3],
+                "product_name": row[4],
+                "product_image": row[5],
+                "mime_type": row[6],
+                "metadata": row[7],
+                "app_name": "multiverse-shopping"
             })
     
     return pending_requests
@@ -73,43 +107,71 @@ def get_pending_requests():
 def process_request(request):
     """Process a single image request."""
     try:
-        logger.info(f"Processing request {request['request_id']}")
+        logger.info(f"Processing request {request['request_id']} for app {request.get('app_name', 'unknown')}")
         
-        # Create a BytesIO object from the source image data
-        image_file = BytesIO(request['source_image_data'])
-        
-        # Process the image with the selected theme
-        result_image, engine = process_image_to_image(
-            request['result_image_id'],
-            image_file,
-            request['user_description'],
-            request['theme']
-        )
-        
-        # Save the processed image data to the database
-        result_data = result_image.getvalue()
-        metadata = {"theme_id": request['theme_id'], "process_method": "process_image_to_image", "engine": engine}
-        metadata_json = json.dumps(metadata)
-        
-        query = """
-            INSERT INTO images (id, user_id, data, mime_type, metadata) 
-            VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (id) DO UPDATE 
-            SET data = EXCLUDED.data, 
-                mime_type = EXCLUDED.mime_type,
-                metadata = EXCLUDED.metadata
-        """
-        execute_query(
-            query, 
-            (request['result_image_id'], request['user_id'], result_data, 'image/jpeg', metadata_json)
-        )
-        # Update the database with engine and finished timestamp
-        engine_query = "UPDATE image_requests SET engine = %s, finished_at = CURRENT_TIMESTAMP WHERE result_image_id = %s"
-        execute_query(engine_query, (engine, request['result_image_id']))
-        # Update the request status to ready
-        update_request_status(request['result_image_id'], 'ready')
-        
-        logger.info(f"Successfully processed request {request['request_id']} with engine {engine}")
+        # Process based on app_name
+        if request.get('app_name') == "multiverse-shopping":
+            # Process shopping request
+            logger.info(f"Processing shopping request for product: {request['product_name']}")
+            
+            # Process the shopping image request with appropriate method
+            # Save the processed image data to the database
+            query = """
+                INSERT INTO images (id, user_id, data, mime_type, metadata) 
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (id) DO UPDATE 
+                SET data = EXCLUDED.data, 
+                    mime_type = EXCLUDED.mime_type,
+                    metadata = EXCLUDED.metadata
+            """
+            execute_query(
+                query, 
+                (request['result_image_id'], request['user_id'], request['product_image'], 
+                 request['mime_type'], request['metadata'])
+            )
+            
+            # Update the request status to ready
+            update_request_status(request['result_image_id'], 'ready')
+            
+            logger.info(f"Successfully processed shopping request {request['request_id']}")
+            
+        else:
+            # Process standard multiverse request
+            # Create a BytesIO object from the source image data
+            image_file = BytesIO(request['source_image_data'])
+            
+            # Process the image with the selected theme
+            result_image, engine = process_image_to_image(
+                request['result_image_id'],
+                image_file,
+                request['user_description'],
+                request['theme']
+            )
+            
+            # Save the processed image data to the database
+            result_data = result_image.getvalue()
+            metadata = {"theme_id": request['theme_id'], "process_method": "process_image_to_image", "engine": engine}
+            metadata_json = json.dumps(metadata)
+            
+            query = """
+                INSERT INTO images (id, user_id, data, mime_type, metadata) 
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (id) DO UPDATE 
+                SET data = EXCLUDED.data, 
+                    mime_type = EXCLUDED.mime_type,
+                    metadata = EXCLUDED.metadata
+            """
+            execute_query(
+                query, 
+                (request['result_image_id'], request['user_id'], result_data, 'image/jpeg', metadata_json)
+            )
+            # Update the database with engine and finished timestamp
+            engine_query = "UPDATE image_requests SET engine = %s, finished_at = CURRENT_TIMESTAMP WHERE result_image_id = %s"
+            execute_query(engine_query, (engine, request['result_image_id']))
+            # Update the request status to ready
+            update_request_status(request['result_image_id'], 'ready')
+            
+            logger.info(f"Successfully processed request {request['request_id']} with engine {engine}")
         
     except Exception as e:
         logger.error(f"Error processing request {request['request_id']}: {str(e)}")

@@ -421,3 +421,34 @@ def get_themes(user_id, num, album=None):
     except Exception as e:
         logger.error(f"Error in get_themes: {str(e)}")
         return []
+
+def get_products(user_id, num, album=None):
+    """
+    Get a specified number of products from the database in random order.
+    For now, ignores the user_id and album parameters.
+    
+    Args:
+        user_id: The user's ID (ignored for now)
+        num: Number of products to return
+        album: (Optional) Album name (ignored for now)
+        
+    Returns:
+        list: List of product IDs and names from the database
+    """
+    try:
+        # Query to get random products
+        query = "SELECT id, name FROM products ORDER BY RANDOM() LIMIT %s"
+        result = execute_query(query, (num,))
+        
+        # Extract IDs and names from result
+        if result:
+            products = [{"id": row[0], "name": row[1]} for row in result]
+            logger.info(f"Retrieved {len(products)} random products")
+            return products
+        else:
+            logger.warning("No products found in the database")
+            return []
+    
+    except Exception as e:
+        logger.error(f"Error in get_products: {str(e)}")
+        return []

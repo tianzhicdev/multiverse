@@ -11,6 +11,7 @@ from src.common.db import execute_query
 import json
 from src.common.helper import get_themes
 from src.common.helper import image_gen
+from src.common.helper import get_products
 from src.web.purchase import register_routes
 from src.web.download import register_routes as register_download_routes
 from src.web.metrics import register_routes as register_metrics_routes
@@ -290,8 +291,12 @@ def roll_themes():
         if not use_credits(user_id, 0, "Credit check for roll themes"):
             return jsonify({'error': 'User not found or invalid account'}), 404
             
-        # Step 2: Get themes for user
-        selected_themes = get_themes(user_id, num_themes, album)
+        # Step 2: Get themes or products for user based on app_name
+        if app_name == "multiverse_shopping":
+            selected_themes = get_products(user_id, num_themes, album)
+        else:
+            # Default to themes for multiverse app
+            selected_themes = get_themes(user_id, num_themes, album)
         
         # Step 3: Create result_image_ids for async processing
         result_image_ids = []
@@ -303,8 +308,8 @@ def roll_themes():
             # Record the processing request in the database
             query = """
                 INSERT INTO image_requests 
-                (request_id, source_image_id, theme_id, result_image_id, user_id, user_description, status, created_at) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+                (request_id, source_image_id, theme_id, result_image_id, user_id, user_description, status, app_name, created_at) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
             """
             execute_query(query, (
                 request_id, 
@@ -313,7 +318,8 @@ def roll_themes():
                 result_image_id, 
                 user_id,
                 user_description,
-                'new'
+                'new',
+                app_name
             ))
             
             result_image_ids.append(result_image_id)
@@ -351,7 +357,9 @@ def roll_themes_test():
         num_themes = int(request.form.get('num_themes', 9))
         source_image_id = request.form.get('source_image_id', str(uuid.uuid4()))
         album = request.form.get('album', 'default')
+        app_name = request.form.get('app_name', 'multiverse')
         logger.info(f"Album: {album}")
+        logger.info(f"App Name: {app_name}")
         
         # Validate user_id
         if not user_id:
@@ -398,15 +406,20 @@ def roll_themes_test():
             
             # If we still don't have enough images, generate dummy ones
             if len(image_info) < num_themes:
-                # Use get_themes to fill the remaining spots
+                # Use get_themes or get_products to fill the remaining spots based on app_name
                 remaining = num_themes - len(image_info)
-                remaining_themes = get_themes(user_id, remaining, album)
                 
-                for theme in remaining_themes:
+                if app_name == "multiverse_shopping":
+                    from src.common.helper import get_products
+                    remaining_items = get_products(user_id, remaining, album)
+                else:
+                    remaining_items = get_themes(user_id, remaining, album)
+                
+                for item in remaining_items:
                     image_info.append({
                         'result_image_id': str(uuid.uuid4()),
-                        'theme_id': theme["id"],
-                        'theme_name': theme["name"],
+                        'theme_id': item["id"],
+                        'theme_name': item["name"],
                         'status': 'ready'
                     })
             

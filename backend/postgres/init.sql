@@ -43,6 +43,7 @@ CREATE TABLE image_requests (
     user_description TEXT,
     status TEXT NOT NULL,
     engine TEXT,
+    app_name TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     finished_at TIMESTAMP WITH TIME ZONE
 );
@@ -64,7 +65,14 @@ CREATE TABLE albums (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (theme_id, user_id)
 );
-
+CREATE TABLE products (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    image BYTEA NOT NULL,
+    metadata JSONB,
+    mime_type TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 
 
