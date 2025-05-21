@@ -78,7 +78,7 @@ def get_pending_requests():
             SET status = 'pending'
             WHERE ir.status IN ('new', 'retry')
             AND ir.app_name = 'multiverse-shopping'
-            RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.product_id, ir.metadata
+            RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, ir.metadata
         )
         SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, 
                p.name as product_name, p.image as product_image, p.mime_type, pr.metadata
