@@ -80,8 +80,8 @@ def dump_products_to_db():
                     
                     # Insert the new theme
                     query = """
-                        INSERT INTO themes (id, name, theme, metadata, created_at)
-                        VALUES (%s, %s, %s, %s, NOW())
+                        INSERT INTO themes (id, name, theme, type, metadata, created_at)
+                        VALUES (%s, %s, %s, %s, %s, NOW())
                     """
                     execute_query(
                         query, 
@@ -89,6 +89,7 @@ def dump_products_to_db():
                             str(uuid.uuid4()), 
                             short_name, 
                             full_name, 
+                            'product',
                             json.dumps(metadata)
                         )
                     )
