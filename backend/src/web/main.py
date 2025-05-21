@@ -291,7 +291,7 @@ def roll_themes():
             return jsonify({'error': 'User not found or invalid account'}), 404
             
         # Step 2: Get themes for user
-        selected_themes = get_themes(user_id, num_themes, album)
+        selected_themes = get_themes(user_id, num_themes, album, app_name)
         
         # Step 3: Create result_image_ids for async processing
         result_image_ids = []

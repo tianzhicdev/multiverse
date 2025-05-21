@@ -351,16 +351,21 @@ def init_user(user_id, reason="User initialization"):
         logger.error(f"Error in init_user: {str(e)}")
         return False
 
-def get_themes(user_id, num, album=None):
+def get_themes(user_id, num, album=None, app_name=None):
     """
     Get a specified number of themes from the database.
     If an album is specified, themes will be fetched from that album first.
     If there are not enough themes in the album, random themes will be used to fill the remainder.
     
+    The album and app_name parameters are independent:
+    - album controls where themes are fetched from (user's album or random)
+    - app_name determines theme type filtering (art or product)
+    
     Args:
         user_id: The user's ID
         num: Number of themes to return
         album: (Optional) Album name to fetch themes from
+        app_name: (Optional) Application name - "multiverse" for art themes, "multiverse_shopping" for product themes
         
     Returns:
         list: List of theme IDs and names from the database
@@ -368,22 +373,43 @@ def get_themes(user_id, num, album=None):
     try:
         themes = []
         
+        # Determine theme type based on app_name
+        theme_type = None
+        if app_name == "multiverse":
+            theme_type = "art"
+            logger.info(f"Filtering themes by type: 'art' for app '{app_name}'")
+        elif app_name == "multiverse_shopping":
+            theme_type = "product"
+            logger.info(f"Filtering themes by type: 'product' for app '{app_name}'")
+        else:
+            logger.info(f"No theme type filtering applied for app '{app_name}'")
+            raise ValueError(f"Invalid app name: '{app_name}'")
+        
         # If album is specified and not default, fetch themes from that album first
         if album and album != "default":
             # Query to get theme IDs and names from the album
-            album_query = """
+            params = [user_id]
+            where_clause = "a.user_id = %s"
+            
+            if theme_type:
+                where_clause += " AND t.type = %s"
+                params.append(theme_type)
+                logger.info(f"Applying theme type filter '{theme_type}' to album query")
+                
+            album_query = f"""
                 SELECT t.id, t.name
                 FROM albums a
                 JOIN themes t ON a.theme_id = t.id
-                WHERE a.user_id = %s
+                WHERE {where_clause}
                 ORDER BY RANDOM()
             """
-            album_result = execute_query(album_query, (user_id,))
+            
+            album_result = execute_query(album_query, params)
             
             # Extract IDs and names from album result
             if album_result:
                 themes = [{"id": row[0], "name": row[1]} for row in album_result]
-                logger.info(f"Retrieved {len(themes)} themes from album '{album}'")
+                logger.info(f"Retrieved {len(themes)} themes from album '{album}'" + (f" with type '{theme_type}'" if theme_type else ""))
             
             # If we already have enough themes from the album, return them
             if len(themes) >= int(num):
@@ -394,28 +420,47 @@ def get_themes(user_id, num, album=None):
             if remaining > 0:
                 # Exclude themes we already have
                 theme_ids = [theme["id"] for theme in themes]
+                
+                # Build the query with appropriate filters
+                where_clauses = ["1=1"]
+                params = []
+                
                 if theme_ids:
-                    exclude_clause = "AND id NOT IN ({})".format(','.join(['%s'] * len(theme_ids)))
-                    random_query = f"SELECT id, name FROM themes WHERE 1=1 {exclude_clause} ORDER BY RANDOM() LIMIT %s"
-                    params = theme_ids + [remaining]
-                else:
-                    random_query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
-                    params = (remaining,)
+                    exclude_clause = "id NOT IN ({})".format(','.join(['%s'] * len(theme_ids)))
+                    where_clauses.append(exclude_clause)
+                    params.extend(theme_ids)
+                
+                if theme_type:
+                    where_clauses.append("type = %s")
+                    params.append(theme_type)
+                    logger.info(f"Applying theme type filter '{theme_type}' to supplementary random themes query")
+                
+                params.append(remaining)
+                
+                random_query = f"SELECT id, name FROM themes WHERE {' AND '.join(where_clauses)} ORDER BY RANDOM() LIMIT %s"
                     
                 random_result = execute_query(random_query, params)
                 if random_result:
                     random_themes = [{"id": row[0], "name": row[1]} for row in random_result]
                     themes.extend(random_themes)
-                    logger.info(f"Added {len(random_themes)} random themes to complement album themes")
+                    logger.info(f"Added {len(random_themes)} random themes to complement album themes" + (f" with type '{theme_type}'" if theme_type else ""))
         else:
             # If no album specified or it's the default album, get random themes
-            query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
-            result = execute_query(query, (num,))
+            if theme_type:
+                query = "SELECT id, name FROM themes WHERE type = %s ORDER BY RANDOM() LIMIT %s"
+                params = (theme_type, num)
+                logger.info(f"Getting random themes with type filter '{theme_type}'")
+            else:
+                query = "SELECT id, name FROM themes ORDER BY RANDOM() LIMIT %s"
+                params = (num,)
+                logger.info("Getting random themes with no type filter")
+            
+            result = execute_query(query, params)
             
             # Extract IDs and names from result
             if result:
                 themes = [{"id": row[0], "name": row[1]} for row in result]
-                logger.info(f"Retrieved {len(themes)} random themes")
+                logger.info(f"Retrieved {len(themes)} random themes" + (f" with type '{theme_type}'" if theme_type else ""))
         
         return themes
     except Exception as e:

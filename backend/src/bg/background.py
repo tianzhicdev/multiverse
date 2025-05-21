@@ -42,7 +42,8 @@ def get_pending_requests():
             RETURNING ir.id, ir.request_id, ir.result_image_id, ir.user_id, ir.theme_id, ir.source_image_id, ir.user_description
         )
         SELECT pr.id, pr.request_id, pr.result_image_id, pr.user_id, pr.theme_id, 
-               t.name as theme_name, t.theme, pr.source_image_id, i.data, pr.user_description
+               t.name as theme_name, t.theme, t.type as theme_type, t.metadata as theme_metadata, 
+               pr.source_image_id, i.data, pr.user_description
         FROM pending_requests pr
         LEFT JOIN themes t ON pr.theme_id = t.id
         LEFT JOIN images i ON pr.source_image_id = i.id
@@ -63,17 +64,19 @@ def get_pending_requests():
                 "theme_id": row[4],
                 "theme_name": row[5],
                 "theme": row[6],
-                "source_image_id": row[7],
-                "source_image_data": row[8],
-                "user_description": row[9]
+                "theme_type": row[7],
+                "theme_metadata": row[8],
+                "source_image_id": row[9],
+                "source_image_data": row[10],
+                "user_description": row[11]
             })
     
     return pending_requests
 
-def process_request(request):
-    """Process a single image request."""
+def process_request_art(request):
+    """Process an art image request."""
     try:
-        logger.info(f"Processing request {request['request_id']}")
+        logger.info(f"Processing art request {request['request_id']}")
         
         # Create a BytesIO object from the source image data
         image_file = BytesIO(request['source_image_data'])
@@ -109,14 +112,94 @@ def process_request(request):
         # Update the request status to ready
         update_request_status(request['result_image_id'], 'ready')
         
-        logger.info(f"Successfully processed request {request['request_id']} with engine {engine}")
+        logger.info(f"Successfully processed art request {request['request_id']} with engine {engine}")
         
     except Exception as e:
-        logger.error(f"Error processing request {request['request_id']}: {str(e)}")
+        logger.error(f"Error processing art request {request['request_id']}: {str(e)}")
         logger.debug(f"Stack trace:", exc_info=True)
         
         # Update the request status to retry
         update_request_status(request['result_image_id'], 'retry')
+
+def process_product_to_image(result_image_id, image_file, metadata):
+    """
+    Dummy function for product image processing
+    
+    Args:
+        result_image_id: ID for the result image
+        image_file: BytesIO object containing source image data
+        metadata: Theme metadata for processing instructions
+        
+    Returns:
+        tuple: (BytesIO object with the processed image, engine name)
+    """
+    # This is a placeholder - will be implemented in the future
+    logger.info(f"Dummy product processing for result_image_id: {result_image_id}")
+    
+    # For now, just return the original image
+    result = BytesIO()
+    image_file.seek(0)
+    result.write(image_file.read())
+    result.seek(0)
+    
+    return result, "product_dummy_engine"
+
+def process_request_product(request):
+    """Process a product image request."""
+    try:
+        logger.info(f"Processing product request {request['request_id']}")
+        
+        # Create a BytesIO object from the source image data
+        image_file = BytesIO(request['source_image_data'])
+        
+        # Process the image with the product processing function
+        result_image, engine = process_product_to_image(
+            request['result_image_id'],
+            image_file,
+            request['theme_metadata']
+        )
+        
+        # Save the processed image data to the database
+        result_data = result_image.getvalue()
+        metadata = {"theme_id": request['theme_id'], "process_method": "process_product_to_image", "engine": engine}
+        metadata_json = json.dumps(metadata)
+        
+        query = """
+            INSERT INTO images (id, user_id, data, mime_type, metadata) 
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO UPDATE 
+            SET data = EXCLUDED.data, 
+                mime_type = EXCLUDED.mime_type,
+                metadata = EXCLUDED.metadata
+        """
+        execute_query(
+            query, 
+            (request['result_image_id'], request['user_id'], result_data, 'image/jpeg', metadata_json)
+        )
+        # Update the database with engine and finished timestamp
+        engine_query = "UPDATE image_requests SET engine = %s, finished_at = CURRENT_TIMESTAMP WHERE result_image_id = %s"
+        execute_query(engine_query, (engine, request['result_image_id']))
+        # Update the request status to ready
+        update_request_status(request['result_image_id'], 'ready')
+        
+        logger.info(f"Successfully processed product request {request['request_id']} with engine {engine}")
+        
+    except Exception as e:
+        logger.error(f"Error processing product request {request['request_id']}: {str(e)}")
+        logger.debug(f"Stack trace:", exc_info=True)
+        
+        # Update the request status to retry
+        update_request_status(request['result_image_id'], 'retry')
+
+def process_request(request):
+    """Route the image request to the appropriate processing function based on theme type."""
+    theme_type = request.get('theme_type', 'art')  # Default to art if no type specified
+    
+    if theme_type == 'product':
+        process_request_product(request)
+    else:
+        # Default to art processing for any other type
+        process_request_art(request)
 
 def worker():
     """Worker thread that continuously processes requests from the queue."""
