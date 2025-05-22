@@ -406,8 +406,12 @@ def process_product_to_image(result_image_id, image_file, metadata):
             raise ValueError("No cloth image found in metadata")
         
         # Decode cloth image from base64
-        cloth_image_bytes = base64.b64decode(cloth_image_base64)
-        cloth_image = BytesIO(cloth_image_bytes)
+        if isinstance(cloth_image_base64, str):
+            # cloth_image is already a base64 string, pass it directly
+            cloth_image = cloth_image_base64
+        else:
+            # Convert to BytesIO if it's binary
+            cloth_image = BytesIO(cloth_image_base64)
         
         # Get cloth type from metadata
         cloth_type = metadata.get('type')
@@ -416,6 +420,18 @@ def process_product_to_image(result_image_id, image_file, metadata):
         
         # Use the models_fashion helper function
         result = models_fashion(image_file, cloth_image, cloth_type)
+        
+        # Ensure result is a BytesIO object with binary data
+        if isinstance(result, str):
+            if result.startswith('data:image'):
+                # Extract base64 content from data URL
+                _, base64_content = result.split(',', 1)
+                image_bytes = base64.b64decode(base64_content)
+                result = BytesIO(image_bytes)
+            else:
+                # Assume it's a base64 string without data URL prefix
+                image_bytes = base64.b64decode(result)
+                result = BytesIO(image_bytes)
         
         return result, "modelslab_fashion"
         

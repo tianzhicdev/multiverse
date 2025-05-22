@@ -19,11 +19,32 @@ def models_fashion(person_image, cloth_image, cloth_type):
         cloth_type: Type of clothing (e.g., 'upper_body', 'lower_body', 'dress')
         
     Returns:
-        BytesIO: A file-like object containing the processed image
+        BytesIO: A file-like object containing the processed image (in binary format)
     """
     logger.info(f"Processing fashion image with cloth type: {cloth_type}")
     
     try:
+        # Handle if person_image or cloth_image is base64 encoded string
+        if isinstance(person_image, str) and person_image.startswith('data:image'):
+            # Extract base64 content from data URL
+            _, base64_content = person_image.split(',', 1)
+            init_image_bytes = base64.b64decode(base64_content)
+            person_image = BytesIO(init_image_bytes)
+        elif isinstance(person_image, str):
+            # Assume it's a base64 string without data URL prefix
+            init_image_bytes = base64.b64decode(person_image)
+            person_image = BytesIO(init_image_bytes)
+            
+        if isinstance(cloth_image, str) and cloth_image.startswith('data:image'):
+            # Extract base64 content from data URL
+            _, base64_content = cloth_image.split(',', 1)
+            cloth_bytes = base64.b64decode(base64_content)
+            cloth_image = BytesIO(cloth_bytes)
+        elif isinstance(cloth_image, str):
+            # Assume it's a base64 string without data URL prefix
+            cloth_bytes = base64.b64decode(cloth_image)
+            cloth_image = BytesIO(cloth_bytes)
+        
         # Get base64 encoding of the person image
         person_image.seek(0)
         init_image_bytes = person_image.read()
@@ -65,6 +86,15 @@ def models_fashion(person_image, cloth_image, cloth_type):
                 # Get the image URL from the output array
                 image_url = result_data['output'][0]
                 
+                # Check if the response is already a base64 string
+                if image_url.startswith('data:image'):
+                    # Extract base64 content from data URL
+                    _, base64_content = image_url.split(',', 1)
+                    image_bytes = base64.b64decode(base64_content)
+                    result = BytesIO(image_bytes)
+                    result.seek(0)
+                    return result
+                
                 # Download the image from the URL
                 image_response = requests.get(image_url)
                 image_response.raise_for_status()
@@ -99,6 +129,15 @@ def models_fashion(person_image, cloth_image, cloth_type):
                             # Get the image URL from the output array
                             image_url = fetch_data['output'][0]
                             
+                            # Check if the response is already a base64 string
+                            if image_url.startswith('data:image'):
+                                # Extract base64 content from data URL
+                                _, base64_content = image_url.split(',', 1)
+                                image_bytes = base64.b64decode(base64_content)
+                                result = BytesIO(image_bytes)
+                                result.seek(0)
+                                return result
+                            
                             # Download the image from the URL
                             image_response = requests.get(image_url)
                             image_response.raise_for_status()
@@ -112,7 +151,7 @@ def models_fashion(person_image, cloth_image, cloth_type):
                         elif fetch_data.get('status') == 'processing':
                             # Still processing, wait and retry
                             logger.info("Image still processing, waiting before next attempt")
-                            time.sleep(10)  # Wait 3 seconds between polls
+                            time.sleep(10)  # Wait 10 seconds between polls
                             continue
                         
                         else:
