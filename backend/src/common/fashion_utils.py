@@ -87,10 +87,11 @@ def models_fashion(person_image, cloth_image, cloth_type):
                 
                 # Poll the fetch URL with retries
                 max_retries = 10
+                api_key = os.environ.get("MODELSLAB_API_KEY", "")
                 for attempt in range(max_retries):
                     try:
                         logger.info(f"Polling for result, attempt {attempt+1}/{max_retries}")
-                        fetch_response = requests.post(fetch_url)
+                        fetch_response = requests.post(fetch_url, json={"key": api_key})
                         fetch_response.raise_for_status()
                         fetch_data = fetch_response.json()
                         
