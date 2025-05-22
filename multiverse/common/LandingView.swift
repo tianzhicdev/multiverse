@@ -26,6 +26,8 @@ struct LandingView: View {
     @State private var showBoxGrid = false
     
     @State private var showStore = false
+    
+    @State private var showFittingRoom = false
 
     @State private var searchText: String = ""
     @State private var selectedStyle: String = "Default"
@@ -41,6 +43,20 @@ struct LandingView: View {
         NavigationStack {
             VStack {
                 HeaderView()
+                
+                if AppConfig.getAppName() == "multiverse_shopping" {
+                    Button(action: {
+                        // Navigate to FittingRoomView
+                        showFittingRoom = true
+                    }) {
+                        Text("Upload My Own")
+                            .padding(8)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .padding(.bottom, 10)
+                }
                 
                 PhotosPicker(selection: $selectedImage, matching: .images) {
                     if let imageData = imageData,
@@ -235,6 +251,9 @@ struct LandingView: View {
                         )
                     }
             }
+            .navigationDestination(isPresented: $showFittingRoom) {
+                FittingRoomView()
+            }
             .onAppear {
                 // Ensure the UserManager is initialized when the view appears
                 print("User ID: \(UserManager.shared.getCurrentUserID())")
@@ -260,7 +279,7 @@ struct LandingView: View {
                     sourceImageID: sourceImageID,
                     userID: UserManager.shared.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 9,
+                    numThemes: 1,
                     album: albumManager.getCurrentAlbumMode()
                 )
                 

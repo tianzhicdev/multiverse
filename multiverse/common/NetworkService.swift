@@ -744,4 +744,71 @@ class NetworkService {
             throw error
         }
     }
+    
+    func applyFashion(personImage: Data, clothImage: Data, type: String, userID: String) async throws -> Data {
+        logger.info("Applying fashion with type: \(type) for userID: \(userID)")
+        
+        let fashionURL = URL(string: "\(domain)/api/fashion")!
+        var request = URLRequest(url: fashionURL)
+        request.httpMethod = "POST"
+        
+        // Create multipart form data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add user_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append(userID.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add clothing type
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
+        body.append(type.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add person image
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"person_image\"; filename=\"person.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(personImage)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add cloth image
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"cloth_image\"; filename=\"cloth.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(clothImage)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Track the fashion try-on action
+            self.trackUserAction(userID: userID, action: "fashion_tryon")
+            
+            // Return the image data directly
+            return data
+        } catch {
+            logger.error("Failed to apply fashion: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 

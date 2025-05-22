@@ -10,6 +10,7 @@ from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 import tempfile
 from PIL import Image 
 import replicate
+from src.common.helper import models_fashion
 
 # Configure logger using centralized logging config
 logger = setup_logger(__name__, 'image_generator.log')
@@ -399,59 +400,24 @@ def process_product_to_image(result_image_id, image_file, metadata):
     logger.info(f"Processing product image for result_image_id: {result_image_id}")
     
     try:
-        # Get base64 encoding of the initial image
-        image_file.seek(0)
-        init_image_bytes = image_file.read()
-        init_image_base64 = base64.b64encode(init_image_bytes).decode('utf-8')
-        
         # Get cloth image from metadata
         cloth_image_base64 = metadata.get('image')
         if not cloth_image_base64:
             raise ValueError("No cloth image found in metadata")
         
-        # Prepare API request
-        url = "https://modelslab.com/api/v6/image_editing/fashion"
+        # Decode cloth image from base64
+        cloth_image_bytes = base64.b64decode(cloth_image_base64)
+        cloth_image = BytesIO(cloth_image_bytes)
         
-        payload = {
-            "key": os.environ.get("MODELSLAB_API_KEY", ""),  # API key should be stored in metadata or config
-            "prompt": metadata.get('prompt', "wear the clothe"),
-            "negative_prompt": "Low quality, unrealistic, bad cloth, warped cloth",
-            "init_image": init_image_base64,
-            "cloth_image": cloth_image_base64,
-            "cloth_type": metadata.get('type'),
-            "guidance_scale": 7.5,
-            "num_inference_steps": 21,
-            "seed": None,
-            "base64": True,  # Changed to false to get URL instead of base64
-            "webhook": None,
-            "track_id": None
-        }
+        # Get cloth type from metadata
+        cloth_type = metadata.get('type')
+        if not cloth_type:
+            cloth_type = "upper_body"  # Default to upper body if not specified
         
-        logger.info(f"ModelsLab payload: {payload}")
-        # Make API request
-        response = requests.post(url, json=payload)
-        response.raise_for_status()
+        # Use the models_fashion helper function
+        result = models_fashion(image_file, cloth_image, cloth_type)
         
-        # Process response
-        result_data = response.json()
-        logger.info(f"ModelsLab response: {result_data}")
-        
-        # Check if the response contains the 'output' array with the image URL
-        if 'status' in result_data and result_data['status'] == 'success' and 'output' in result_data and result_data['output']:
-            # Get the image URL from the output array
-            image_url = result_data['output'][0]
-            
-            # Download the image from the URL
-            image_response = requests.get(image_url)
-            image_response.raise_for_status()
-            
-            # Create a BytesIO object from the downloaded image
-            result = BytesIO(image_response.content)
-            result.seek(0)
-            
-            return result, "modelslab_fashion"
-        else:
-            raise ValueError(f"API response missing expected data: {result_data}")
+        return result, "modelslab_fashion"
         
     except Exception as e:
         logger.error(f"Error in product image processing: {str(e)}")

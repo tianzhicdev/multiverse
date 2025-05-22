@@ -3,7 +3,7 @@ from flask import request, send_file, jsonify
 import logging
 from src.common.logging_config import setup_logger
 import os
-from src.common.helper import use_credits
+from src.common.helper import use_credits, models_fashion
 from src.common.helper import init_user
 from io import BytesIO  
 import uuid
@@ -519,6 +519,61 @@ def initialize_user():
     except Exception as e:
         logger.error(f"Error initializing user: {str(e)}")
         return jsonify({'error': f'Error initializing user: {str(e)}'}), 500
+
+@app.route('/api/fashion', methods=['POST'])
+def apply_fashion():
+    """
+    Apply clothing from one image to a person in another image.
+    
+    Request should contain:
+    - 'person_image': The image file of the person
+    - 'cloth_image': The image file of the clothing
+    - 'type': The type of clothing ('upper_body', 'lower_body', 'dress', etc.)
+    - 'user_id': The user ID for credit tracking
+    
+    Returns:
+        The processed image
+    """
+    try:
+        # Check for required files
+        if 'person_image' not in request.files or 'cloth_image' not in request.files:
+            return jsonify({'error': 'Missing required files: person_image and/or cloth_image'}), 400
+            
+        # Get the type parameter (default to upper_body if not provided)
+        cloth_type = request.form.get('type', 'upper_body')
+        
+        # Get user_id for credit tracking
+        user_id = request.form.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+            
+        # Check if user has enough credits
+        # This requires 1 credit for fashion editing
+        if not use_credits(user_id, 1, reason='Fashion image processing'):
+            return jsonify({'error': 'Insufficient credits'}), 402
+            
+        # Get the image files
+        person_image = request.files['person_image']
+        cloth_image = request.files['cloth_image']
+        
+        # Convert to BytesIO objects
+        person_bytes = BytesIO(person_image.read())
+        cloth_bytes = BytesIO(cloth_image.read())
+        
+        # Process the images
+        result_image = models_fashion(person_bytes, cloth_bytes, cloth_type)
+        
+        # Send the processed image
+        result_image.seek(0)
+        return send_file(
+            result_image,
+            mimetype='image/jpeg',
+            as_attachment=False
+        )
+            
+    except Exception as e:
+        logger.error(f"Error in fashion image processing: {str(e)}")
+        return jsonify({'error': f'Error in fashion image processing: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)

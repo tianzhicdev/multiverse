@@ -13,6 +13,12 @@
 		7809F6A82DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
 		7809F6A92DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
 		7809F6AA2DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
+		7809F6AC2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
+		7809F6AD2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
+		7809F6AE2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
+		7809F6AF2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
+		7809F6B02DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
+		7809F6B12DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
 		783195822DDC1D8A0072EB6C /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7831955C2DDC1D8A0072EB6C /* searching2.mp3 */; };
 		783195832DDC1D8A0072EB6C /* ding3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195552DDC1D8A0072EB6C /* ding3.mp3 */; };
 		783195842DDC1D8A0072EB6C /* reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195592DDC1D8A0072EB6C /* reveal.mp3 */; };
@@ -306,6 +312,7 @@
 
 /* Begin PBXFileReference section */
 		7809F6A42DDD277800270793 /* SharedAppBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppBase.swift; sourceTree = "<group>"; };
+		7809F6AB2DDEA07300270793 /* FittingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FittingRoomView.swift; sourceTree = "<group>"; };
 		783191952DDBFA7E0072EB6C /* multiverse-shopping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multiverse-shopping.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -519,6 +526,7 @@
 		78EADD822DB45DB100B62FF8 = {
 			isa = PBXGroup;
 			children = (
+				7809F6AB2DDEA07300270793 /* FittingRoomView.swift */,
 				7809F6A42DDD277800270793 /* SharedAppBase.swift */,
 				783195602DDC1D8A0072EB6C /* assets */,
 				783195812DDC1D8A0072EB6C /* common */,
@@ -904,6 +912,7 @@
 				783195A92DDC1D8A0072EB6C /* FireworkParticle.swift in Sources */,
 				783195AA2DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783195AB2DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
+				7809F6AF2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783195AC2DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
 				783195AD2DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
@@ -941,6 +950,7 @@
 				783196852DDC1D8A0072EB6C /* FireworkParticle.swift in Sources */,
 				783196862DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783196872DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
+				7809F6AE2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783196882DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
 				783196892DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
@@ -962,6 +972,7 @@
 				7831960E2DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				7831960F2DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				783196102DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
+				7809F6B12DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783196122DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783196132DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783196142DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -1016,6 +1027,7 @@
 				7831964C2DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				7831964D2DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
 				7831964E2DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
+				7809F6B02DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				7831964F2DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1052,6 +1064,7 @@
 				783195C72DDC1D8A0072EB6C /* FireworkParticle.swift in Sources */,
 				783195C82DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783195C92DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
+				7809F6AC2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783195CA2DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
 				783195CB2DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
@@ -1075,6 +1088,7 @@
 				783195E42DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
 				783195E62DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783195E72DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
+				7809F6AD2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783195E82DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
 				783195E92DDC1D8A0072EB6C /* Item.swift in Sources */,
 				783195EA2DDC1D8A0072EB6C /* ImageGenerationService.swift in Sources */,
