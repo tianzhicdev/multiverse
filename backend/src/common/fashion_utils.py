@@ -86,7 +86,7 @@ def models_fashion(person_image, cloth_image, cloth_type):
                 time.sleep(eta)
                 
                 # Poll the fetch URL with retries
-                max_retries = 10
+                max_retries = 100
                 api_key = os.environ.get("MODELSLAB_API_KEY", "")
                 for attempt in range(max_retries):
                     try:
@@ -112,7 +112,7 @@ def models_fashion(person_image, cloth_image, cloth_type):
                         elif fetch_data.get('status') == 'processing':
                             # Still processing, wait and retry
                             logger.info("Image still processing, waiting before next attempt")
-                            time.sleep(3)  # Wait 3 seconds between polls
+                            time.sleep(10)  # Wait 3 seconds between polls
                             continue
                         
                         else:
