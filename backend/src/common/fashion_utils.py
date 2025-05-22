@@ -95,7 +95,23 @@ def models_fashion(person_image, cloth_image, cloth_type):
                     result.seek(0)
                     return result
                 
-                # Download the image from the URL
+                # Special handling for URLs that end with .base64
+                if image_url.endswith('.base64'):
+                    # These URLs return base64 text, not binary data
+                    logger.info(f"Fetching base64 content from URL: {image_url}")
+                    response = requests.get(image_url)
+                    response.raise_for_status()
+                    
+                    # Decode the base64 content to binary
+                    base64_content = response.text
+                    image_bytes = base64.b64decode(base64_content)
+                    
+                    # Create a BytesIO object with the binary data
+                    result = BytesIO(image_bytes)
+                    result.seek(0)
+                    return result
+                
+                # Download the image from the URL (normal case)
                 image_response = requests.get(image_url)
                 image_response.raise_for_status()
                 
@@ -129,6 +145,7 @@ def models_fashion(person_image, cloth_image, cloth_type):
                             # Get the image URL from the output array
                             image_url = fetch_data['output'][0]
                             logger.info(f"Image URL: {image_url}")
+                            
                             # Check if the response is already a base64 string
                             if image_url.startswith('data:image'):
                                 # Extract base64 content from data URL
@@ -138,7 +155,24 @@ def models_fashion(person_image, cloth_image, cloth_type):
                                 result.seek(0)
                                 return result
                             
-                            # Download the image from the URL
+                            # Special handling for URLs that end with .base64
+                            if image_url.endswith('.base64'):
+                                # These URLs return base64 text, not binary data
+                                logger.info(f"Fetching base64 content from URL: {image_url}")
+                                response = requests.get(image_url)
+                                logger.info(f"Image Response: {response}")
+                                response.raise_for_status()
+                                
+                                # Decode the base64 content to binary
+                                base64_content = response.text
+                                image_bytes = base64.b64decode(base64_content)
+                                
+                                # Create a BytesIO object with the binary data
+                                result = BytesIO(image_bytes)
+                                result.seek(0)
+                                return result
+                            
+                            # Download the image from the URL (normal case)
                             image_response = requests.get(image_url)
                             image_response.raise_for_status()
                             
