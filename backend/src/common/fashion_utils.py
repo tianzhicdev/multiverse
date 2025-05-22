@@ -1,6 +1,7 @@
 import os
 import base64
 import requests
+import time
 from io import BytesIO
 import logging
 from src.common.logging_config import setup_logger
@@ -58,22 +59,76 @@ def models_fashion(person_image, cloth_image, cloth_type):
         # Process response
         result_data = response.json()
         
-        # Check if the response contains the 'output' array with the image URL
-        if 'status' in result_data and result_data['status'] == 'success' and 'output' in result_data and result_data['output']:
-            # Get the image URL from the output array
-            image_url = result_data['output'][0]
+        # Handle both immediate success and processing status
+        if 'status' in result_data:
+            if result_data['status'] == 'success' and 'output' in result_data and result_data['output']:
+                # Get the image URL from the output array
+                image_url = result_data['output'][0]
+                
+                # Download the image from the URL
+                image_response = requests.get(image_url)
+                image_response.raise_for_status()
+                
+                # Create a BytesIO object from the downloaded image
+                result = BytesIO(image_response.content)
+                result.seek(0)
+                
+                return result
             
-            # Download the image from the URL
-            image_response = requests.get(image_url)
-            image_response.raise_for_status()
+            elif result_data['status'] == 'processing' and 'fetch_result' in result_data:
+                # Handle asynchronous processing
+                fetch_url = result_data.get('fetch_result')
+                eta = result_data.get('eta', 5)  # Default to 5 seconds if not provided
+                
+                logger.info(f"Image processing in background, will fetch from {fetch_url} after {eta} seconds")
+                
+                # Wait for the suggested time before polling
+                time.sleep(eta)
+                
+                # Poll the fetch URL with retries
+                max_retries = 10
+                for attempt in range(max_retries):
+                    try:
+                        logger.info(f"Polling for result, attempt {attempt+1}/{max_retries}")
+                        fetch_response = requests.get(fetch_url)
+                        fetch_response.raise_for_status()
+                        fetch_data = fetch_response.json()
+                        
+                        if fetch_data.get('status') == 'success' and 'output' in fetch_data and fetch_data['output']:
+                            # Get the image URL from the output array
+                            image_url = fetch_data['output'][0]
+                            
+                            # Download the image from the URL
+                            image_response = requests.get(image_url)
+                            image_response.raise_for_status()
+                            
+                            # Create a BytesIO object from the downloaded image
+                            result = BytesIO(image_response.content)
+                            result.seek(0)
+                            
+                            return result
+                        
+                        elif fetch_data.get('status') == 'processing':
+                            # Still processing, wait and retry
+                            logger.info("Image still processing, waiting before next attempt")
+                            time.sleep(3)  # Wait 3 seconds between polls
+                            continue
+                        
+                        else:
+                            # Unexpected response
+                            raise ValueError(f"Unexpected fetch response: {fetch_data}")
+                    
+                    except Exception as e:
+                        logger.warning(f"Fetch attempt {attempt+1} failed: {str(e)}")
+                        time.sleep(3)  # Wait before retrying
+                
+                # If we get here, all retries have failed
+                raise TimeoutError("Maximum retries reached while polling for fashion image result")
             
-            # Create a BytesIO object from the downloaded image
-            result = BytesIO(image_response.content)
-            result.seek(0)
-            
-            return result
+            else:
+                raise ValueError(f"Unexpected API response: {result_data}")
         else:
-            raise ValueError(f"API response missing expected data: {result_data}")
+            raise ValueError(f"API response missing status field: {result_data}")
         
     except Exception as e:
         logger.error(f"Error in fashion image processing: {str(e)}")
