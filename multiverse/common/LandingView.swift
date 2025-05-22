@@ -279,7 +279,7 @@ struct LandingView: View {
                     sourceImageID: sourceImageID,
                     userID: UserManager.shared.getCurrentUserID(),
                     userDescription: user_description,
-                    numThemes: 1,
+                    numThemes: 9,
                     album: albumManager.getCurrentAlbumMode()
                 )
                 
