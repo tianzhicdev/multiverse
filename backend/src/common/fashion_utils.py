@@ -128,7 +128,7 @@ def models_fashion(person_image, cloth_image, cloth_type):
                         if fetch_data.get('status') == 'success' and 'output' in fetch_data and fetch_data['output']:
                             # Get the image URL from the output array
                             image_url = fetch_data['output'][0]
-                            
+                            logger.info(f"Image URL: {image_url}")
                             # Check if the response is already a base64 string
                             if image_url.startswith('data:image'):
                                 # Extract base64 content from data URL
