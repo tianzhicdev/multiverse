@@ -3,7 +3,8 @@ from flask import request, send_file, jsonify
 import logging
 from src.common.logging_config import setup_logger
 import os
-from src.common.helper import use_credits, models_fashion
+from src.common.helper import use_credits
+from src.common.fashion_utils import models_fashion
 from src.common.helper import init_user
 from io import BytesIO  
 import uuid

@@ -10,7 +10,7 @@ from pyrate_limiter import Duration, Rate, Limiter, BucketFullException
 import tempfile
 from PIL import Image 
 import replicate
-from src.common.helper import models_fashion
+from src.common.fashion_utils import models_fashion
 
 # Configure logger using centralized logging config
 logger = setup_logger(__name__, 'image_generator.log')
