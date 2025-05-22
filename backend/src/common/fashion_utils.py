@@ -90,7 +90,7 @@ def models_fashion(person_image, cloth_image, cloth_type):
                 for attempt in range(max_retries):
                     try:
                         logger.info(f"Polling for result, attempt {attempt+1}/{max_retries}")
-                        fetch_response = requests.get(fetch_url)
+                        fetch_response = requests.post(fetch_url)
                         fetch_response.raise_for_status()
                         fetch_data = fetch_response.json()
                         
