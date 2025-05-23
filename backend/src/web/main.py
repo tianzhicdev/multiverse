@@ -17,6 +17,7 @@ from src.web.download import register_routes as register_download_routes
 from src.web.metrics import register_routes as register_metrics_routes
 from src.web.device_logger import register_routes as register_device_logger_routes
 from src.web.album import register_routes as register_album_routes
+import base64
 
 
 FLASK_PORT = os.getenv('FLASK_PORT')
@@ -628,7 +629,7 @@ def upload_fashion_theme():
         
         # Create metadata with image data
         metadata = {
-            'image': image_data.hex(),  # Store binary image as hex string
+            'image': base64.b64encode(image_data).decode('utf-8'),  # Store binary image as base64 string
             'mime_type': 'image/jpeg',
             'type': cloth_type
         }
@@ -707,7 +708,7 @@ def upload_fashion_theme_from_id():
         
         # Create metadata with image data
         metadata = {
-            'image': image_data.hex(),  # Store binary image as hex string
+            'image': base64.b64encode(image_data).decode('utf-8'),  # Store binary image as base64 string
             'mime_type': mime_type,
             'type': cloth_type,
             'source_image_id': image_id  # Store reference to original image
