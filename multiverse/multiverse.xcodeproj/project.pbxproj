@@ -19,6 +19,12 @@
 		7809F6BD2DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
 		7809F6BE2DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
 		7809F6BF2DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
+		7809F6C12DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
+		7809F6C22DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
+		7809F6C32DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
+		7809F6C42DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
+		7809F6C52DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
+		7809F6C62DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
 		783195822DDC1D8A0072EB6C /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7831955C2DDC1D8A0072EB6C /* searching2.mp3 */; };
 		783195832DDC1D8A0072EB6C /* ding3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195552DDC1D8A0072EB6C /* ding3.mp3 */; };
 		783195842DDC1D8A0072EB6C /* reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195592DDC1D8A0072EB6C /* reveal.mp3 */; };
@@ -313,6 +319,7 @@
 /* Begin PBXFileReference section */
 		7809F6B22DE0115D00270793 /* FittingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FittingRoomView.swift; sourceTree = "<group>"; };
 		7809F6B32DE0115D00270793 /* SharedAppBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppBase.swift; sourceTree = "<group>"; };
+		7809F6C02DE0D99900270793 /* UploadImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadImageView.swift; sourceTree = "<group>"; };
 		783191952DDBFA7E0072EB6C /* multiverse-shopping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multiverse-shopping.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -489,6 +496,7 @@
 		783195812DDC1D8A0072EB6C /* common */ = {
 			isa = PBXGroup;
 			children = (
+				7809F6C02DE0D99900270793 /* UploadImageView.swift */,
 				7809F6B22DE0115D00270793 /* FittingRoomView.swift */,
 				7809F6B32DE0115D00270793 /* SharedAppBase.swift */,
 				783195612DDC1D8A0072EB6C /* AlbumListView.swift */,
@@ -901,6 +909,7 @@
 				7831959D2DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				7831959E2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
 				7831959F2DDC1D8A0072EB6C /* Item.swift in Sources */,
+				7809F6C12DE0D99900270793 /* UploadImageView.swift in Sources */,
 				783195A02DDC1D8A0072EB6C /* ImageGenerationService.swift in Sources */,
 				783195A12DDC1D8A0072EB6C /* NetworkService.swift in Sources */,
 				783195A22DDC1D8A0072EB6C /* FullImageView.swift in Sources */,
@@ -938,6 +947,7 @@
 				783196782DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783196792DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				7831967A2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
+				7809F6C22DE0D99900270793 /* UploadImageView.swift in Sources */,
 				7831967B2DDC1D8A0072EB6C /* Item.swift in Sources */,
 				7831967C2DDC1D8A0072EB6C /* ImageGenerationService.swift in Sources */,
 				7831967D2DDC1D8A0072EB6C /* NetworkService.swift in Sources */,
@@ -961,6 +971,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783196062DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
+				7809F6C62DE0D99900270793 /* UploadImageView.swift in Sources */,
 				783196072DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783196082DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783196092DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
@@ -1015,6 +1026,7 @@
 				7831963F2DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783196402DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
 				783196412DDC1D8A0072EB6C /* Item.swift in Sources */,
+				7809F6C32DE0D99900270793 /* UploadImageView.swift in Sources */,
 				783196422DDC1D8A0072EB6C /* ImageGenerationService.swift in Sources */,
 				783196432DDC1D8A0072EB6C /* NetworkService.swift in Sources */,
 				783196442DDC1D8A0072EB6C /* FullImageView.swift in Sources */,
@@ -1053,6 +1065,7 @@
 				783195BB2DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783195BC2DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
 				783195BD2DDC1D8A0072EB6C /* Item.swift in Sources */,
+				7809F6C42DE0D99900270793 /* UploadImageView.swift in Sources */,
 				783195BE2DDC1D8A0072EB6C /* ImageGenerationService.swift in Sources */,
 				783195BF2DDC1D8A0072EB6C /* NetworkService.swift in Sources */,
 				783195C02DDC1D8A0072EB6C /* FullImageView.swift in Sources */,
@@ -1075,6 +1088,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783195DA2DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
+				7809F6C52DE0D99900270793 /* UploadImageView.swift in Sources */,
 				783195DB2DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783195DC2DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195DD2DDC1D8A0072EB6C /* FireworkView.swift in Sources */,

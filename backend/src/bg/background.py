@@ -174,7 +174,7 @@ def process_request(request):
     """Route the image request to the appropriate processing function based on theme type."""
     theme_type = request.get('theme_type', 'art')  # Default to art if no type specified
     
-    if theme_type == 'product':
+    if theme_type in ['product', 'user_upload']:
         process_request_product(request)
     else:
         # Default to art processing for any other type

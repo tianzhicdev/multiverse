@@ -110,16 +110,17 @@ struct UploadImageView: View {
         } message: {
             Text(errorMessage)
         }
+        .onChange(of: selectedItem) { newItem in
+            if let item = newItem {
+                handleSelectedItem()
+            }
+        }
     }
     
     // MARK: - Private Properties
     
     // Selected photo item
-    @State private var selectedItem: PhotosPickerItem? {
-        didSet {
-            handleSelectedItem()
-        }
-    }
+    @State private var selectedItem: PhotosPickerItem?
     
     // Camera view state
     @State private var isShowingCamera = false

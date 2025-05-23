@@ -21,7 +21,7 @@ struct FittingRoomView: View {
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var requestStatus: String?
-    @State private var requestID: String?
+    @State private var resultImageID: String?
     
     var body: some View {
         NavigationView {
@@ -167,14 +167,14 @@ struct FittingRoomView: View {
                 )
                 
                 await MainActor.run {
-                    requestID = response.requestID
+                    resultImageID = response.resultImageID
                     requestStatus = response.status
                     isProcessing = false
                 }
                 
-                // If we have a request ID, start polling for result
-                if let requestID = response.requestID {
-                    try await checkRequestStatus(requestID: requestID)
+                // If we have a result image ID, start polling for result
+                if let resultID = response.resultImageID {
+                    try await checkRequestStatus(resultImageID: resultID)
                 }
             } catch {
                 await MainActor.run {
@@ -186,10 +186,8 @@ struct FittingRoomView: View {
         }
     }
     
-    private func checkRequestStatus(requestID: String) async throws {
-        guard let resultImageID = self.requestID else {
-            throw NSError(domain: "FittingRoom", code: 1, userInfo: [NSLocalizedDescriptionKey: "Missing result image ID"])
-        }
+    private func checkRequestStatus(resultImageID: String) async throws {
+        // No need for guard clause since we're using the parameter directly
         
         // Start polling for the result
         let maxAttempts = 60 // Poll for up to 5 minutes (5 seconds × 60)

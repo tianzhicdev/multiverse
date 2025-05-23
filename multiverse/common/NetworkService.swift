@@ -865,7 +865,7 @@ class NetworkService {
         return themeID
     }
     
-    func startFashionRequest(sourceImageID: String, themeID: String, userID: String) async throws -> (requestID: String?, status: String) {
+    func startFashionRequest(sourceImageID: String, themeID: String, userID: String) async throws -> (requestID: String?, resultImageID: String?, status: String) {
         let url = URL(string: "\(baseURL)/api/fashion")!
         
         var request = URLRequest(url: url)
@@ -887,7 +887,7 @@ class NetworkService {
         }
         
         let json = try JSONDecoder().decode([String: String].self, from: data)
-        return (requestID: json["request_id"], status: json["status"] ?? "pending")
+        return (requestID: json["request_id"], resultImageID: json["result_image_id"], status: json["status"] ?? "pending")
     }
     
     func checkImageStatus(resultImageID: String, userID: String) async throws -> (ready: Bool, status: String) {
