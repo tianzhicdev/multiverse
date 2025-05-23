@@ -45,80 +45,89 @@ struct BoxGridView: View {
             // Maintain the 0.67 width : height aspect ratio from BoxView
             let boxHeight = cellWidth / 0.67
             
-            VStack {
+            ZStack {
+                // Add universe background image
+                Image("universe")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
                 
-                // Debug info display
-                if isDebugMode {
-                    if let apiResponse = APIResponseStore.shared.getLastResponse() {
-                        let requestIDPrefix = String(apiResponse.requestID.prefix(5))
-                        Text("RID: \(requestIDPrefix)")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .padding(.top, 8)
-                    }
-                }
-                
-                // Add HeaderView
-                HeaderView()
-                
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: gridSpacing) {
-                        ForEach(0..<totalBoxes, id: \.self) { index in
-                            BoxView(
-                                number: index + 1,
-                                items: items,
-                                reloadTrigger: reloadTrigger,
-                                isDebugMode: isDebugMode,
-                                onCreditsUpdated: { newCredits in
-                                    userCredits = newCredits
-                                },
-                                onLoadingChanged: { number, isLoading in
-                                    handleLoadingStateChanged(number: number, isLoading: isLoading)
-                                }
-                            )
-                                .frame(height: boxHeight)
-                                .onAppear {
-                                    // Add to loading boxes when the BoxView appears
-                                    loadingBoxes.insert(index + 1)
-                                    updateLoadingSoundState()
-                                }
-                                .onChange(of: reloadTrigger) { _, _ in
-                                    // When reloading, mark box as loading
-                                    loadingBoxes.insert(index + 1)
-                                    updateLoadingSoundState()
-                                }
+                VStack {
+                    
+                    // Debug info display
+                    if isDebugMode {
+                        if let apiResponse = APIResponseStore.shared.getLastResponse() {
+                            let requestIDPrefix = String(apiResponse.requestID.prefix(5))
+                            Text("RID: \(requestIDPrefix)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .padding(.top, 8)
                         }
                     }
-                }
+                    
+                    // Add HeaderView
+                    HeaderView()
+                    
+                    ScrollView {
+                        LazyVGrid(columns: columns, spacing: gridSpacing) {
+                            ForEach(0..<totalBoxes, id: \.self) { index in
+                                BoxView(
+                                    number: index + 1,
+                                    items: items,
+                                    reloadTrigger: reloadTrigger,
+                                    isDebugMode: isDebugMode,
+                                    onCreditsUpdated: { newCredits in
+                                        userCredits = newCredits
+                                    },
+                                    onLoadingChanged: { number, isLoading in
+                                        handleLoadingStateChanged(number: number, isLoading: isLoading)
+                                    }
+                                )
+                                    .frame(height: boxHeight)
+                                    .onAppear {
+                                        // Add to loading boxes when the BoxView appears
+                                        loadingBoxes.insert(index + 1)
+                                        updateLoadingSoundState()
+                                    }
+                                    .onChange(of: reloadTrigger) { _, _ in
+                                        // When reloading, mark box as loading
+                                        loadingBoxes.insert(index + 1)
+                                        updateLoadingSoundState()
+                                    }
+                            }
+                        }
+                    }
 
-            HStack {
-                Spacer()
-                Button(action: {
-                    if userCredits >= 10 {
-                        rerollImages()
-                    } else {
-                        errorMessage = "Insufficient credits. Each reroll costs 10 credits."
-                        showError = true
-                    }
-                }) {
-                    HStack {
-                        if isRerolling {
-                            ProgressView()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        if userCredits >= 10 {
+                            rerollImages()
                         } else {
-                            Text("Re-Discover 10x")
-                            Image(systemName: "microbe.circle.fill")
+                            errorMessage = "Insufficient credits. Each reroll costs 10 credits."
+                            showError = true
                         }
+                    }) {
+                        HStack {
+                            if isRerolling {
+                                ProgressView()
+                            } else {
+                                Text("Re-Discover 10x")
+                                Image(systemName: "microbe.circle.fill")
+                            }
+                        }
+                        .padding(8)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .disabled(isRerolling)
                     }
-                    .padding(8)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                    .disabled(isRerolling)
+                    Spacer()
                 }
-                Spacer()
-            }
-            .padding(.horizontal)
-            .padding(.top, 10)
+                .padding(.horizontal)
+                .padding(.top, 10)
+                }
+                .background(Color(.systemBackground).opacity(0.2))
             }
             
         }

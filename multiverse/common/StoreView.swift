@@ -27,106 +27,117 @@ struct StoreView: View {
     ]
     
     var body: some View {
-        VStack {
-            HStack {
-                Button(action: { dismiss() }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                    .foregroundColor(.blue)
-                }
-                .padding(.leading)
-                
-                Spacer()
-            }
-            .padding(.top)
+        ZStack {
+            // Add universe background image
+            Image("universe")
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
             
-           Image(systemName: "storefront.circle.fill")
-                .font(.largeTitle)
-                .padding()
-                .foregroundColor(.green)
-            
-            // Restore button at the top
-            Button(action: restorePurchases) {
+            VStack {
                 HStack {
-                    Image(systemName: "arrow.clockwise.circle")
-                    Text(isRestoring ? "Restoring..." : "Restore Purchases")
+                    Button(action: { dismiss() }) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .foregroundColor(.blue)
+                    }
+                    .padding(.leading)
+                    
+                    Spacer()
                 }
-                .frame(minWidth: 200)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-            }
-            .disabled(isRestoring)
-            .padding(.bottom)
-            
-            if products.isEmpty {
-                ProgressView("Loading products...")
-            } else {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // Subscription products section
-                        if !subscriptionProducts.isEmpty {
-                            Text("Subscriptions")
+                .padding(.top)
+                
+                Image(systemName: "storefront.circle.fill")
+                    .font(.largeTitle)
+                    .padding()
+                    .foregroundColor(.green)
+                
+                // Restore button at the top
+                Button(action: restorePurchases) {
+                    HStack {
+                        Image(systemName: "arrow.clockwise.circle")
+                        Text(isRestoring ? "Restoring..." : "Restore Purchases")
+                    }
+                    .frame(minWidth: 200)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                .disabled(isRestoring)
+                .padding(.bottom)
+                
+                if products.isEmpty {
+                    ProgressView("Loading products...")
+                } else {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            // Subscription products section
+                            if !subscriptionProducts.isEmpty {
+                                Text("Subscriptions")
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal)
+                                
+                                ForEach(subscriptionProducts, id: \.id) { product in
+                                    ProductView(
+                                        product: product,
+                                        isPurchasing: isPurchasing && purchasingProductID == product.id,
+                                        buttonText: "Subscribe",
+                                        action: { purchaseProduct(product) },
+                                        customTitle: productInfo[product.id]?.title,
+                                        customDescription: productInfo[product.id]?.description
+                                    )
+                                }
+                            }
+                            
+                            // Consumable products section
+                            if !consumableProducts.isEmpty {
+                                HStack {
+                                    Text("Refuel")
+                                    Image(systemName: "microbe.circle.fill")
+                                        .foregroundColor(.green)
+                                }
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal)
-                            
-                            ForEach(subscriptionProducts, id: \.id) { product in
-                                ProductView(
-                                    product: product,
-                                    isPurchasing: isPurchasing && purchasingProductID == product.id,
-                                    buttonText: "Subscribe",
-                                    action: { purchaseProduct(product) },
-                                    customTitle: productInfo[product.id]?.title,
-                                    customDescription: productInfo[product.id]?.description
-                                )
+                                .padding(.top)
+                                
+                                ForEach(consumableProducts, id: \.id) { product in
+                                    ProductView(
+                                        product: product,
+                                        isPurchasing: isPurchasing && purchasingProductID == product.id,
+                                        buttonText: "Buy Now",
+                                        action: { purchaseProduct(product) },
+                                        customTitle: productInfo[product.id]?.title,
+                                        customDescription: productInfo[product.id]?.description
+                                    )
+                                }
                             }
                         }
+                        .padding(.bottom)
                         
-                        // Consumable products section
-                        if !consumableProducts.isEmpty {
-                            HStack {
-                                Text("Refuel")
-                                Image(systemName: "microbe.circle.fill")
-                                    .foregroundColor(.green)
-                            }
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                            .padding(.top)
+                        // Legal links
+                        VStack(spacing: 5) {
+                            Link("Terms of Service", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                                .font(.footnote)
+                                .foregroundColor(.blue)
                             
-                            ForEach(consumableProducts, id: \.id) { product in
-                                ProductView(
-                                    product: product,
-                                    isPurchasing: isPurchasing && purchasingProductID == product.id,
-                                    buttonText: "Buy Now",
-                                    action: { purchaseProduct(product) },
-                                    customTitle: productInfo[product.id]?.title,
-                                    customDescription: productInfo[product.id]?.description
-                                )
-                            }
+                            Link("Privacy Policy", destination: URL(string: "https://multiverseai.app/privacy-policy")!)
+                                .font(.footnote)
+                                .foregroundColor(.blue)
                         }
+                        .padding(.top, 10)
+                        .padding(.bottom, 20)
                     }
-                    .padding(.bottom)
-                    
-                    // Legal links
-                    VStack(spacing: 5) {
-                        Link("Terms of Service", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
-                            .font(.footnote)
-                            .foregroundColor(.blue)
-                        
-                        Link("Privacy Policy", destination: URL(string: "https://multiverseai.app/privacy-policy")!)
-                            .font(.footnote)
-                            .foregroundColor(.blue)
-                    }
-                    .padding(.top, 10)
-                    .padding(.bottom, 20)
                 }
             }
+            .background(Color(.systemBackground).opacity(0.7))
+            .cornerRadius(15)
+            .padding()
         }
         .onAppear {
             loadProducts()

@@ -25,6 +25,18 @@
 		7809F6C42DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
 		7809F6C52DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
 		7809F6C62DE0D99900270793 /* UploadImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6C02DE0D99900270793 /* UploadImageView.swift */; };
+		7809F7252DE1198200270793 /* universe.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7242DE1198200270793 /* universe.png */; };
+		7809F7262DE1198200270793 /* robot_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7232DE1198200270793 /* robot_search.png */; };
+		7809F7272DE1198200270793 /* universe.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7242DE1198200270793 /* universe.png */; };
+		7809F7282DE1198200270793 /* robot_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7232DE1198200270793 /* robot_search.png */; };
+		7809F7292DE1198200270793 /* universe.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7242DE1198200270793 /* universe.png */; };
+		7809F72A2DE1198200270793 /* robot_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7232DE1198200270793 /* robot_search.png */; };
+		7809F72B2DE1198200270793 /* universe.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7242DE1198200270793 /* universe.png */; };
+		7809F72C2DE1198200270793 /* robot_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7232DE1198200270793 /* robot_search.png */; };
+		7809F72D2DE1198200270793 /* universe.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7242DE1198200270793 /* universe.png */; };
+		7809F72E2DE1198200270793 /* robot_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7232DE1198200270793 /* robot_search.png */; };
+		7809F72F2DE1198200270793 /* universe.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7242DE1198200270793 /* universe.png */; };
+		7809F7302DE1198200270793 /* robot_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 7809F7232DE1198200270793 /* robot_search.png */; };
 		783195822DDC1D8A0072EB6C /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7831955C2DDC1D8A0072EB6C /* searching2.mp3 */; };
 		783195832DDC1D8A0072EB6C /* ding3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195552DDC1D8A0072EB6C /* ding3.mp3 */; };
 		783195842DDC1D8A0072EB6C /* reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195592DDC1D8A0072EB6C /* reveal.mp3 */; };
@@ -320,6 +332,8 @@
 		7809F6B22DE0115D00270793 /* FittingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FittingRoomView.swift; sourceTree = "<group>"; };
 		7809F6B32DE0115D00270793 /* SharedAppBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppBase.swift; sourceTree = "<group>"; };
 		7809F6C02DE0D99900270793 /* UploadImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadImageView.swift; sourceTree = "<group>"; };
+		7809F7232DE1198200270793 /* robot_search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = robot_search.png; sourceTree = "<group>"; };
+		7809F7242DE1198200270793 /* universe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universe.png; sourceTree = "<group>"; };
 		783191952DDBFA7E0072EB6C /* multiverse-shopping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multiverse-shopping.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -476,6 +490,8 @@
 		783195602DDC1D8A0072EB6C /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				7809F7232DE1198200270793 /* robot_search.png */,
+				7809F7242DE1198200270793 /* universe.png */,
 				783195532DDC1D8A0072EB6C /* ding1.mp3 */,
 				783195542DDC1D8A0072EB6C /* ding2.mp3 */,
 				783195552DDC1D8A0072EB6C /* ding3.mp3 */,
@@ -765,6 +781,8 @@
 			files = (
 				783195822DDC1D8A0072EB6C /* searching2.mp3 in Resources */,
 				783195832DDC1D8A0072EB6C /* ding3.mp3 in Resources */,
+				7809F72B2DE1198200270793 /* universe.png in Resources */,
+				7809F72C2DE1198200270793 /* robot_search.png in Resources */,
 				783195842DDC1D8A0072EB6C /* reveal.mp3 in Resources */,
 				783195852DDC1D8A0072EB6C /* ding2.mp3 in Resources */,
 				783195862DDC1D8A0072EB6C /* reveal2.mp3 in Resources */,
@@ -796,6 +814,8 @@
 				783196672DDC1D8A0072EB6C /* ding1.mp3 in Resources */,
 				783196682DDC1D8A0072EB6C /* ding4.mp3 in Resources */,
 				783196692DDC1D8A0072EB6C /* telescope.gif in Resources */,
+				7809F7272DE1198200270793 /* universe.png in Resources */,
+				7809F7282DE1198200270793 /* robot_search.png in Resources */,
 				7831966A2DDC1D8A0072EB6C /* drum_reveal.mp3 in Resources */,
 				7831966B2DDC1D8A0072EB6C /* ding5.mp3 in Resources */,
 			);
@@ -817,6 +837,8 @@
 				7831962D2DDC1D8A0072EB6C /* ding1.mp3 in Resources */,
 				7831962E2DDC1D8A0072EB6C /* ding4.mp3 in Resources */,
 				7831962F2DDC1D8A0072EB6C /* telescope.gif in Resources */,
+				7809F7292DE1198200270793 /* universe.png in Resources */,
+				7809F72A2DE1198200270793 /* robot_search.png in Resources */,
 				783196302DDC1D8A0072EB6C /* drum_reveal.mp3 in Resources */,
 				783196312DDC1D8A0072EB6C /* ding5.mp3 in Resources */,
 			);
@@ -828,6 +850,8 @@
 			files = (
 				783196502DDC1D8A0072EB6C /* searching2.mp3 in Resources */,
 				783196512DDC1D8A0072EB6C /* ding3.mp3 in Resources */,
+				7809F72F2DE1198200270793 /* universe.png in Resources */,
+				7809F7302DE1198200270793 /* robot_search.png in Resources */,
 				783196522DDC1D8A0072EB6C /* reveal.mp3 in Resources */,
 				783196532DDC1D8A0072EB6C /* ding2.mp3 in Resources */,
 				783196542DDC1D8A0072EB6C /* reveal2.mp3 in Resources */,
@@ -859,6 +883,8 @@
 				783195D52DDC1D8A0072EB6C /* ding1.mp3 in Resources */,
 				783195D62DDC1D8A0072EB6C /* ding4.mp3 in Resources */,
 				783195D72DDC1D8A0072EB6C /* telescope.gif in Resources */,
+				7809F72D2DE1198200270793 /* universe.png in Resources */,
+				7809F72E2DE1198200270793 /* robot_search.png in Resources */,
 				783195D82DDC1D8A0072EB6C /* drum_reveal.mp3 in Resources */,
 				783195D92DDC1D8A0072EB6C /* ding5.mp3 in Resources */,
 			);
@@ -880,6 +906,8 @@
 				783196012DDC1D8A0072EB6C /* ding1.mp3 in Resources */,
 				783196022DDC1D8A0072EB6C /* ding4.mp3 in Resources */,
 				783196032DDC1D8A0072EB6C /* telescope.gif in Resources */,
+				7809F7252DE1198200270793 /* universe.png in Resources */,
+				7809F7262DE1198200270793 /* robot_search.png in Resources */,
 				783196042DDC1D8A0072EB6C /* drum_reveal.mp3 in Resources */,
 				783196052DDC1D8A0072EB6C /* ding5.mp3 in Resources */,
 			);

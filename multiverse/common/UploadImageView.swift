@@ -15,7 +15,7 @@ struct UploadImageView: View {
     var imageHeight: CGFloat
     
     // States for uploading process
-    @State private var isUploading = false
+    @Binding var isUploading: Bool
     @State private var showError = false
     @State private var errorMessage = ""
     
@@ -30,10 +30,12 @@ struct UploadImageView: View {
         imageData: Binding<Data?>,
         imageID: Binding<String?>,
         placeholder: String = "Select Image",
-        imageHeight: CGFloat = 200
+        imageHeight: CGFloat = 200,
+        isUploading: Binding<Bool> = .constant(false)
     ) {
         self._imageData = imageData
         self._imageID = imageID
+        self._isUploading = isUploading
         self.placeholder = placeholder
         self.imageHeight = imageHeight
     }
@@ -73,15 +75,6 @@ struct UploadImageView: View {
                     .onTapGesture {
                         showSourceSelection = true
                     }
-            }
-            
-            // Upload status
-            if isUploading {
-                HStack {
-                    ProgressView()
-                    Text("Uploading...")
-                }
-                .padding(.top, 5)
             }
         }
         .confirmationDialog("Select Image Source", isPresented: $showSourceSelection) {

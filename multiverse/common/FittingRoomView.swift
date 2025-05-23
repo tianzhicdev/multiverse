@@ -5,10 +5,12 @@ struct FittingRoomView: View {
     // State for person image
     @State private var personImageData: Data?
     @State private var personImageID: String?
+    @State private var personImageUploading: Bool = false
     
     // State for clothing image
     @State private var clothImageData: Data?
     @State private var clothingImageID: String?
+    @State private var clothingImageUploading: Bool = false
     @State private var themeID: String?
     
     // State for cloth type selection
@@ -35,7 +37,8 @@ struct FittingRoomView: View {
                                 imageData: $personImageData,
                                 imageID: $personImageID,
                                 placeholder: "Person Image",
-                                imageHeight: 150
+                                imageHeight: 150,
+                                isUploading: $personImageUploading
                             )
                         }
                         .frame(maxWidth: .infinity)
@@ -47,7 +50,8 @@ struct FittingRoomView: View {
                                 imageData: $clothImageData,
                                 imageID: $clothingImageID,
                                 placeholder: "Clothing Image",
-                                imageHeight: 150
+                                imageHeight: 150,
+                                isUploading: $clothingImageUploading
                             )
                             .onChange(of: clothingImageID) { _, newID in
                                 if let newID = newID {
@@ -81,7 +85,7 @@ struct FittingRoomView: View {
                         if isProcessing {
                             HStack {
                                 Text("Processing")
-                                ProgressView().progressViewStyle(CircularProgressViewStyle())
+                                ProgressView()
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -97,7 +101,7 @@ struct FittingRoomView: View {
                                 .cornerRadius(8)
                         }
                     }
-                    .disabled(isProcessing || personImageID == nil || themeID == nil)
+                    .disabled(isProcessing || personImageID == nil || themeID == nil || personImageUploading || clothingImageUploading)
                     
                     // Result status
                     if let requestStatus = requestStatus {

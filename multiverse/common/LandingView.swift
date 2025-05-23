@@ -26,6 +26,8 @@ struct LandingView: View {
     @State private var showStore = false
     
     @State private var showFittingRoom = false
+    
+    @State private var showDescriptionPopup = false
 
     @State private var searchText: String = ""
     @State private var selectedStyle: String = "Default"
@@ -39,149 +41,193 @@ struct LandingView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                HeaderView()
+            ZStack {
+                // Add universe background image
+                Image("universe")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
                 
-                if AppConfig.getAppName() == "multiverse_shopping" {
-                    Button(action: {
-                        // Navigate to FittingRoomView
-                        showFittingRoom = true
-                    }) {
-                        Text("Upload My Own")
-                            .padding(8)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                    }
-                    .padding(.bottom, 10)
-                }
-                
-                // Replace PhotosPicker with UploadImageView
-                UploadImageView(
-                    imageData: $imageData,
-                    imageID: $sourceImageID,
-                    placeholder: "Select Image",
-                    imageHeight: 200
-                )
-                
-                // Text input field for user to enter text
-                ZStack(alignment: .topLeading) {
-                    TextEditor(text: $user_description)
-                        .frame(minHeight: 100)
-                        .padding(4)
-                        .background(Color(.systemBackground))
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
-                        .shadow(radius: 1)
+                VStack {
+                    HeaderView()
                     
-                    if user_description.isEmpty {
-                        Text("Optional: Describe the focus of the image")
-                            .foregroundColor(.gray)
-                            .padding(.leading, 9) // 4 + 5
-                            .padding(.top, 12) // 4 + 8
+                    if AppConfig.getAppName() == "multiverse_shopping" {
+                        Button(action: {
+                            // Navigate to FittingRoomView
+                            showFittingRoom = true
+                        }) {
+                            Text("Upload My Own")
+                                .padding(8)
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        .padding(.bottom, 10)
                     }
-                }
-                
-
-                // Add spacing between text field and button
-                Spacer()
-                    .frame(height: 20)
-                
-                Button(action: {
-                    if creditsViewModel.userCredits >= 10 {
-                        Task {
-                            isSearching = true
-                            do {
-                                // Try to deduct 10 credits
-                                let remainingCredits = try await NetworkService.shared.useCredits(
-                                    userID: UserManager.shared.getCurrentUserID(),
-                                    credits: 10
-                                )
-                                
-                                await MainActor.run {
-                                    creditsViewModel.userCredits = remainingCredits
-                                    
-                                    // Track discover action
-                                    NetworkService.shared.trackUserAction(
+                    
+                    Spacer()
+                    
+                    // Upload Image View as a square in the middle
+                    UploadImageView(
+                        imageData: $imageData,
+                        imageID: $sourceImageID,
+                        placeholder: "Select Image",
+                        imageHeight: 200,
+                        isUploading: $isUploading
+                    )
+                    .frame(width: 200, height: 200)
+                    .onChange(of: sourceImageID) { oldValue, newValue in
+                        if oldValue == nil && newValue != nil {
+                            // Image was just uploaded, show description popup
+                            showDescriptionPopup = true
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Discover button as a square with robot_search image
+                    Button(action: {
+                        if creditsViewModel.userCredits >= 10 {
+                            Task {
+                                isSearching = true
+                                do {
+                                    // Try to deduct 10 credits
+                                    let remainingCredits = try await NetworkService.shared.useCredits(
                                         userID: UserManager.shared.getCurrentUserID(),
-                                        action: "discover"
+                                        credits: 10
                                     )
                                     
-                                    performSearch()
-                                    
-                                    // Refresh the global credits view model
-                                    CreditsViewModel.shared.refreshCredits()
+                                    await MainActor.run {
+                                        creditsViewModel.userCredits = remainingCredits
+                                        
+                                        // Track discover action
+                                        NetworkService.shared.trackUserAction(
+                                            userID: UserManager.shared.getCurrentUserID(),
+                                            action: "discover"
+                                        )
+                                        
+                                        performSearch()
+                                        
+                                        // Refresh the global credits view model
+                                        CreditsViewModel.shared.refreshCredits()
+                                    }
+                                } catch {
+                                    await MainActor.run {
+                                        errorMessage = "Failed to use credits: \(error.localizedDescription)"
+                                        showError = true
+                                    }
                                 }
-                            } catch {
-                                await MainActor.run {
-                                    errorMessage = "Failed to use credits: \(error.localizedDescription)"
-                                    showError = true
-                                }
+                                isSearching = false
                             }
-                            isSearching = false
-                        }
-                    } else {
-                        errorMessage = "Insufficient credits. Each generation costs 10 credits."
-                        showError = true
-                    }
-                }) {
-                    HStack {
-                        if isSearching {
-                            Text("Searching")
-                            ProgressView()
                         } else {
-                            Text("Discover 10x")
-                            Image(systemName: "microbe.circle.fill")
+                            errorMessage = "Insufficient credits. Each generation costs 10 credits."
+                            showError = true
                         }
-
+                    }) {
+                        ZStack {
+                            if isSearching || isUploading {
+                                ProgressView()
+                            } else {
+                                Image("robot_search")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 60, height: 60)
+                            }
+                        }
+                        .frame(width: 70, height: 70)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                     }
-                    .padding(8)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-                .disabled(sourceImageID == nil)  
-                
-                // Debug buttons that only appear when isDebugMode is true
-                if isDebugMode {
-                    Divider()
-                        .padding(.vertical, 10)
+                    .disabled(sourceImageID == nil || isSearching || isUploading)
+                    .padding(.bottom, 20)
                     
-                    Text("Debug Options")
-                        .font(.headline)
-                    
-                    HStack {
-                        Button(action: {
-                            UserManager.shared.clearUserID()
-                            imageData = nil
-                            sourceImageID = nil
-                            user_description = ""
-                        }) {
-                            Text("Reset User")
-                                .padding(8)
-                                .background(Color.red)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
+                    // Debug buttons that only appear when isDebugMode is true
+                    if isDebugMode {
+                        Divider()
+                            .padding(.vertical, 10)
                         
-                        Button(action: {
-                            UserManager.shared.resetTermsAcceptance()
-                            creditsViewModel.refreshCredits()
-                        }) {
-                            Text("Reset Terms")
-                                .padding(8)
-                                .background(Color.orange)
+                        Text("Debug Options")
+                            .font(.headline)
+                        
+                        HStack {
+                            Button(action: {
+                                UserManager.shared.clearUserID()
+                                imageData = nil
+                                sourceImageID = nil
+                                user_description = ""
+                            }) {
+                                Text("Reset User")
+                                    .padding(8)
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                            
+                            Button(action: {
+                                UserManager.shared.resetTermsAcceptance()
+                                creditsViewModel.refreshCredits()
+                            }) {
+                                Text("Reset Terms")
+                                    .padding(8)
+                                    .background(Color.orange)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                        }
+                        .padding(.bottom, 10)
+                    }
+                }
+                .padding()
+                
+                // Description Popup
+                if showDescriptionPopup {
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .edgesIgnoringSafeArea(.all)
+                        
+                        VStack(spacing: 16) {
+                            Text("Describe the focus of your image")
+                                .font(.headline)
+                            
+                            TextEditor(text: $user_description)
+                                .frame(height: 100)
+                                .padding(4)
+                                .background(Color(.systemBackground))
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                            
+                            HStack(spacing: 20) {
+                                Button("Skip") {
+                                    showDescriptionPopup = false
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(Color.gray.opacity(0.2))
+                                .foregroundColor(.primary)
+                                .cornerRadius(8)
+                                
+                                Button("Submit") {
+                                    showDescriptionPopup = false
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
+                            }
                         }
+                        .padding(24)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(radius: 10)
+                        .padding(40)
                     }
-                    .padding(.bottom, 10)
                 }
             }
-            .padding()  // Adds space around the entire VStack
             // Error alert that appears when showError is true
             .alert("Error", isPresented: $showError) {
                 Button("OK", role: .cancel) { }
