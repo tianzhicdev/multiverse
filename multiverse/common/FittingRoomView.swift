@@ -110,7 +110,7 @@ struct FittingRoomView: View {
                         if isProcessing {
                             HStack {
                                 Text("Processing")
-                                ProgressView()
+                                ProgressView().progressViewStyle(CircularProgressViewStyle())
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -140,7 +140,7 @@ struct FittingRoomView: View {
                                     .scaledToFit()
                                     .cornerRadius(8)
                             } else if requestStatus == "pending" {
-                                ProgressView()
+                                ProgressView().progressViewStyle(CircularProgressViewStyle())
                                     .frame(maxWidth: .infinity)
                                     .padding()
                             }
@@ -269,157 +269,6 @@ struct FittingRoomView: View {
         
         // If we've reached the max attempts without success
         throw NSError(domain: "FittingRoom", code: 2, userInfo: [NSLocalizedDescriptionKey: "Request timed out"])
-    }
-}
-
-// NetworkService extension to support new APIs
-extension NetworkService {
-    func uploadImage(imageData: Data, userID: String) async throws -> String {
-        let url = URL(string: "\(baseURL)/api/upload")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        
-        // Add user_id field
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(userID)\r\n".data(using: .utf8)!)
-        
-        // Add image field
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n".data(using: .utf8)!)
-        
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
-        request.httpBody = body
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-        }
-        
-        let json = try JSONDecoder().decode([String: String].self, from: data)
-        guard let sourceImageID = json["source_image_id"] else {
-            throw NSError(domain: "NetworkService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Missing source_image_id in response"])
-        }
-        
-        return sourceImageID
-    }
-    
-    func createTheme(imageData: Data, type: String, userID: String) async throws -> String {
-        let url = URL(string: "\(baseURL)/api/theme")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        
-        // Add user_id field
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(userID)\r\n".data(using: .utf8)!)
-        
-        // Add type field
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(type)\r\n".data(using: .utf8)!)
-        
-        // Add image field
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"cloth.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n".data(using: .utf8)!)
-        
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
-        request.httpBody = body
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-        }
-        
-        let json = try JSONDecoder().decode([String: String].self, from: data)
-        guard let themeID = json["theme_id"] else {
-            throw NSError(domain: "NetworkService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Missing theme_id in response"])
-        }
-        
-        return themeID
-    }
-    
-    func startFashionRequest(sourceImageID: String, themeID: String, userID: String) async throws -> (requestID: String?, status: String) {
-        let url = URL(string: "\(baseURL)/api/fashion")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let parameters: [String: Any] = [
-            "source_image_id": sourceImageID,
-            "theme_id": themeID,
-            "user_id": userID
-        ]
-        
-        request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-        }
-        
-        let json = try JSONDecoder().decode([String: String].self, from: data)
-        return (requestID: json["request_id"], status: json["status"] ?? "pending")
-    }
-    
-    func checkImageStatus(resultImageID: String, userID: String) async throws -> (ready: Bool, status: String) {
-        let url = URL(string: "\(baseURL)/api/image/\(resultImageID)?user_id=\(userID)")!
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-        }
-        
-        // If the response is an image (status code 200 and content-type is image/*)
-        if httpResponse.statusCode == 200 && httpResponse.mimeType?.contains("image") == true {
-            return (ready: true, status: "ready")
-        }
-        
-        // Otherwise parse the JSON status response
-        let json = try JSONDecoder().decode([String: Any].self, from: data) as? [String: Any]
-        let ready = json?["ready"] as? Bool ?? false
-        let status = json?["status"] as? String ?? "unknown"
-        
-        return (ready: ready, status: status)
-    }
-    
-    func fetchImage(resultImageID: String, userID: String) async throws -> Data {
-        let url = URL(string: "\(baseURL)/api/image/\(resultImageID)?user_id=\(userID)")!
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200,
-              httpResponse.mimeType?.contains("image") == true else {
-            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response or not an image"])
-        }
-        
-        return data
     }
 }
 

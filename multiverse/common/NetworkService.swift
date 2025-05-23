@@ -272,6 +272,7 @@ class NetworkService {
         logger.info("Fetching credits for userID: \(userID)")
         
         let creditsURL = URL(string: "\(domain)/api/credits/\(userID)")!
+        logger.info("Credits URL: \(creditsURL)")
         var request = URLRequest(url: creditsURL)
         request.httpMethod = "GET"
         
@@ -808,6 +809,186 @@ class NetworkService {
             return data
         } catch {
             logger.error("Failed to apply fashion: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    // FittingRoom API methods
+    
+    var baseURL: String {
+        return domain
+    }
+    
+    func createTheme(imageData: Data, type: String, userID: String) async throws -> String {
+        let url = URL(string: "\(baseURL)/api/theme")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add user_id field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(userID)\r\n".data(using: .utf8)!)
+        
+        // Add type field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(type)\r\n".data(using: .utf8)!)
+        
+        // Add image field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"cloth.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+        
+        let json = try JSONDecoder().decode([String: String].self, from: data)
+        guard let themeID = json["theme_id"] else {
+            throw NSError(domain: "NetworkService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Missing theme_id in response"])
+        }
+        
+        return themeID
+    }
+    
+    func startFashionRequest(sourceImageID: String, themeID: String, userID: String) async throws -> (requestID: String?, status: String) {
+        let url = URL(string: "\(baseURL)/api/fashion")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let parameters: [String: Any] = [
+            "source_image_id": sourceImageID,
+            "theme_id": themeID,
+            "user_id": userID
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+        
+        let json = try JSONDecoder().decode([String: String].self, from: data)
+        return (requestID: json["request_id"], status: json["status"] ?? "pending")
+    }
+    
+    func checkImageStatus(resultImageID: String, userID: String) async throws -> (ready: Bool, status: String) {
+        let url = URL(string: "\(baseURL)/api/image/\(resultImageID)?user_id=\(userID)")!
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+        
+        // If the response is an image (status code 200 and content-type is image/*)
+        if httpResponse.statusCode == 200 && httpResponse.mimeType?.contains("image") == true {
+            return (ready: true, status: "ready")
+        }
+        
+        // Otherwise parse the JSON status response
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            let ready = json["ready"] as? Bool ?? false
+            let status = json["status"] as? String ?? "unknown"
+            return (ready: ready, status: status)
+        } else {
+            throw NSError(domain: "NetworkService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to parse status response"])
+        }
+    }
+    
+    func fetchImage(resultImageID: String, userID: String) async throws -> Data {
+        let url = URL(string: "\(baseURL)/api/image/\(resultImageID)?user_id=\(userID)")!
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200,
+              httpResponse.mimeType?.contains("image") == true else {
+            throw NSError(domain: "NetworkService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid response or not an image"])
+        }
+        
+        return data
+    }
+    
+    func createFashionTheme(imageData: Data, type: String, userID: String) async throws -> String {
+        logger.info("Creating fashion theme with type: \(type) for userID: \(userID)")
+        
+        let url = URL(string: "\(domain)/api/fashion_theme")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        // Create multipart form data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add user_id
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n".data(using: .utf8)!)
+        body.append(userID.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add clothing type
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
+        body.append(type.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add image
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"clothing.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse and return the theme_id
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any],
+               let themeID = jsonDict["theme_id"] as? String {
+                logger.info("Successfully created fashion theme with ID: \(themeID)")
+                return themeID
+            } else {
+                logger.error("Invalid JSON response or missing theme_id field")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response or missing theme_id field"])
+            }
+        } catch {
+            logger.error("Failed to create fashion theme: \(error.localizedDescription)")
             throw error
         }
     }

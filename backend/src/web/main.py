@@ -592,8 +592,8 @@ def apply_fashion():
         logger.error(f"Error in fashion image processing: {str(e)}")
         return jsonify({'error': f'Error in fashion image processing: {str(e)}'}), 500
 
-@app.route('/api/theme', methods=['POST'])
-def create_theme():
+@app.route('/api/fashion_theme', methods=['POST'])
+def upload_fashion_theme():
     """
     Create a new theme for a clothing item.
     
