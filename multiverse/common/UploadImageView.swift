@@ -22,6 +22,9 @@ struct UploadImageView: View {
     // Camera availability state
     @State private var isCameraAvailable = UIImagePickerController.isSourceTypeAvailable(.camera)
     
+    // Show source selection popup
+    @State private var showSourceSelection = false
+    
     // Initialize with default values
     init(
         imageData: Binding<Data?>,
@@ -57,6 +60,9 @@ struct UploadImageView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                 )
+                .onTapGesture {
+                    showSourceSelection = true
+                }
             } else {
                 // If no image is selected, show a placeholder
                 Label(placeholder, systemImage: "photo")
@@ -64,36 +70,9 @@ struct UploadImageView: View {
                     .frame(height: imageHeight)
                     .background(Color.gray.opacity(0.2))
                     .cornerRadius(8)
-            }
-            
-            // Image source buttons
-            HStack {
-                // Photo Library Button
-                PhotosPicker(selection: $selectedItem, matching: .images) {
-                    Label("Library", systemImage: "photo.on.rectangle")
-                        .frame(maxWidth: .infinity)
-                        .padding(8)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                
-                // Camera Button (if available)
-                if isCameraAvailable {
-                    Button(action: {
-                        isShowingCamera = true
-                    }) {
-                        Label("Camera", systemImage: "camera")
-                            .frame(maxWidth: .infinity)
-                            .padding(8)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                    .onTapGesture {
+                        showSourceSelection = true
                     }
-                    .sheet(isPresented: $isShowingCamera) {
-                        CameraView(imageData: $imageData, onCapture: uploadImage)
-                    }
-                }
             }
             
             // Upload status
@@ -105,6 +84,26 @@ struct UploadImageView: View {
                 .padding(.top, 5)
             }
         }
+        .confirmationDialog("Select Image Source", isPresented: $showSourceSelection) {
+            Button("Photo Library") {
+                selectedItem = nil  // Reset before showing picker
+                isShowingPhotoPicker = true
+            }
+            
+            if isCameraAvailable {
+                Button("Camera") {
+                    isShowingCamera = true
+                }
+            }
+            
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $isShowingCamera) {
+            CameraView(imageData: $imageData, onCapture: uploadImage)
+        }
+        .photosPicker(isPresented: $isShowingPhotoPicker,
+                      selection: $selectedItem,
+                      matching: .images)
         .alert("Error", isPresented: $showError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -124,6 +123,7 @@ struct UploadImageView: View {
     
     // Camera view state
     @State private var isShowingCamera = false
+    @State private var isShowingPhotoPicker = false
     
     // MARK: - Private Methods
     

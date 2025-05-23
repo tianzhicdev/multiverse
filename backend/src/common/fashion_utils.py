@@ -180,8 +180,8 @@ def models_fashion(person_image, cloth_image, cloth_type):
         
         payload = {
             "key": api_key,
-            "prompt": "wear the clothe",
-            "negative_prompt": "Low quality, unrealistic, bad cloth, warped cloth",
+            "prompt": "do not change the person's face. make the cloth fit the person. ",
+            "negative_prompt": "Low quality, unrealistic, bad cloth, warped cloth, altered face, anything above the neck",
             "init_image": person_base64,
             "cloth_image": cloth_base64,
             "cloth_type": cloth_type,

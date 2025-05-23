@@ -27,42 +27,40 @@ struct FittingRoomView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Person image picker
-                    VStack(alignment: .leading) {
-                        Text("Select Person Image")
-                            .font(.headline)
+                    // Image pickers side by side
+                    HStack(spacing: 15) {
+                        // Person image picker
+                        VStack(alignment: .leading) {    
+                            UploadImageView(
+                                imageData: $personImageData,
+                                imageID: $personImageID,
+                                placeholder: "Person Image",
+                                imageHeight: 150
+                            )
+                        }
+                        .frame(maxWidth: .infinity)
                         
-                        UploadImageView(
-                            imageData: $personImageData,
-                            imageID: $personImageID,
-                            placeholder: "Select Person Image",
-                            imageHeight: 200
-                        )
-                    }
-                    
-                    // Clothing image picker
-                    VStack(alignment: .leading) {
-                        Text("Select Clothing Image")
-                            .font(.headline)
-                        
-                        UploadImageView(
-                            imageData: $clothImageData,
-                            imageID: $clothingImageID,
-                            placeholder: "Select Clothing Image",
-                            imageHeight: 200
-                        )
-                        .onChange(of: clothingImageID) { _, newID in
-                            if let newID = newID {
-                                createFashionTheme(clothingImageID: newID)
+                        // Clothing image picker
+                        VStack(alignment: .leading) {
+
+                            UploadImageView(
+                                imageData: $clothImageData,
+                                imageID: $clothingImageID,
+                                placeholder: "Clothing Image",
+                                imageHeight: 150
+                            )
+                            .onChange(of: clothingImageID) { _, newID in
+                                if let newID = newID {
+                                    createFashionTheme(clothingImageID: newID)
+                                }
                             }
                         }
+                        .frame(maxWidth: .infinity)
                     }
                     
                     // Cloth type picker
                     VStack(alignment: .leading) {
-                        Text("Select Clothing Type")
-                            .font(.headline)
-                        
+
                         Picker("Clothing Type", selection: $selectedClothType) {
                             ForEach(clothTypeOptions, id: \.self) { option in
                                 Text(option.replacingOccurrences(of: "_", with: " ").capitalized)
