@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7809F6A52DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
-		7809F6A62DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
-		7809F6A72DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
-		7809F6A82DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
-		7809F6A92DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
-		7809F6AA2DDD277800270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6A42DDD277800270793 /* SharedAppBase.swift */; };
-		7809F6AC2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
-		7809F6AD2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
-		7809F6AE2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
-		7809F6AF2DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
-		7809F6B02DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
-		7809F6B12DDEA07300270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6AB2DDEA07300270793 /* FittingRoomView.swift */; };
+		7809F6B42DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
+		7809F6B52DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
+		7809F6B62DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
+		7809F6B72DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
+		7809F6B82DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
+		7809F6B92DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
+		7809F6BA2DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
+		7809F6BB2DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
+		7809F6BC2DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
+		7809F6BD2DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
+		7809F6BE2DE0115D00270793 /* FittingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B22DE0115D00270793 /* FittingRoomView.swift */; };
+		7809F6BF2DE0115D00270793 /* SharedAppBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7809F6B32DE0115D00270793 /* SharedAppBase.swift */; };
 		783195822DDC1D8A0072EB6C /* searching2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7831955C2DDC1D8A0072EB6C /* searching2.mp3 */; };
 		783195832DDC1D8A0072EB6C /* ding3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195552DDC1D8A0072EB6C /* ding3.mp3 */; };
 		783195842DDC1D8A0072EB6C /* reveal.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 783195592DDC1D8A0072EB6C /* reveal.mp3 */; };
@@ -311,8 +311,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7809F6A42DDD277800270793 /* SharedAppBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppBase.swift; sourceTree = "<group>"; };
-		7809F6AB2DDEA07300270793 /* FittingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FittingRoomView.swift; sourceTree = "<group>"; };
+		7809F6B22DE0115D00270793 /* FittingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FittingRoomView.swift; sourceTree = "<group>"; };
+		7809F6B32DE0115D00270793 /* SharedAppBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppBase.swift; sourceTree = "<group>"; };
 		783191952DDBFA7E0072EB6C /* multiverse-shopping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multiverse-shopping.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191A82DDBFA800072EB6C /* multiverse-shoppingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		783191B22DDBFA800072EB6C /* multiverse-shoppingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multiverse-shoppingUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -489,6 +489,8 @@
 		783195812DDC1D8A0072EB6C /* common */ = {
 			isa = PBXGroup;
 			children = (
+				7809F6B22DE0115D00270793 /* FittingRoomView.swift */,
+				7809F6B32DE0115D00270793 /* SharedAppBase.swift */,
 				783195612DDC1D8A0072EB6C /* AlbumListView.swift */,
 				783195622DDC1D8A0072EB6C /* AlbumManager.swift */,
 				783195632DDC1D8A0072EB6C /* AlbumTheme.swift */,
@@ -526,8 +528,6 @@
 		78EADD822DB45DB100B62FF8 = {
 			isa = PBXGroup;
 			children = (
-				7809F6AB2DDEA07300270793 /* FittingRoomView.swift */,
-				7809F6A42DDD277800270793 /* SharedAppBase.swift */,
 				783195602DDC1D8A0072EB6C /* assets */,
 				783195812DDC1D8A0072EB6C /* common */,
 				78EADD8D2DB45DB200B62FF8 /* multiverse */,
@@ -885,11 +885,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				783195902DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
-				7809F6A52DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783195912DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783195922DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195932DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
 				783195942DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
+				7809F6B62DE0115D00270793 /* FittingRoomView.swift in Sources */,
+				7809F6B72DE0115D00270793 /* SharedAppBase.swift in Sources */,
 				783195952DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				783195962DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
 				783195972DDC1D8A0072EB6C /* ThemeModel.swift in Sources */,
@@ -912,7 +913,6 @@
 				783195A92DDC1D8A0072EB6C /* FireworkParticle.swift in Sources */,
 				783195AA2DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783195AB2DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
-				7809F6AF2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783195AC2DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
 				783195AD2DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
@@ -923,11 +923,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				7831966C2DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
-				7809F6A72DDD277800270793 /* SharedAppBase.swift in Sources */,
 				7831966D2DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				7831966E2DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				7831966F2DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
 				783196702DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
+				7809F6BE2DE0115D00270793 /* FittingRoomView.swift in Sources */,
+				7809F6BF2DE0115D00270793 /* SharedAppBase.swift in Sources */,
 				783196712DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				783196722DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
 				783196732DDC1D8A0072EB6C /* ThemeModel.swift in Sources */,
@@ -950,7 +951,6 @@
 				783196852DDC1D8A0072EB6C /* FireworkParticle.swift in Sources */,
 				783196862DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783196872DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
-				7809F6AE2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783196882DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
 				783196892DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
@@ -964,7 +964,6 @@
 				783196072DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783196082DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783196092DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
-				7809F6A62DDD277800270793 /* SharedAppBase.swift in Sources */,
 				7831960A2DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
 				7831960B2DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				7831960C2DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
@@ -972,7 +971,6 @@
 				7831960E2DDC1D8A0072EB6C /* BoxGridView.swift in Sources */,
 				7831960F2DDC1D8A0072EB6C /* UploadItem.swift in Sources */,
 				783196102DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
-				7809F6B12DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783196122DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783196132DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
 				783196142DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
@@ -990,6 +988,8 @@
 				783196202DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783196212DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
 				783196222DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
+				7809F6BC2DE0115D00270793 /* FittingRoomView.swift in Sources */,
+				7809F6BD2DE0115D00270793 /* SharedAppBase.swift in Sources */,
 				783196232DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -999,11 +999,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				783196322DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
-				7809F6A92DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783196332DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783196342DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783196352DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
 				783196362DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
+				7809F6B42DE0115D00270793 /* FittingRoomView.swift in Sources */,
+				7809F6B52DE0115D00270793 /* SharedAppBase.swift in Sources */,
 				783196372DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				783196382DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
 				783196392DDC1D8A0072EB6C /* ThemeModel.swift in Sources */,
@@ -1027,7 +1028,6 @@
 				7831964C2DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				7831964D2DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
 				7831964E2DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
-				7809F6B02DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				7831964F2DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1037,11 +1037,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				783195AE2DDC1D8A0072EB6C /* AudioManager.swift in Sources */,
-				7809F6A82DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783195AF2DDC1D8A0072EB6C /* FakeLoadingBar.swift in Sources */,
 				783195B02DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195B12DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
 				783195B22DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
+				7809F6BA2DE0115D00270793 /* FittingRoomView.swift in Sources */,
+				7809F6BB2DE0115D00270793 /* SharedAppBase.swift in Sources */,
 				783195B32DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				783195B42DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
 				783195B52DDC1D8A0072EB6C /* ThemeModel.swift in Sources */,
@@ -1064,7 +1065,6 @@
 				783195C72DDC1D8A0072EB6C /* FireworkParticle.swift in Sources */,
 				783195C82DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783195C92DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
-				7809F6AC2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783195CA2DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
 				783195CB2DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
@@ -1079,7 +1079,6 @@
 				783195DC2DDC1D8A0072EB6C /* FireworksView.swift in Sources */,
 				783195DD2DDC1D8A0072EB6C /* FireworkView.swift in Sources */,
 				783195DE2DDC1D8A0072EB6C /* LoadingManager.swift in Sources */,
-				7809F6AA2DDD277800270793 /* SharedAppBase.swift in Sources */,
 				783195DF2DDC1D8A0072EB6C /* LandingView.swift in Sources */,
 				783195E02DDC1D8A0072EB6C /* AppConfig.swift in Sources */,
 				783195E12DDC1D8A0072EB6C /* ThemeModel.swift in Sources */,
@@ -1088,7 +1087,6 @@
 				783195E42DDC1D8A0072EB6C /* AlbumTheme.swift in Sources */,
 				783195E62DDC1D8A0072EB6C /* Firework.swift in Sources */,
 				783195E72DDC1D8A0072EB6C /* ImageCache.swift in Sources */,
-				7809F6AD2DDEA07300270793 /* FittingRoomView.swift in Sources */,
 				783195E82DDC1D8A0072EB6C /* CreditsBarView.swift in Sources */,
 				783195E92DDC1D8A0072EB6C /* Item.swift in Sources */,
 				783195EA2DDC1D8A0072EB6C /* ImageGenerationService.swift in Sources */,
@@ -1104,6 +1102,8 @@
 				783195F42DDC1D8A0072EB6C /* ImagePreprocessor.swift in Sources */,
 				783195F52DDC1D8A0072EB6C /* AlbumManager.swift in Sources */,
 				783195F62DDC1D8A0072EB6C /* GifImageView.swift in Sources */,
+				7809F6B82DE0115D00270793 /* FittingRoomView.swift in Sources */,
+				7809F6B92DE0115D00270793 /* SharedAppBase.swift in Sources */,
 				783195F72DDC1D8A0072EB6C /* UserManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

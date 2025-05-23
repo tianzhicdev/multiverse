@@ -527,54 +527,141 @@ def apply_fashion():
     Apply clothing from one image to a person in another image.
     
     Request should contain:
-    - 'person_image': The image file of the person
-    - 'cloth_image': The image file of the clothing
-    - 'type': The type of clothing ('upper_body', 'lower_body', 'dress', etc.)
+    - 'source_image_id': The ID of the person image
+    - 'theme_id': The ID of the theme containing the clothing image
     - 'user_id': The user ID for credit tracking
     
     Returns:
-        The processed image
+        JSON with request_id and status
     """
     try:
-        # Check for required files
-        if 'person_image' not in request.files or 'cloth_image' not in request.files:
-            return jsonify({'error': 'Missing required files: person_image and/or cloth_image'}), 400
-            
-        # Get the type parameter (default to upper_body if not provided)
-        cloth_type = request.form.get('type', 'upper_body')
+        # Parse input from JSON request
+        request_data = request.get_json()
         
-        # Get user_id for credit tracking
-        user_id = request.form.get('user_id')
-        if not user_id:
-            return jsonify({'error': 'Missing user_id parameter'}), 400
+        # Get required parameters
+        source_image_id = request_data.get('source_image_id')
+        theme_id = request_data.get('theme_id')
+        user_id = request_data.get('user_id')
+        
+        # Validate required parameters
+        if not all([source_image_id, theme_id, user_id]):
+            return jsonify({'error': 'Missing required parameters'}), 400
             
-        # Check if user has enough credits
-        # This requires 1 credit for fashion editing
+        # Check if user has enough credits (1 credit for fashion editing)
         if not use_credits(user_id, 1, reason='Fashion image processing'):
             return jsonify({'error': 'Insufficient credits'}), 402
-            
-        # Get the image files
-        person_image = request.files['person_image']
-        cloth_image = request.files['cloth_image']
         
-        # Convert to BytesIO objects
-        person_bytes = BytesIO(person_image.read())
-        cloth_bytes = BytesIO(cloth_image.read())
+        # Create a request ID for tracking
+        request_id = str(uuid.uuid4())
         
-        # Process the images
-        result_image = models_fashion(person_bytes, cloth_bytes, cloth_type)
+        # Create a result image ID
+        result_image_id = str(uuid.uuid4())
         
-        # Send the processed image
-        result_image.seek(0)
-        return send_file(
-            result_image,
-            mimetype='image/jpeg',
-            as_attachment=False
+        # Insert into image_requests table
+        query = """
+            INSERT INTO image_requests (
+                id, request_id, source_image_id, theme_id, result_image_id, 
+                user_id, status, engine, created_at
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            RETURNING id
+        """
+        image_request_id = str(uuid.uuid4())
+        execute_query(
+            query, 
+            (
+                image_request_id, 
+                request_id, 
+                source_image_id, 
+                theme_id, 
+                result_image_id, 
+                user_id, 
+                'new', 
+                'fashion'
+            )
         )
+        
+        # Return success response with request ID and status
+        return jsonify({
+            'request_id': request_id,
+            'result_image_id': result_image_id,
+            'status': 'new'
+        })
             
     except Exception as e:
         logger.error(f"Error in fashion image processing: {str(e)}")
         return jsonify({'error': f'Error in fashion image processing: {str(e)}'}), 500
+
+@app.route('/api/theme', methods=['POST'])
+def create_theme():
+    """
+    Create a new theme for a clothing item.
+    
+    Request should contain:
+    - 'image': The image file of the clothing
+    - 'type': The type of clothing ('upper_body', 'lower_body', 'dress', etc.)
+    - 'user_id': The user ID
+    
+    Returns:
+        JSON with theme_id
+    """
+    try:
+        logger.info("Received request to /api/theme")
+        
+        # Extract parameters from request
+        user_id = request.form.get('user_id')
+        cloth_type = request.form.get('type', 'upper_body')
+        
+        # Validate required parameters
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+            
+        # Check if an image file was uploaded
+        if 'image' not in request.files:
+            return jsonify({'error': 'Missing image file'}), 400
+            
+        image_file = request.files['image']
+        logger.info(f"Received theme image file: {image_file.filename}")
+        
+        # Read image data
+        image_data = image_file.read()
+        
+        # Create metadata with image data
+        metadata = {
+            'image': image_data.hex(),  # Store binary image as hex string
+            'mime_type': 'image/jpeg',
+            'type': cloth_type
+        }
+        
+        # Generate a theme ID
+        theme_id = str(uuid.uuid4())
+        
+        # Insert theme into database
+        query = """
+            INSERT INTO themes (id, name, theme, metadata, type, public, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            RETURNING id
+        """
+        execute_query(
+            query, 
+            (
+                theme_id,
+                '',  # Empty name
+                '',  # Empty theme
+                json.dumps(metadata),
+                'user_upload',
+                False  # Not public
+            )
+        )
+        logger.info(f"Created theme with ID: {theme_id}")
+        
+        return jsonify({
+            'theme_id': theme_id
+        })
+            
+    except Exception as e:
+        logger.error(f"Error creating theme: {str(e)}")
+        return jsonify({'error': f'Error creating theme: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)
