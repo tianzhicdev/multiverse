@@ -94,7 +94,7 @@ class NetworkService {
     func uploadToCreateAPI(sourceImageID: String, userID: String, userDescription: String, numThemes: Int, album: String = "default") async throws -> [String: Any] {
         let timestamp = Date()
         logger.info("Starting upload to /api/roll with userID: \(userID) at \(timestamp)")
-        let createURL = URL(string: "\(domain)/api/roll")!
+        let createURL = URL(string: "\(domain)/api/roll/test")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
         

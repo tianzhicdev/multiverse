@@ -28,11 +28,16 @@ struct StoreView: View {
     
     var body: some View {
         ZStack {
-            // Add universe background image
-            Image("universe")
-                .resizable()
-                .scaledToFill()
-                .edgesIgnoringSafeArea(.all)
+            // Universe background with reduced opacity for better readability
+            // Image("universe")
+            //     .resizable()
+            //     .scaledToFill()
+            //     .opacity(0.8)
+            //     .edgesIgnoringSafeArea(.all)
+            
+            // // Overlay with semi-transparent black to improve contrast
+            // Color.black.opacity(0.3)
+            //     .edgesIgnoringSafeArea(.all)
             
             VStack {
                 HStack {
@@ -135,7 +140,7 @@ struct StoreView: View {
                     }
                 }
             }
-            .background(Color(.systemBackground).opacity(0.7))
+            .background(Color(.systemBackground).opacity(0.4))
             .cornerRadius(15)
             .padding()
         }

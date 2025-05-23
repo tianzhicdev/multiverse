@@ -77,8 +77,8 @@ struct LandingView: View {
                     )
                     .frame(width: 200, height: 200)
                     .onChange(of: sourceImageID) { oldValue, newValue in
-                        if oldValue == nil && newValue != nil {
-                            // Image was just uploaded, show description popup
+                        if newValue != nil {
+                            // Show description popup whenever image changes
                             showDescriptionPopup = true
                         }
                     }
@@ -135,9 +135,13 @@ struct LandingView: View {
                             }
                         }
                         .frame(width: 70, height: 70)
-                        .background(Color.blue)
+                        .background(Color.clear)
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.green, lineWidth: 1)
+                        )
                     }
                     .disabled(sourceImageID == nil || isSearching || isUploading)
                     .padding(.bottom, 20)
@@ -179,60 +183,43 @@ struct LandingView: View {
                     }
                 }
                 .padding()
-                
-                // Description Popup
-                if showDescriptionPopup {
-                    ZStack {
-                        Color.black.opacity(0.4)
-                            .edgesIgnoringSafeArea(.all)
-                        
-                        VStack(spacing: 16) {
-                            Text("Describe the focus of your image")
-                                .font(.headline)
-                            
-                            TextEditor(text: $user_description)
-                                .frame(height: 100)
-                                .padding(4)
-                                .background(Color(.systemBackground))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                            
-                            HStack(spacing: 20) {
-                                Button("Skip") {
-                                    showDescriptionPopup = false
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color.gray.opacity(0.2))
-                                .foregroundColor(.primary)
-                                .cornerRadius(8)
-                                
-                                Button("Submit") {
-                                    showDescriptionPopup = false
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                            }
-                        }
-                        .padding(24)
-                        .background(Color(.systemBackground))
-                        .cornerRadius(16)
-                        .shadow(radius: 10)
-                        .padding(40)
-                    }
-                }
             }
             // Error alert that appears when showError is true
             .alert("Error", isPresented: $showError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(errorMessage)
+            }
+            // Add sheet presentation for the description popup
+            .sheet(isPresented: $showDescriptionPopup) {
+                VStack(spacing: 20) {
+                    Text("Describe the focus of your image")
+                        .font(.headline)
+                    
+                    TextField("Description", text: $user_description, axis: .vertical)
+                        .lineLimit(4...)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                    
+                    HStack {
+                        Button("Cancel") {
+                            showDescriptionPopup = false
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Spacer()
+                        
+                        Button("Submit") {
+                            showDescriptionPopup = false
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+                .padding()
+                .presentationDetents([.height(250)])
+                .presentationDragIndicator(.visible)
             }
             // Navigation to BoxGridView when showBoxGrid becomes true
             .navigationDestination(isPresented: $showBoxGrid) {

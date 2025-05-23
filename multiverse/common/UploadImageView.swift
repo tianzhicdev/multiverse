@@ -56,22 +56,26 @@ struct UploadImageView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: imageHeight)
                 .background(Color.gray.opacity(0.2))
-                .cornerRadius(8)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.green, lineWidth: 1)
                 )
                 .onTapGesture {
                     showSourceSelection = true
                 }
             } else {
                 // If no image is selected, show a placeholder
-                Label(placeholder, systemImage: "photo")
+                Image(systemName: "square.and.arrow.up")
                     .frame(maxWidth: .infinity)
                     .frame(height: imageHeight)
                     .background(Color.gray.opacity(0.2))
-                    .cornerRadius(8)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.green, lineWidth: 1)
+                    )
                     .onTapGesture {
                         showSourceSelection = true
                     }

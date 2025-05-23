@@ -46,11 +46,16 @@ struct BoxGridView: View {
             let boxHeight = cellWidth / 0.67
             
             ZStack {
-                // Add universe background image
-                Image("universe")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.all)
+                // Universe background with reduced opacity for better readability
+                // Image("universe")
+                //     .resizable()
+                //     .scaledToFill()
+                //     .opacity(0.8)
+                //     .edgesIgnoringSafeArea(.all)
+                
+                // // Overlay with semi-transparent black to improve contrast
+                // Color.black.opacity(0.3)
+                //     .edgesIgnoringSafeArea(.all)
                 
                 VStack {
                     
@@ -127,7 +132,8 @@ struct BoxGridView: View {
                 .padding(.horizontal)
                 .padding(.top, 10)
                 }
-                .background(Color(.systemBackground).opacity(0.2))
+                // Remove the semi-transparent background from VStack
+                // as we've added a better contrast layer in the ZStack
             }
             
         }
