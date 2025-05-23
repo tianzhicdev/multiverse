@@ -3,13 +3,12 @@ import PhotosUI
 
 struct FittingRoomView: View {
     // State for person image
-    @State private var selectedPersonImage: PhotosPickerItem?
     @State private var personImageData: Data?
     @State private var personImageID: String?
     
     // State for clothing image
-    @State private var selectedClothImage: PhotosPickerItem?
     @State private var clothImageData: Data?
+    @State private var clothingImageID: String?
     @State private var themeID: String?
     
     // State for cloth type selection
@@ -33,30 +32,12 @@ struct FittingRoomView: View {
                         Text("Select Person Image")
                             .font(.headline)
                         
-                        PhotosPicker(selection: $selectedPersonImage, matching: .images) {
-                            if let personImageData = personImageData,
-                               let uiImage = UIImage(data: personImageData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 200)
-                                    .cornerRadius(8)
-                            } else {
-                                Label("Select Person Image", systemImage: "person")
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 200)
-                                    .background(Color.gray.opacity(0.2))
-                                    .cornerRadius(8)
-                            }
-                        }
-                        .onChange(of: selectedPersonImage) { _, newItem in
-                            Task {
-                                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                    personImageData = data
-                                    personImageID = nil // Reset ID when new image is selected
-                                }
-                            }
-                        }
+                        UploadImageView(
+                            imageData: $personImageData,
+                            imageID: $personImageID,
+                            placeholder: "Select Person Image",
+                            imageHeight: 200
+                        )
                     }
                     
                     // Clothing image picker
@@ -64,28 +45,15 @@ struct FittingRoomView: View {
                         Text("Select Clothing Image")
                             .font(.headline)
                         
-                        PhotosPicker(selection: $selectedClothImage, matching: .images) {
-                            if let clothImageData = clothImageData,
-                               let uiImage = UIImage(data: clothImageData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 200)
-                                    .cornerRadius(8)
-                            } else {
-                                Label("Select Clothing Image", systemImage: "tshirt")
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 200)
-                                    .background(Color.gray.opacity(0.2))
-                                    .cornerRadius(8)
-                            }
-                        }
-                        .onChange(of: selectedClothImage) { _, newItem in
-                            Task {
-                                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                    clothImageData = data
-                                    themeID = nil // Reset ID when new image is selected
-                                }
+                        UploadImageView(
+                            imageData: $clothImageData,
+                            imageID: $clothingImageID,
+                            placeholder: "Select Clothing Image",
+                            imageHeight: 200
+                        )
+                        .onChange(of: clothingImageID) { _, newID in
+                            if let newID = newID {
+                                createFashionTheme(clothingImageID: newID)
                             }
                         }
                     }
@@ -101,6 +69,11 @@ struct FittingRoomView: View {
                             }
                         }
                         .pickerStyle(SegmentedPickerStyle())
+                        .onChange(of: selectedClothType) { _, _ in
+                            if let imageID = clothingImageID {
+                                createFashionTheme(clothingImageID: imageID)
+                            }
+                        }
                     }
                     
                     // Submit button
@@ -126,7 +99,7 @@ struct FittingRoomView: View {
                                 .cornerRadius(8)
                         }
                     }
-                    .disabled(isProcessing || personImageData == nil || clothImageData == nil)
+                    .disabled(isProcessing || personImageID == nil || themeID == nil)
                     
                     // Result status
                     if let requestStatus = requestStatus {
@@ -158,8 +131,25 @@ struct FittingRoomView: View {
         }
     }
     
+    private func createFashionTheme(clothingImageID: String) {
+        Task {
+            do {
+                themeID = try await NetworkService.shared.createFashionTheme(
+                    imageID: clothingImageID,
+                    type: selectedClothType,
+                    userID: UserManager.shared.getCurrentUserID()
+                )
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to create fashion theme: \(error.localizedDescription)"
+                    showError = true
+                }
+            }
+        }
+    }
+    
     private func submitImages() {
-        guard let personData = personImageData, let clothData = clothImageData else {
+        guard let sourceImageID = personImageID, let clothThemeID = themeID else {
             errorMessage = "Please select both person and clothing images"
             showError = true
             return
@@ -169,28 +159,7 @@ struct FittingRoomView: View {
         
         Task {
             do {
-                // Step 1: Upload person image if not already uploaded
-                if personImageID == nil {
-                    personImageID = try await NetworkService.shared.uploadImage(
-                        imageData: personData,
-                        userID: UserManager.shared.getCurrentUserID()
-                    )
-                }
-                
-                // Step 2: Create theme for clothing if not already created
-                if themeID == nil {
-                    themeID = try await NetworkService.shared.createTheme(
-                        imageData: clothData,
-                        type: selectedClothType,
-                        userID: UserManager.shared.getCurrentUserID()
-                    )
-                }
-                
-                // Step 3: Start the fashion request
-                guard let sourceImageID = personImageID, let clothThemeID = themeID else {
-                    throw NSError(domain: "FittingRoom", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to get image IDs"])
-                }
-                
+                // Start the fashion request
                 let response = try await NetworkService.shared.startFashionRequest(
                     sourceImageID: sourceImageID,
                     themeID: clothThemeID,

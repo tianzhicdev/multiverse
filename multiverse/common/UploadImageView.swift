@@ -1,0 +1,218 @@
+import SwiftUI
+import PhotosUI
+
+struct UploadImageView: View {
+    // Binding for the selected image data
+    @Binding var imageData: Data?
+    
+    // Binding for the uploaded image ID
+    @Binding var imageID: String?
+    
+    // Optional placeholder text
+    var placeholder: String
+    
+    // Optional image height
+    var imageHeight: CGFloat
+    
+    // States for uploading process
+    @State private var isUploading = false
+    @State private var showError = false
+    @State private var errorMessage = ""
+    
+    // Camera availability state
+    @State private var isCameraAvailable = UIImagePickerController.isSourceTypeAvailable(.camera)
+    
+    // Initialize with default values
+    init(
+        imageData: Binding<Data?>,
+        imageID: Binding<String?>,
+        placeholder: String = "Select Image",
+        imageHeight: CGFloat = 200
+    ) {
+        self._imageData = imageData
+        self._imageID = imageID
+        self.placeholder = placeholder
+        self.imageHeight = imageHeight
+    }
+    
+    var body: some View {
+        VStack {
+            // Image display area
+            if let imageData = imageData, 
+               let uiImage = UIImage(data: imageData) {
+                // If an image is selected, display it
+                ZStack {
+                    Color.clear
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .aspectRatio(contentMode: .fill)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: imageHeight)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(8)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                )
+            } else {
+                // If no image is selected, show a placeholder
+                Label(placeholder, systemImage: "photo")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: imageHeight)
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
+            }
+            
+            // Image source buttons
+            HStack {
+                // Photo Library Button
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    Label("Library", systemImage: "photo.on.rectangle")
+                        .frame(maxWidth: .infinity)
+                        .padding(8)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                
+                // Camera Button (if available)
+                if isCameraAvailable {
+                    Button(action: {
+                        isShowingCamera = true
+                    }) {
+                        Label("Camera", systemImage: "camera")
+                            .frame(maxWidth: .infinity)
+                            .padding(8)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .sheet(isPresented: $isShowingCamera) {
+                        CameraView(imageData: $imageData, onCapture: uploadImage)
+                    }
+                }
+            }
+            
+            // Upload status
+            if isUploading {
+                HStack {
+                    ProgressView()
+                    Text("Uploading...")
+                }
+                .padding(.top, 5)
+            }
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+    }
+    
+    // MARK: - Private Properties
+    
+    // Selected photo item
+    @State private var selectedItem: PhotosPickerItem? {
+        didSet {
+            handleSelectedItem()
+        }
+    }
+    
+    // Camera view state
+    @State private var isShowingCamera = false
+    
+    // MARK: - Private Methods
+    
+    private func handleSelectedItem() {
+        guard let item = selectedItem else { return }
+        
+        Task {
+            if let data = try? await item.loadTransferable(type: Data.self) {
+                await MainActor.run {
+                    self.imageData = data
+                }
+                uploadImage()
+            }
+        }
+    }
+    
+    private func uploadImage() {
+        guard let data = imageData else { return }
+        
+        Task {
+            await MainActor.run {
+                isUploading = true
+            }
+            
+            do {
+                // Preprocess image
+                guard let processedData = ImagePreprocessor.preprocessImage(data) else {
+                    throw NSError(domain: "ImageProcessingError", 
+                                code: -1, 
+                                userInfo: [NSLocalizedDescriptionKey: "Failed to preprocess image"])
+                }
+                
+                // Upload image
+                let uploadedID = try await NetworkService.shared.uploadImage(
+                    imageData: processedData,
+                    userID: UserManager.shared.getCurrentUserID()
+                )
+                
+                await MainActor.run {
+                    imageID = uploadedID
+                    isUploading = false
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to upload image: \(error.localizedDescription)"
+                    showError = true
+                    isUploading = false
+                }
+            }
+        }
+    }
+}
+
+// Camera view for taking photos
+struct CameraView: UIViewControllerRepresentable {
+    @Binding var imageData: Data?
+    var onCapture: () -> Void
+    
+    @Environment(\.presentationMode) private var presentationMode
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: CameraView
+        
+        init(_ parent: CameraView) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.imageData = image.jpegData(compressionQuality: 0.8)
+                parent.onCapture()
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+} 

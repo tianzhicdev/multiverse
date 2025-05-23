@@ -7,8 +7,6 @@ struct LandingView: View {
     
     @State private var isDebugMode: Bool = false
     
-    @State private var selectedImage: PhotosPickerItem?
-
     @State private var imageData: Data?
     
     @State private var sourceImageID: String?
@@ -58,59 +56,13 @@ struct LandingView: View {
                     .padding(.bottom, 10)
                 }
                 
-                PhotosPicker(selection: $selectedImage, matching: .images) {
-                    if let imageData = imageData,
-                        let uiImage = UIImage(data: imageData) {
-                        // If an image is selected, display it
-                        ZStack {
-                            Color.clear // Background to ensure clipping works
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .aspectRatio(contentMode: .fill)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(maxHeight: 200)
-                        .background(Color.gray.opacity(0.2))  // Light gray background
-                        .cornerRadius(8)            // Rounded corners
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
-                    } else {
-                        // If no image is selected, show a placeholder
-                        Label("Select Image", systemImage: "photo")
-                            .frame(maxWidth: .infinity)  // Takes full width
-                            .frame(height: 200)          // Sets height
-                            .background(Color.gray.opacity(0.2))  // Light gray background
-                            .cornerRadius(8)            // Rounded corners
-                    }
-                }
-                .onChange(of: selectedImage) { _, newValue in
-                    Task {
-                        if let data = try? await newValue?.loadTransferable(type: Data.self) {
-                            imageData = data
-                            isUploading = true
-                            do {
-                                guard let processedData = ImagePreprocessor.preprocessImage(data) else {
-                                    throw NSError(domain: "ImageProcessingError", 
-                                                 code: -1, 
-                                                 userInfo: [NSLocalizedDescriptionKey: "Failed to preprocess image"])
-                                }
-                                
-                                sourceImageID = try await NetworkService.shared.uploadImage(
-                                    imageData: processedData,
-                                    userID: UserManager.shared.getCurrentUserID()
-                                )
-                            } catch {
-                                errorMessage = "Failed to upload image: \(error.localizedDescription)"
-                                showError = true
-                            }
-                            isUploading = false
-                        }
-                    }
-                }
+                // Replace PhotosPicker with UploadImageView
+                UploadImageView(
+                    imageData: $imageData,
+                    imageID: $sourceImageID,
+                    placeholder: "Select Image",
+                    imageHeight: 200
+                )
                 
                 // Text input field for user to enter text
                 ZStack(alignment: .topLeading) {
@@ -177,8 +129,8 @@ struct LandingView: View {
                     }
                 }) {
                     HStack {
-                        if isUploading {
-                            Text("Uploading")
+                        if isSearching {
+                            Text("Searching")
                             ProgressView()
                         } else {
                             Text("Discover 10x")
@@ -191,7 +143,7 @@ struct LandingView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-                .disabled(isUploading || sourceImageID == nil)  
+                .disabled(sourceImageID == nil)  
                 
                 // Debug buttons that only appear when isDebugMode is true
                 if isDebugMode {

@@ -663,5 +663,85 @@ def upload_fashion_theme():
         logger.error(f"Error creating theme: {str(e)}")
         return jsonify({'error': f'Error creating theme: {str(e)}'}), 500
 
+@app.route('/api/fashion_theme_from_id', methods=['POST'])
+def upload_fashion_theme_from_id():
+    """
+    Create a new theme for a clothing item using an already uploaded image.
+    
+    Request should contain:
+    - 'image_id': The ID of the already uploaded image
+    - 'type': The type of clothing ('upper_body', 'lower_body', 'dress', etc.)
+    - 'user_id': The user ID
+    
+    Returns:
+        JSON with theme_id
+    """
+    try:
+        logger.info("Received request to /api/fashion_theme_from_id")
+        
+        # Parse JSON request
+        request_data = request.get_json()
+        if not request_data:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
+        # Extract parameters from request
+        image_id = request_data.get('image_id')
+        user_id = request_data.get('user_id')
+        cloth_type = request_data.get('type', 'upper_body')
+        
+        # Validate required parameters
+        if not image_id:
+            return jsonify({'error': 'Missing image_id parameter'}), 400
+        if not user_id:
+            return jsonify({'error': 'Missing user_id parameter'}), 400
+            
+        # Fetch the image data from the images table
+        query = "SELECT data, mime_type FROM images WHERE id = %s AND user_id = %s"
+        image_result = execute_query(query, (image_id, user_id))
+        
+        if not image_result:
+            return jsonify({'error': 'Image not found or access denied'}), 404
+            
+        # Get image data and mime_type
+        image_data, mime_type = image_result[0]
+        
+        # Create metadata with image data
+        metadata = {
+            'image': image_data.hex(),  # Store binary image as hex string
+            'mime_type': mime_type,
+            'type': cloth_type,
+            'source_image_id': image_id  # Store reference to original image
+        }
+        
+        # Generate a theme ID
+        theme_id = str(uuid.uuid4())
+        
+        # Insert theme into database
+        query = """
+            INSERT INTO themes (id, name, theme, metadata, type, public, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            RETURNING id
+        """
+        execute_query(
+            query, 
+            (
+                theme_id,
+                '',  # Empty name
+                '',  # Empty theme
+                json.dumps(metadata),
+                'user_upload',
+                False  # Not public
+            )
+        )
+        logger.info(f"Created theme with ID: {theme_id} from image ID: {image_id}")
+        
+        return jsonify({
+            'theme_id': theme_id
+        })
+            
+    except Exception as e:
+        logger.error(f"Error creating theme from image ID: {str(e)}")
+        return jsonify({'error': f'Error creating theme from image ID: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLASK_PORT)

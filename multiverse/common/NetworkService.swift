@@ -992,4 +992,52 @@ class NetworkService {
             throw error
         }
     }
+    
+    // Add a new method to create a fashion theme using imageID instead of imageData
+    func createFashionTheme(imageID: String, type: String, userID: String) async throws -> String {
+        logger.info("Creating fashion theme with imageID: \(imageID), type: \(type)")
+        
+        let createThemeURL = URL(string: "\(domain)/api/fashion_theme_from_id")!
+        var request = URLRequest(url: createThemeURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody: [String: Any] = [
+            "image_id": imageID,
+            "type": type,
+            "user_id": userID
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Invalid response type")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                logger.error("Server returned error: \(errorMessage) (Status: \(httpResponse.statusCode))")
+                throw NSError(domain: "NetworkError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+            }
+            
+            // Parse and return the theme_id
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+               let jsonDict = jsonObject as? [String: Any],
+               let themeID = jsonDict["theme_id"] as? String {
+                logger.info("Successfully created fashion theme with ID: \(themeID)")
+                return themeID
+            } else {
+                logger.error("Invalid JSON response or missing theme_id field")
+                throw NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response or missing theme_id field"])
+            }
+        } catch {
+            logger.error("Failed to create fashion theme: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 
