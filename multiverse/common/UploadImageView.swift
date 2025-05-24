@@ -14,6 +14,9 @@ struct UploadImageView: View {
     // Optional image height
     var imageHeight: CGFloat
     
+    // Image opacity after selection
+    var imageOpacity: Double
+    
     // States for uploading process
     @Binding var isUploading: Bool
     @State private var showError = false
@@ -31,6 +34,7 @@ struct UploadImageView: View {
         imageID: Binding<String?>,
         placeholder: String = "Select Image",
         imageHeight: CGFloat = 200,
+        imageOpacity: Double = 1.0,
         isUploading: Binding<Bool> = .constant(false)
     ) {
         self._imageData = imageData
@@ -38,6 +42,7 @@ struct UploadImageView: View {
         self._isUploading = isUploading
         self.placeholder = placeholder
         self.imageHeight = imageHeight
+        self.imageOpacity = imageOpacity
     }
     
     var body: some View {
@@ -52,6 +57,7 @@ struct UploadImageView: View {
                         .resizable()
                         .scaledToFill()
                         .aspectRatio(contentMode: .fill)
+                        .opacity(imageOpacity)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: imageHeight)

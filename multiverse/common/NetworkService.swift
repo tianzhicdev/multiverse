@@ -2,8 +2,8 @@ import Foundation
 import os.log
 
 class NetworkService {
-    // private let domain = "https://multiverse.for-better.biz"
-    private let domain = "https://favorite-lions.metalseed.net"
+    private let domain = "https://multiverse.for-better.biz"
+    // private let domain = "https://favorite-lions.metalseed.net"
     static let shared = NetworkService()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.multiverse", category: "NetworkService")
 
@@ -94,7 +94,7 @@ class NetworkService {
     func uploadToCreateAPI(sourceImageID: String, userID: String, userDescription: String, numThemes: Int, album: String = "default") async throws -> [String: Any] {
         let timestamp = Date()
         logger.info("Starting upload to /api/roll with userID: \(userID) at \(timestamp)")
-        let createURL = URL(string: "\(domain)/api/roll/test")!
+        let createURL = URL(string: "\(domain)/api/roll")!
         var request = URLRequest(url: createURL)
         request.httpMethod = "POST"
         

@@ -73,6 +73,7 @@ struct LandingView: View {
                         imageID: $sourceImageID,
                         placeholder: "Select Image",
                         imageHeight: 200,
+                        imageOpacity: 0.5,
                         isUploading: $isUploading
                     )
                     .frame(width: 200, height: 200)
